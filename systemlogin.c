@@ -9,6 +9,11 @@
 #include <fcntl.h>
 
 int my_strcmp(char *,char *);
+void input(char *,char *);
+
+
+
+int a1,a2,b1,b2;
 
 void main(int argc,char **argv)
 {
@@ -17,7 +22,8 @@ void main(int argc,char **argv)
 		printf("Usage : [./a.out] [192.168.1._] [192.168.1._] = [./a.out] [ __.__.__.-- ]  [ __.__.__.-- ]\n");
 		return;
 	}	
-	int i = atoi(argv[2]),j = atoi(argv[1]);
+	input(argv[1],argv[2]);
+//	int i = atoi(argv[2]),j = atoi(argv[1]);
 	printf("\t\t***********%d*********\n\n\n",getpid());
 
 	for(  ; j <= i  ; j++ )
@@ -40,6 +46,8 @@ void main(int argc,char **argv)
 			}
 
 			sprintf(str,"ping -c 2 192.168.1.%d",j);
+			//			write(i,str,strlen(str));
+			//			write(i,"\n\nARAVIND KOTHAMASU\n\n\n",strlen("\n\nARAVIND KOTHAMASU\n\n\n"));
 
 			if ( system(str) == -1)
 			{
@@ -97,4 +105,13 @@ int my_strcmp(char *buf,char *p)
 		}
 	}		
 	return -1;
+}
+
+
+void input(char *p,char *q)
+{
+
+
+
+
 }
