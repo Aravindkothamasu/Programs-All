@@ -17,17 +17,18 @@ int a1,a2,b1,b2;
 
 void main(int argc,char **argv)
 {
+	int i,j,k;
 	if(argc != 3)	
 	{
 		printf("Usage : [./a.out] [192.168.1._] [192.168.1._] = [./a.out] [ __.__.__.-- ]  [ __.__.__.-- ]\n");
 		return;
 	}	
 	input(argv[1],argv[2]);
-//	int i = atoi(argv[2]),j = atoi(argv[1]);
 	printf("\t\t***********%d*********\n\n\n",getpid());
 
-	for(  ; j <= i  ; j++ )
-	{
+   for( i = a1 , j = b1; i <= a2  ; i++ , j=1 )
+	for (  ; ( (i < a2) ? ( (j<254) ? 1 : 0 ) : ( ( j <= b2 ) ? 1  : 0 ) );  j++  )
+//	    	 -----------  ////////// --  +++      ```````````  !!!  ^^^^   ......
 		if(!fork())
 		{
 			char str [40],buf[400];
@@ -36,18 +37,13 @@ void main(int argc,char **argv)
 			int Read  = open("Temp",O_RDONLY ,0664);
 			int fd = open("vurikay",O_APPEND | O_RDONLY | O_WRONLY | O_CREAT,0664);
 
-//			printf("Write = %d Read = %d fd = %d\n",Write,Read,fd);
-
 			if(Write < 0 || Read < 0 || fd < 0)
 			{
 				printf("*************Error in opening files****************\n\n");
-				scanf(" %[^\n]",buf);
 				return;
 			}
 
-			sprintf(str,"ping -c 2 192.168.1.%d",j);
-			//			write(i,str,strlen(str));
-			//			write(i,"\n\nARAVIND KOTHAMASU\n\n\n",strlen("\n\nARAVIND KOTHAMASU\n\n\n"));
+			sprintf(str,"ping -c 2 192.168.%d.%d",i,j);
 
 			if ( system(str) == -1)
 			{
@@ -58,33 +54,29 @@ void main(int argc,char **argv)
 
 
 			if( my_strcmp(buf,"ttl=64") == 0 )		
-				sprintf(buf,"192.168.1.%d -----------> Ubuntu\n",j);
+				sprintf(buf,"192.168.%d.%d -----------> Ubuntu\n",i,j);
 			else if ( my_strcmp(buf,"ttl=128") == 0 )     
-				sprintf(buf,"192.168.1.%d -----------> Windows\n",j);
+				sprintf(buf,"192.168.%d.%d -----------> Windows\n",i,j);
 			else if ( my_strcmp(buf,"ttl=55") == 0 )  
 				sprintf(buf,"%s Connected to internet \n",str); 
 			else if ( my_strcmp(buf,"ttl=52") == 0 )  
 				sprintf(buf,"%s Connected to internet \n",str);
 			else   
-				sprintf(buf,"192.168.1.%d -----------> Poweroff\n",j);
+				sprintf(buf,"192.168.%d.%d -----------> Poweroff\n",i,j);
 
 			write(fd,buf,strlen(buf));
 
 			bzero(str,sizeof(str));
 			bzero(buf,sizeof(buf));
 
-			close(Write);
-			close(Read);
-			close(fd);	
-			exit(0);		
-		}
-		else
-		{	
-			//system("date");
-			//wait(0);
-		}
+				close(Write);
+				close(Read);
+				close(fd);	
+				exit(0);		
+			}
+			else;
 
-	}
+      printf("\n\n\n\n Check the file [\"vurika\" ] in the same folder\n\n\n");
 }
 
 
@@ -110,8 +102,15 @@ int my_strcmp(char *buf,char *p)
 
 void input(char *p,char *q)
 {
+	int i,j;
 
+	for(i=0 ; p[i] != '.' ; i++)
+		a1 = a1*10+p[i]-48;
+	for(i++; p[i];i++)
+		b1 = b1*10+p[i]-48;
 
-
-
+	for(i=0;q[i] != '.';i++)
+		a2 = a2*10+q[i]-48;
+	for(i++; q[i] ; i++)
+		b2 = b2*10+q[i]-48;
 }
