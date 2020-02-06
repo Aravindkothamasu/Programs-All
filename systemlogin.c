@@ -40,8 +40,6 @@ void main(int argc,char **argv)
 			}
 
 			sprintf(str,"ping -c 2 192.168.1.%d",j);
-			//			write(i,str,strlen(str));
-			//			write(i,"\n\nARAVIND KOTHAMASU\n\n\n",strlen("\n\nARAVIND KOTHAMASU\n\n\n"));
 
 			if ( system(str) == -1)
 			{
