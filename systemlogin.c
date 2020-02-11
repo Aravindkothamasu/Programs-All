@@ -24,6 +24,7 @@ void main(int argc,char **argv)
 		return;
 	}	
 	input(argv[1],argv[2]);
+	printf("\n\tRange --- [192.168.%d.%d] - [192.168.%d.%d] ---\n",a1,b1,a2,b2);
 	printf("\t\t***********%d*********\n\n\n",getpid());
 
    for( i = a1 , j = b1; i <= a2  ; i++ , j=1 )
@@ -76,7 +77,7 @@ void main(int argc,char **argv)
 			}
 			else;
 
-      printf("\n\n\n\n Check the file [\"vurika\" ] in the same folder\n\n\n");
+      printf("\n\n\n\n Check the file [\"vurika\"] in the same folder\n\n\n");
 }
 
 
