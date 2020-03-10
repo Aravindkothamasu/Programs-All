@@ -1,0 +1,37 @@
+
+
+https://docs.opencv.org/4.0.0/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d			---  flags for video
+
+http://www.fourcc.org/codecs.php          			----   for fourcc codes
+
+
+http://www.codebind.com/python/opencv-python-tutorial-beginners-read-write-show-videos-camera-opencv/					----  code for video open
+
+import cv2
+
+
+cap = cv2.VideoCapture(0);      #like file descriptor
+
+fourcc = cv2.VideoWriter_fourcc(*'XVID')                #Opening the mode 
+
+out = cv2.VideoWriter('output.avi',fourcc,20.0,(640,480))
+
+
+while (cap.isOpened()):         #tests opened or not
+    ret,frame = cap.read()      #To read frame read() call
+    if ret == True :
+        print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))            #get the width of the capturing screen
+        print(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))           #get the height of the caturing screen
+
+        out.write(frame)                                    #Writing into the file class "out"
+
+        gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)               #to adjust the color and intensity ,etc.
+    cv2.imshow('frame',gray)                                    #lloback the frame ,we are reading
+
+    if cv2.waitKey(1) & 0xff == ord('q') :                      #if we press the key 'q' break the loop waitkey is to wait for infinite time
+        cv2.imwrite('erripuk.png',frame)
+        break;
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
