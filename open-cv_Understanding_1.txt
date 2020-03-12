@@ -1,0 +1,120 @@
+# draw graphical line
+"""
+#video 7
+
+import cv2
+import datetime
+cap = cv2.VideoCapture(0)
+
+print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+print(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+cap.set(3,720)
+cap.set(4,650)
+
+print(cap.get(3))
+print(cap.get(4))
+
+while (cap.isOpened()) :
+    ret,frame = cap.read()
+    if ret == True:
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        text = 'Aravind Kothamasu'
+        datet = str(datetime.datetime.now())
+        frame = cv2.putText(frame, datet,(10,50),font,1,(100,50,0),1,cv2.LINE_AA)
+        cv2.imshow('frame',frame)
+
+        if cv2.waitKey(1)&0xff == ord('q') :
+            break
+    else:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+#video 6
+import cv2
+
+cap = cv2.VideoCapture(0)
+
+print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+print(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+cap.set(3, 750)
+cap.set(4,750)
+
+print(cap.get(3))
+print(cap.get(4))
+
+while (cap.isOpened()):
+    ret,frame = cap.read()
+    if ret == True :
+        cv2.imshow('image',frame)
+        if cv2.waitKey(1)& 0xff == ord('q') :
+            break
+    else :
+        break
+
+
+
+cap.release()
+cv2.destroyAllWindows()
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+#video 5
+import numpy as np
+import cv2
+
+#img = cv2.imread('apple.jpg',1)
+# 0 - > black and white, 1-> color -1 -> ?
+img = np.zeros([512,512,3],np.uint8)
+
+
+img = cv2.line(img, (100,0),(605,500),(94,35,70),8)
+img = cv2.arrowedLine(img,(1000,0),(255,255),(255,0,0),5)
+
+img = cv2.rectangle(img,(184,100),(5,228),(0,255,0),-1 )
+img = cv2.circle(img,(255,255),50,(0,255,0),-1)
+font = cv2.FONT_HERSHEY_SIMPLEX
+img = cv2.putText(img,'Aravind',(70,250),font,3,(0,50,150),5,cv2.LINE_AA)
+# line function for
+# (img->on photo)
+# coordinates where to start
+# ( BGR ) we are using blue 254
+# thickness of line
+
+
+cv2.imshow('images',  img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()"""
