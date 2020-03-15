@@ -1,5 +1,251 @@
-# draw graphical line
 """
+
+#video 13
+#HSV for works on video
+
+import cv2
+import numpy as np
+
+def nothing():
+    pass
+
+cap =cv2.VideoCapture(0);
+cv2.namedWindow("Tracking")
+cv2.createTrackbar("LH" ,"Tracking" ,0 ,255 ,nothing)
+cv2.createTrackbar("LS" ,"Tracking" ,0 ,255 ,nothing)
+cv2.createTrackbar("LV" ,"Tracking" ,0 ,255 ,nothing)
+cv2.createTrackbar("UH" ,"Tracking" ,255 ,255 ,nothing)
+cv2.createTrackbar("US" ,"Tracking" ,255 ,255 ,nothing)
+cv2.createTrackbar("UV" ,"Tracking" ,255 ,255 ,nothing)
+
+
+
+while True:
+#    frame = cv2.imread('smarties.png')
+    _, frame = cap.read()
+    hsv = cv2.cvtColor(frame ,cv2.COLOR_BGR2HSV)
+
+    l_h = cv2.getTrackbarPos("LH", "Tracking")
+    l_s = cv2.getTrackbarPos("LS", "Tracking")
+    l_v = cv2.getTrackbarPos("LV", "Tracking")
+
+    u_h = cv2.getTrackbarPos("UH", "Tracking")
+    u_s = cv2.getTrackbarPos("US", "Tracking")
+    u_v = cv2.getTrackbarPos("UV", "Tracking")
+
+    l_b = np.array( [l_h ,l_s ,l_v]  )
+    u_b = np.array( [u_h ,u_s ,u_v]  )
+
+    mask = cv2.inRange(hsv ,l_b ,u_b)
+    res = cv2.bitwise_and(frame ,frame ,mask=mask)
+
+    cv2.imshow("frame" ,frame)
+    cv2.imshow("mask" ,mask)
+    cv2.imshow("res" ,res)
+
+    key = cv2.waitKey(1)
+    if key == 27:
+        break
+cap.release()
+cv2.destroyAllWindows()
+"""
+
+
+
+
+
+"""
+#video 13 HSV
+#picture 
+import cv2
+import numpy as np
+
+def nothing():
+    pass
+
+cv2.namedWindow("Tracking")
+cv2.createTrackbar("LH","Tracking",0,255,nothing)
+cv2.createTrackbar("LS","Tracking",0,255,nothing)
+cv2.createTrackbar("LV","Tracking",0,255,nothing)
+cv2.createTrackbar("UH","Tracking",255,255,nothing)
+cv2.createTrackbar("US","Tracking",255,255,nothing)
+cv2.createTrackbar("UV","Tracking",255,255,nothing)
+
+
+
+while True:
+    frame = cv2.imread('smarties.png')
+    hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+
+    l_h = cv2.getTrackbarPos("LH", "Tracking")
+    l_s = cv2.getTrackbarPos("LS", "Tracking")
+    l_v = cv2.getTrackbarPos("LV", "Tracking")
+
+    u_h = cv2.getTrackbarPos("UH", "Tracking")
+    u_s = cv2.getTrackbarPos("US", "Tracking")
+    u_v = cv2.getTrackbarPos("UV", "Tracking")
+
+    l_b = np.array( [l_h,l_s,l_v]  )
+    u_b = np.array( [u_h,u_s,u_v]  )
+    
+    mask = cv2.inRange(hsv,l_b,u_b)
+    res = cv2.bitwise_and(frame,frame,mask=mask)
+
+    cv2.imshow("frame",frame)
+    cv2.imshow("mask",mask)
+    cv2.imshow("res",res)
+
+    key = cv2.waitKey(1)
+    if key == 27:
+        break
+cv2.destroyAllWindows()
+
+"""
+
+
+
+
+
+
+
+
+"""
+#video 12
+#trackbar indication
+import cv2
+import numpy as np
+
+def nothing(x):
+    print(x)
+
+
+img = np.zeros((300,512,3),np.uint8)
+cv2.namedWindow('image')
+
+cv2.createTrackbar('B','image',0,255,nothing)
+cv2.createTrackbar('G','image',0,255,nothing)
+cv2.createTrackbar('R','image',0,255,nothing)
+
+switch = '0 : OFF\n 1:ON'
+cv2.createTrackbar(switch,'image',0,1,nothing)
+
+while (1):
+    cv2.imshow('image',img)
+    k = cv2.waitKey(1) & 0xff
+    if k == 27:
+        break
+    b = cv2.getTrackbarPos('B','image')
+    g = cv2.getTrackbarPos('G','image')
+    r = cv2.getTrackbarPos('R','image')
+    s = cv2.getTrackbarPos(switch,'image')
+    if s == 0:
+        img[:] = 0
+    else:
+        img[:] = [b,g,r]
+
+
+cv2.destroyAllWindows()
+"""
+
+
+"""
+#video 11
+#bitwise ANd ,OR,XOR,NOT operations
+
+
+import cv2
+import numpy as np
+
+img1 = np.zeros((255,500,3),np.uint8)
+img1 = cv2.rectangle(img1,(200,0),(300,100),(255,255,255),-1)
+
+
+img2 = np.zeros( (255,500,3),np.uint8)
+img2 = cv2.rectangle(img2,(0,0),(245,250),(10,10,10),-1)
+img2 = cv2.rectangle(img2,(0,0),(255,500),(255,255,255),-1)
+
+cv2.imwrite('erripuk.png',img2)
+
+#bitOr = cv2.bitwise_or(img2,img1)
+#bitAnd= cv2.bitwise_and(img2,img1)
+#bitXor = cv2.bitwise_xor(img1,img2)
+bitNt = cv2.bitwise_not(img1)
+
+
+cv2.imshow("img1",img1)
+cv2.imshow("img2",img2)
+#cv2.imshow('bitand',bitAnd)
+#cv2.imshow('itOR',bitOr)
+cv2.imshow('Xor',bitNt)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+"""
+
+"""
+#video 10
+#split,merge,resize
+import cv2
+import numpy as np
+
+img = cv2.imread('messi5.jpg')
+
+print(img.shape)
+print(img.size)
+print(img.dtype)
+b,g,r = cv2.split(img)
+img = cv2.merge((b,g,r))
+
+cv2.imshow('image',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+"""
+
+
+
+"""
+#Video 9
+#if mouse clicks draw a circle
+import cv2
+import numpy as np
+
+def click_event (event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        blue = img[x,y,0]
+        green = img[x,y,1]
+        red = img[x,y,2]
+        cv2.circle(img,(x,y),3,(0,0,255),-1)
+        mycolorImage = np.zeros((512,512,3),np.uint8)
+        mycolorImage[:] = [blue,green,red]
+        cv2.imshow('color',mycolorImage)
+
+
+def click_event(event,x,y,flags,param):
+    if event == cv2.EVENT_FLAG_LBUTTON:
+        cv2.circle(img,(x,y),3,(0,0,255),-1)
+        points.append((x,y))
+        if len(points) >= 2:
+            cv2.line(img,points[-1],points[-2],(255,0,0),5)
+        cv2.imshow('image',img)
+
+img = np.zeros((512,512,4),np.uint8)
+#img = cv2.imread('apple.jpg')
+cv2.imshow('image',img)
+points = []
+cv2.setMouseCallback('image',click_event)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+"""
+
+
+
+
+""""
+# draw graphical line
 #video 7
 
 import cv2
@@ -31,16 +277,8 @@ while (cap.isOpened()) :
 
 cap.release()
 cv2.destroyAllWindows()
+
 """
-
-
-
-
-
-
-
-
-
 
 
 
@@ -71,20 +309,10 @@ while (cap.isOpened()):
     else :
         break
 
-
-
 cap.release()
 cv2.destroyAllWindows()
 
 """
-
-
-
-
-
-
-
-
 
 
 
