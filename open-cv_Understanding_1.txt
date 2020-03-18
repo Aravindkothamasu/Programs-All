@@ -1,3 +1,134 @@
+
+""""""
+# Video 18
+# smoothing or bluring
+# All these are linear filer
+# homogenious filer -> All pixel contain equal weight ....kernel k = 1/(width of the kernel * Height of the kernel )
+
+# Low pass filter helps -> removing noices,buring the images
+# high pass filters -> Finding the edges in the images , Finding the ages
+# Gaussian filter  -> same as homogenous filter ,but the each pixel has diff weight among each other
+#                   |->  center has heiger weight but as long we go boundaries ,weight got decrease's
+#                   |-> Mainly to remove high freq noise
+
+# Median Filter  ->  something that rplace each pixel's value with the median of its neighboring pxels
+#               |-> this method dealing with "salt anf pepper noise
+
+# Bi-lateral Filter -> Noise removal ,while keeping the edge sharp
+
+
+"""
+Homogenous filter -> each has equal weight  |
+------------------                          |
+| 1 1 1 1 1 |                               |
+| 1 1 1 1 1 |                               |
+| 1 1 1 1 1 |
+| 1 1 1 1 1 |
+| 1 1 1 1 1 |
+------------------
+"""
+
+
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+
+img = cv2.imread('lena.jpg')
+img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)                   #matplotlib gives BGR
+
+kernel = np.ones((5,5),np.float32)/25                       # formula 1/5*5 = 1/25
+dst = cv2.filter2D(img, -1,kernel)                          # to blur the image , smoothen the edges ------- Homogenous
+blur = cv2.blur(img,(5,5))                                  #
+gblur = cv2.GaussianBlur(img,(5,5),0)                       # Gaussian filter
+median= cv2.medianBlur(img,5)                           # kernel size should be odd value except 1
+bilat= cv2.bilateralFilter(img,9,75,75)
+
+titles =['image','2D Convolution','blur','gblur','median','bilaterial']
+images = [img,dst,blur,gblur,median,bilat]
+
+for i in range(6):
+    plt.subplot(2,3,i+1),plt.imshow(images[i],'gray')
+    plt.title(titles[i])
+    plt.xticks([]),plt.yticks([])
+plt.show()
+
+
+
+
+
+
+
+"""
+#video 17
+#morphology techiniques
+
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+
+
+img = cv2.imread('smarties.png',cv2.IMREAD_GRAYSCALE)
+_, mask = cv2.threshold(img, 220, 255,cv2.THRESH_BINARY_INV)
+kernal = np.ones((5,5),np.uint8)                                    # For setting the ones or zeros in our image
+
+dilation = cv2.dilate(mask,kernal,iterations=2)                     # improves the binary image,for clarification (ardham kaka pothey ,run chesi chudu
+erosion = cv2.erode(mask,kernal, iterations=1)                      # removes the upper layer of the base image
+opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN,kernal)             # erosion followed by dilation (Applies the erosion on the base image ,after that dilation performs
+closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE,kernal)
+mg = cv2.morphologyEx(mask, cv2.MORPH_GRADIENT,kernal)
+th = cv2.morphologyEx(mask, cv2.MORPH_TOPHAT,kernal)
+
+titles = ['image','mask','dilation','erosion','opening','closing','mg','th']
+images = [img,mask,dilation,erosion,opening,closing,mg,th]
+
+for i in range(8):
+    plt.subplot(2,4,i+1),plt.imshow(images[i],'gray')
+    plt.title(titles[i])
+    plt.xticks([]),plt.yticks([])
+
+plt.show()
+"""
+
+
+
+
+
+"""
+#video 16
+#matplotlib used for ploting techinique 
+#to display multiple plots at the same image
+import cv2
+from matplotlib import pyplot as plt
+
+img = cv2.imread('gradient.png',-1)
+_,th1 = cv2.threshold(img,  50, 255, cv2.THRESH_BINARY)
+_,th2 = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY_INV)
+_,th3 = cv2.threshold(img, 127, 255, cv2.THRESH_TRUNC)
+_,th4 = cv2.threshold(img, 50, 255, cv2.THRESH_TOZERO)
+_,th5 = cv2.threshold(img, 50, 255, cv2.THRESH_TOZERO_INV)
+
+
+titles = ['Original Image','Binary','Binary_inv','Trunc','Tozero','tozero_inv']
+images = [img,th1,th2,th3,th4,th5]
+
+
+for i in range(6):
+    plt.subplot(2,3,i+1),plt.imshow(images[i],'gray')
+    plt.title(titles[i])
+    plt.xticks([]),plt.yticks([])
+
+#cv2.imshow('image',img)
+#img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+#plt.imshow(img)
+plt.show()
+
+#cv2.waitKey(0)
+#cv2.destroyAllWindows()
+
+
+"""
+
+
 """
 #Video 15
 #adapative threshold techinique
