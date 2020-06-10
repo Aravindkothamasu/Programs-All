@@ -1,10 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////////
+
 #include"rb_header.h"
 void create(B **ptr,int value)
 {
 	B *p=0;
-	int val=0,*dad=0;
-	B *AddPtr = 0;
-//	printf("===== Value %d =====\n",value);									//TODO Last lo add cheyalli
+	int val=1,*dad=0,i=1;
+	B *AddPtr = 0,*temp = 0;
+	
+//	printf("===== Value %x =====\n",ptr);									//TODO Last lo add cheyalli
 	if(!(*ptr)) 
 	{
 		(*ptr) = calloc(1,sizeof(B));
@@ -22,25 +25,38 @@ void create(B **ptr,int value)
 		( AddPtr->num > value) ? (dad = (int *)&(AddPtr->left)) : (dad =(int *)&(AddPtr->right));			//From Parent to exact location
 	
 		*dad = p;
-	//	PrintAddr(ptr);
-		val = check(p);
-	//	printf("Check %d\tvalue %d\n",val,p->num);
-		if( val == 1 )											//(child && daddie && pedha nanna ) == RED
+		temp = p;					
+		while(val)
 		{
-			printf("If check == 1 is for %d\n",p->num);
-			p->parent->parent->left->flag  = 0;					// daddie or pedha nanna ni BLACK
-			p->parent->parent->right->flag = 0;					// daddie or pedha nanna ni BLACK
-			if( p->parent->parent != (*ptr) ) 						//if Tatai is not ROOT
-				p->parent->parent->flag     = 1;					//Tatai ni RED		
+			val = check(temp);
+			temp = Violations(temp,ptr,val);
+			if(!temp)
+				break;
 		}
-		else	if( p->parent->flag == 1 )			{				// ( Child && daddie ) == RED ,and ! pedha nanna == BLACK	---> Rotation
-				printf("rotation: %d\n",p->num);
-				rotation(&p,ptr);
-		}
-		/*else if( val == 0 )
-			printf("Nothing-----%d\n",p->num);	*/
 	}
 }
+
+B * Violations(B *p,B **ptr,int val)
+{
+	B *temp = 0;
+	if(val == 1)
+		temp = AllRed(p,ptr);
+	else if(val == 2)
+		temp = rotation(p,ptr);
+	return temp;
+}
+
+
+
+B* AllRed(B *p,B**ptr)
+{
+	p->parent->parent->left->flag  = 0;					// daddie or pedha nanna ni BLACK
+	p->parent->parent->right->flag = 0;					// daddie or pedha nanna ni BLACK
+	if( p->parent->parent != (*ptr) ) 						//if Tatai is not ROOT
+		p->parent->parent->flag     = 1;					//Tatai ni RED		
+	return (p->parent->parent);
+}	
+
 
 int * filter (B *ptr,int bit,int value)									//'0' will return when there is same no. placed again
 {
@@ -63,3 +79,38 @@ int * filter (B *ptr,int bit,int value)									//'0' will return when there is 
 		return (int *)ptr;
 }
 
+int check(B *p)
+{
+	/*
+	 *	p = Manavaddu
+	 *	ptr = Daddie
+	 *	ptr->parent = Tatai
+	 *	 ptr->parent->(left | | right) = Pedha nanna
+	 */			 
+	B *ptr = p->parent;
+	if(!ptr || !(p->flag) )
+		return 0;
+	if(ptr->parent)										//Tatai vuntea
+	{
+		if( ptr->flag )									//Daddie RED aithey
+		{												//Means Parent & Child are "RED
+			if( ptr->parent->left == ptr )						//Daddie LEFT lo vuntea
+			{
+				if(ptr->parent->right)						//sibillings present
+					if( ptr->parent->right->flag )			//Pedha nanna is RED , ( RIGHT lo vunnadu )
+						return 1;							
+			}
+			else if( ptr->parent->right == ptr )				//Daddie right lo vunnadu
+			{
+				if(ptr->parent->left)						//sibillings present
+					if( ptr->parent-> left->flag )			//Pedha nanna is RED , ( LEFT lo vunnadu )
+						return 1;
+			}
+		}
+	}
+		
+	if(p->parent->flag)
+		return 2;
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////
