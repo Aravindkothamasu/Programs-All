@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////ROTATION.c///////////////////////////////////////////////////
 #include"rb_header.h"
 
 B* rotation(B *p,B **main)
@@ -9,7 +9,6 @@ B* rotation(B *p,B **main)
 	 *	temp->parent->(left | | right) = Pedha nanna	
 	We have to check,Weather to rotate left or right.	*/
 	
-//	printf("In Rotation %d\n",p->num);
 	B *temp = p->parent;
 	if(temp != (*main) )											//Daddie should not be root
 	{
@@ -17,7 +16,7 @@ B* rotation(B *p,B **main)
 		{
 			if    (  temp->parent->left == temp )						//Tatai-Daddie-child --> (Left ,Right)
 			{
-	//			printf("Rotation: 1st if Num: %d\n",p->num);
+		//		printf("Rotation: 1st if Num: %d\n",p->num);
 				p->parent = temp->parent;					
 				p->parent->left = p;
 				p->left = temp;
@@ -28,6 +27,7 @@ B* rotation(B *p,B **main)
 			}
 			else if(temp->parent->right == temp)						//Tatai-Parent-child --> (Right,Right)
 			{	
+		//		printf("Rotation : 2nd\n");
 				Rrotate(p->parent->parent,main);
 				return p->parent;
 			}
@@ -36,6 +36,7 @@ B* rotation(B *p,B **main)
 		{	
 			if ( temp->parent->left == temp)							//Tatai-Parent-child --> (Left ,Left)
 			{
+	//			printf("Rotation : 3rd\n");
 				Lrotate(p->parent->parent,main);
 				return ( p->parent );
 			}
@@ -80,9 +81,12 @@ void Lrotate(B *ptr,B **main)									//LEFT-LEFT
 		*main = Par;											//Tatai == root node
 		
 	ptr->parent = Par;											
-	if( ptr != *main )											//colours : 
-		ptr->flag = 1;											//Change Tatai only if ,he is not root node
-	Par->flag = 0;												//Parent Change to Black
+	
+	Par->flag = (Par->flag ) + ptr->flag - (ptr->flag = Par->flag);		//colours : 
+	//swap the flag colours
+	if( ptr == *main )		
+		ptr->flag = 0;											//Change Tatai only if ,he is not root node
+				
 }
 
 void Rrotate(B *ptr,B **main) 
@@ -108,10 +112,12 @@ void Rrotate(B *ptr,B **main)
 	if(ptr->right)
 		ptr->right->parent = ptr;
 	Par->left = ptr;
-	
-	if(ptr != *main)											//Colours:
-		ptr->flag =1;											//Change Tatai Only if he is not root node
-	Par->flag = 0; 												//Parent to Black
+
+	Par->flag = Par->flag + ptr->flag - (ptr->flag = Par->flag);			//Colours:
+	//swap the flag colours		
+	if(ptr == *main)										
+		ptr->flag =0;											//Change Tatai Only if he is not root node
+
 }
 
 
