@@ -3,9 +3,8 @@
 all:
 	rm -f RB.cv
 	cat rb_header.h > RB.cv
-	cat new.c >> RB.cv
-	cat creation.c >> RB.cv
-	cat rotation.c >> RB.cv
+	cat *.c >> RB.cv
 	time gcc -static *.c
 del:
-	rm -f a.out *.rb
+	rm -f a.out *.rb *.md *.cv
+cop:
