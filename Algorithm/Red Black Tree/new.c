@@ -1,11 +1,10 @@
-////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////NEW.c///////////////////////////////////////////////
 #include"rb_header.h"
 
 void main(int argc,char **argv)
 {
 	B *hptr = 0;														//TODO : '= 0' IMP
 	Parsing(argc,argv,&hptr);
-//	printf("\n\t----hptr = %x and *hptr = %x and &hptr = %x\n",hptr,*hptr,&hptr);
 }
 
 void Parsing(int argc,char **argv,B **hptr)
@@ -20,7 +19,7 @@ void Parsing(int argc,char **argv,B **hptr)
 			create(hptr,atoi(argv[i]));
 	else														
 		while(ch)
-			( (ch=input(&i) ) == 'y') ? ( create(hptr,i) ,PrintAddr(hptr) ): ( create(hptr,i) ,PrintAddr(hptr) , ch =0);	
+			( (ch=input(&i) ) == 'y') ? ( create(hptr,i) ,PrintAddr(hptr) ): ( create(hptr,i) , ch =0);	
 			
 	if(*hptr)
 	{
@@ -33,8 +32,10 @@ void string(B **hptr,char *p)
 {
 	if( !strcmp(p,"--help") || !strcmp(p,"-h"))
 		helpMsg();
-	else if( (p[0] == '-' ) && (p[1] == 'd' ) )
+	else if( !strcmp(p,"--dev") || !strcmp(p,"-d") )
 		Author();
+	else if( !strcmp(p,"--read") || !strcmp(p,"-r") )
+		ReadMe();
 	else if( (p[0] == '-' ) && (p[1] != 'd' ) )
 	{	
 		printf("\n\nUnknown Option....\n");
@@ -60,7 +61,7 @@ void File(B **hptr,char *FileName)
 
 void my_random(B **hptr,int num)
 {
-	int *arr=malloc(sizeof(int)*num);
+	int *arr=calloc(1,sizeof(int)*num);
 	int i;
 	srand(getpid());
 	
@@ -69,8 +70,6 @@ void my_random(B **hptr,int num)
 	printf("\n\n");	
 	for(i=0;i< num ;i++)													
 		create(hptr,arr[i] );
-	free(arr);
-
 }	
 	
 void CopytoFile(B **hptr)
@@ -85,8 +84,15 @@ void CopytoFile(B **hptr)
 		printf("\"%s\" file cannot able to create\n",Filename);
 		return;
 	}
+	fprintf(fd,"\n\t-------------------------------------------------------------------------------------------------\n");
+	fprintf(fd,"\t---------------------------		RB Tree Log Data		---------------------------------\n");
+	fprintf(fd,"\t-------------------------------------------------------------------------------------------------\n");
+
+//	DataInput(fd);
 	FilePrint(*hptr,fd);
-	fprintf(fd,"\n\n");
+
+	fprintf(fd,"\n\n\t\t*********************************************************\n");
+	fprintf(fd,"\n\t\t*********************************************************\n\n");
 	 FileAddr(hptr,fd);
 }
 
@@ -103,6 +109,7 @@ void FileAddr(B **p,FILE *fp)
 {
 	if((*p)->left)
 		FileAddr(& ( (*p)->left ) ,fp);
+		if( (*p)->num != -1)
 fprintf(fp,"(Addr : %4x)( Cal: %x ) ( P :%x ) ( L : %x )  ( R : %x ) ( N : %d) (Flg: %d)\n",p,*p,(*p)->parent,(*p)->left,(*p)->right,(*p)->num,(*p)->flag);	
 	if( (*p)->right)
 		FileAddr(& ( (*p)->right),fp );	
@@ -146,6 +153,7 @@ void PrintAddr(B **p)
 
 void OnlyAdd(B **p)
 {
+//	if( (*p)->num != -1 )
 	printf("(Addr : %x)( Cal: %x ) ( P :%x ) ( L : %x )  ( R : %x ) ( N : %d) (Flg: %d)\n",p,*p,(*p)->parent,(*p)->left,(*p)->right,(*p)->num,(*p)->flag);
 }
 
@@ -153,7 +161,8 @@ void print(B *p)
 {
 	if(p->left)
 		print(p->left);
-	printf("%d\t",p->num);		
+	if( p->num != -1 )
+		printf("%d\t",p->num);		
 	if(p->right)
 		print(p->right);
 }
@@ -170,31 +179,6 @@ char input(int *p)
 }
 
 
-void deletion(B **hptr,int value)										//TODO :
-{
-	int *Addr = Addr_search(hptr,value);
-	B *node = (*Addr);
-	if(!node)
-	{
-		printf("\n--> %d value not found\n",value);
-		return;
-	}
-
-	printf("\n\t%d found ...Addr : %x , value in that %x\n",value,Addr,node);	
-	if (!(node->right) && (!(node->left))  )
-	{
-		printf("No children\n");
-		( node->parent->left == node ) ? ( node->parent->left = 0 ) :  (node->parent->right = 0);
-		free(node);
-	}
-	else
-	{
-		
-	
-	
-	
-	}	
-}
 
 int * Addr_search(B **hptr,int value)
 {
@@ -244,7 +228,8 @@ void helpMsg(void)
         printf("    Line of No's  :  Create tree as u given the sequence of numbers eg : [./a.out] [15] [54] [5656] [256] .\n");
         printf("    Manual\t  :  if u want to give numbering one-by-one ,give simply [./a.out].\n");
         printf("    --help\t  :  To display the same page again.  (or) -h\n");
-        printf("    --read\t  : \n");
+        printf("    --dev\t  :  To know about developer  [./a.out]  [--dev / -d] \n");    
+        printf("    --read\t  :  Generates \"README.md\" ,helps you to understanding about this great prestegious project... [./a.out] [--read/-r]\n");
 }
 
 char NextEnti(B **hptr)
