@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////CREATION.c////////////////////////////////////////////////
 
 #include"rb_header.h"
 void create(B **ptr,int value)
@@ -6,8 +6,6 @@ void create(B **ptr,int value)
 	B *p=0;
 	int val=1,*dad=0,i=1;
 	B *AddPtr = 0,*temp = 0;
-	
-//	printf("===== Value %x =====\n",ptr);									//TODO Last lo add cheyalli
 	if(!(*ptr)) 
 	{
 		(*ptr) = calloc(1,sizeof(B));
@@ -112,5 +110,27 @@ int check(B *p)
 	if(p->parent->flag)
 		return 2;
 	return 0;
+}
+
+void ReadMe(void)
+{
+	char *p="\t\t\t\t\t\t---------------------------------------------------------------------------------\n\t\t\t\t\t\t--------------------------    Red Black Tree    -------------------------------\n\t\t\t\t\t\t---------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tBy :  Kothamasu Aravind\n\n\tRed Black Treee Implementation :\n\t--------------------------------------\n\t\t. Implementation of RB tree ,creating a tree contains numericals ,in a sorted array format.\n\t\t. You can just run the executable file, with necessary options.\n\t\t. if need help to figure ,how to run just type [./a.out ] [--help], It displays the help message.\n\t\t. To generate executablefile,run Makefile ie., $make.\n\t\t. To develop,all the code it takes around 15days(challa kasthapadda).\n\t\t. To develop,all the code it takes around 15days(challa kasthapadda).\n\t\t. Files need to compile :\n\t\t\t\t. creation.c	--\\\n\t\t\t\t. deletion.c	----\\__________	vietiannitiki \"rb_header.h\" kavalli\n\t\t\t\t. new.c		----/\n\t\t\t\t. rotation.c	--/\n\t\t. [./a.out] [--help] anni kanipistai.\n\t\t. Dout's vuntea [./a.out] [--dev].";
+	
+	
+	
+	
+	int fd = open("README.md",O_RDWR | O_CREAT | O_TRUNC,0664);
+	if(fd < 0)
+	{
+		printf("\n\tCan't able to generate README.md file ,Sorry for that try again later\n");
+		return;
+	}
+	
+	if( write(fd,p,strlen(p)) < 0 )
+	{
+		printf("\n\t Unable to write in file README.md file...\n");
+		return;
+	}
+	printf("\n\n\t\tGenerated README.md file in PWD,velli chusukooo\n");
 }
 ////////////////////////////////////////////////////////////////////////////////////
