@@ -26,6 +26,7 @@ char input(int *);
 void Parsing(int ,char **,B **);
 int height(B *);
 
+void version(void);
 int * filter (B *,int,int );
 void create(B **,int);
 int check(B*);

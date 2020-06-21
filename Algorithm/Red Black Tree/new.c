@@ -36,6 +36,8 @@ void string(B **hptr,char *p)
 		Author();
 	else if( !strcmp(p,"--read") || !strcmp(p,"-r") )
 		ReadMe();
+	else if( !strcmp(p,"--version") || !strcmp(p,"-v") )
+		version();	
 	else if( (p[0] == '-' ) && (p[1] != 'd' ) )
 	{	
 		printf("\n\nUnknown Option....\n");
@@ -43,6 +45,10 @@ void string(B **hptr,char *p)
 	}
 	else
 		File(hptr,p);
+}
+void version(void)
+{
+	printf("\n\n\t Version -- 1.5 as per dated 21/06/2020 ,time 21:44 IST\n\n");
 }
 
 void File(B **hptr,char *FileName)
@@ -257,3 +263,4 @@ char NextEnti(B **hptr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+
