@@ -48,7 +48,7 @@ void string(B **hptr,char *p)
 }
 void version(void)
 {
-	printf("\n\n\t Version -- 1.5 as per dated 21/06/2020 ,time 21:44 IST\n\n");
+	printf("\n\n\t Version -- 1.6 as per dated 21/06/2020 ,time 21:44 IST\n\n");
 }
 
 void File(B **hptr,char *FileName)
