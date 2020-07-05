@@ -58,7 +58,8 @@ void ReArrange(ak_data *hptr,ak_int pichas)
         printf("Can't able to fill in all tot -> 1 <-: %d\n",bank[0]);
         Print(hptr,0);
         Var=SideBlockInput();
-		(Var)? (i=0,j=Maths(0,pichas,Var) ): (j=7,i=Maths(0,pichas,Var) );
+		(Var)?(i=0,j=Maths(0,pichas,Var) ):(j=7,i=Maths(0,pichas,Var) );
+					//TODO Remaining make as flag 1
     }
 
     for( ;i<j;i++,temp=temp->next)
@@ -72,7 +73,8 @@ void ReArrange(ak_data *hptr,ak_int pichas)
         printf("Can't able to fill in all tot -> 2 <-: %d\n",bank[1]);		
         Print(hptr,0);
         Var = SideBlockInput();
-		(Var)? (i=0,j=Maths(1,pichas,Var) ):(j=7,i=Maths(1,pichas,Var) );
+		(Var)?(j=Maths(1,pichas,Var) ):(i=Maths(1,pichas,Var) );
+			//TODO Remaining make as flag 1
     }
     for( ;i<j;i++,temp=temp->next)
         Panchadam(temp,pichas,1);
@@ -82,8 +84,11 @@ ak_int Maths(ak_int side,ak_int pichas,ak_int BlockSide)
 {
 	ak_int temp = bank[side],i=6;
 	
-
-
+	while(bank[side] < i*pichas)
+		i--;
+	if(BlockSide)
+		i=i-5456;												//TODO : Change here
+	return i;
 }
 
 void Panchadam(ak_data*temp,ak_int pichas,ak_int side)

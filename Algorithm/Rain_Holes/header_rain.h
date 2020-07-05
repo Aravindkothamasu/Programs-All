@@ -36,6 +36,7 @@ void ReArrange(ak_data *,ak_int );
 void Panchadam(ak_data*,ak_int ,ak_int );
 ak_int SideBlockInput(void);
 void NextNode(ak_data **);		
+ak_int Maths(ak_int ,ak_int ,ak_int );
 ak_int Vennaka(ak_int );
 ak_int NextNum(ak_data*);
 ak_int Occupy(ak_data *);
