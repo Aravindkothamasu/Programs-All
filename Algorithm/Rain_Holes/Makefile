@@ -3,6 +3,6 @@ all:
 	rm -rf *.ra
 	cat  header_rain.h > backup.ra
 	cat *.c >> backup.ra
-	time gcc -static *.c
+	time gcc -static *.c -o rainHoles
 del:
-	rm -rf a.out *.ra
+	rm -rf rainHoles *.ra

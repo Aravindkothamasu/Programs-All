@@ -7,6 +7,7 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include<string.h>
 
 typedef int ak_int;
 typedef char ak_char;
@@ -22,7 +23,12 @@ typedef struct data_structure
 }ak_data;
 
 void create(ak_data **,ak_int,ak_int );
+void developer(void);
+void readme(void);
+void Help(void);
+ak_int CmdLineParse(ak_int ,ak_char**);
 ak_data * AddEnd(ak_data*);
+ak_char* version(void);
 ak_data * SecondHalf(ak_data *);
 ak_data * LastNode(ak_data * );
 void PrintAddr(ak_data*);
@@ -38,6 +44,7 @@ ak_int SideBlockInput(void);
 void NextNode(ak_data **);		
 ak_int Maths(ak_int ,ak_int ,ak_int );
 ak_int Vennaka(ak_int );
+
 ak_int NextNum(ak_data*);
 ak_int Occupy(ak_data *);
 ak_int NextNum(ak_data*);
