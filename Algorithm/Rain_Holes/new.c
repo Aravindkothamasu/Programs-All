@@ -2,11 +2,12 @@
 
 #include"header_rain.h"
 ak_int bank[2]={0};
+ak_char name[2][15] = {"Player 1","Player 2"};
 
 void main(ak_int argc,ak_char**argv)
 {
         ak_data *hptr = 0;
-        ak_int i,side,no=0;
+        ak_int i,side,no=0,WhoStartedFirst=-1;
 
         no=CmdLineParse(argc,argv);
         if(no == -1)
@@ -19,18 +20,27 @@ void main(ak_int argc,ak_char**argv)
 
         if ((side = start())==-1)
                 return;
-
+        WhoStartedFirst = side;
         while(1)	
         {
                 i = input(side);
                 if(i=='q' || i=='Q')
-                        ReDistribute(hptr,no);
+                {
+                    ReDistribute(hptr,no);
+                    WhoStartedFirst = side = !WhoStartedFirst;
+                    Print(hptr,0);
+                    i = input(side);
+                }
                 if(Distribute( hptr,i,side) == -1)
                     return;
                 side = !side;
         }
 }
 
+/***************************************************************************/
+/*  Redistribute : Says that the It will Rearrange all the pichas          */
+/*  in the gunta ,the amount left in the A/c                               */
+/***************************************************************************/
 void ReDistribute(ak_data* indicator,ak_int pichas)
 {
         ak_int i,j;
@@ -41,7 +51,7 @@ void ReDistribute(ak_data* indicator,ak_int pichas)
                         indicator->num=0;	
                         indicator=indicator->next;
                 }
-        printf("\n\t\tTotal A/c Player 1 : %d\tPlayer 2 : %d\n\tRe-Arranging..\n",bank[0],bank[1]);
+        printf("\n\t\tTotal A/c %s : %d\t%s : %d\n\tRe-Arranging..\n",name[0],bank[0],name[1],bank[1]);
         sleep(4);                                                              //TODO : remove
         ReArrange(indicator,pichas);
 }
@@ -49,7 +59,6 @@ void ReDistribute(ak_data* indicator,ak_int pichas)
 /***************************************************************************/
 /*          Re-Arranging all pichas to their respective hole's             */
 /***************************************************************************/
-
 void ReArrange(ak_data *hptr,ak_int pichas)
 {
         ak_int i=0,j=7,Var;
@@ -73,16 +82,24 @@ void ReArrange(ak_data *hptr,ak_int pichas)
 /*      Maths func mains does the Re-distribution of pichas                */
 /*    only for "lag player" and fill the remaining gunta's flag as 1       */
 /***************************************************************************/
-
 void Maths(ak_data* hptr,ak_int lag,ak_int StarSide,ak_int pichas)
 {
                                  //TODO Remaining make as flag 1
-    ak_int i,j,k;
-    (StarSide) ? ( i = 0,j = other ) : ( i = other,j=6);
-    for( ;i<=j;i++)
+    ak_data *p = hptr;
+    ak_int i,j,k,end;
+    if(lag)
+        p=SecondHalf(hptr);
+
+    end = bank[lag]/pichas;
+
+    for(i=0;i<7;i++)
     {
-
-
+        if(StarSide)    
+             (i < end ) ? Panchadam(p,pichas,lag) : ( p->flag = 1 );
+        else
+            ( (6-end) >= i ) ? ( p->flag = 1 ) : (Panchadam(p,pichas,lag) );
+        p=p->next;
+    }
 
 }
 
@@ -99,13 +116,14 @@ void Non_Lag(ak_data* hptr,ak_int pichas,ak_int side)
 
     for(i=0;i<=6;i++)
     {
-        bank[side] -= pichas;
-        p->num = pichas;
-        p->flag = 0;
+        Panchadam(p,pichas,side);
         p=p->next;
     }
 }
 
+/***************************************************************************/
+/*      Panchadam is just to distribute the pichas around the holes        */
+/***************************************************************************/
 void Panchadam(ak_data*temp,ak_int pichas,ak_int side)
 {
         temp->flag 	= 0;
@@ -117,11 +135,10 @@ void Panchadam(ak_data*temp,ak_int pichas,ak_int side)
 /*      SideBlockIp func explains ,which side you want to block,           */
 /*      the holes                                                          */  
 /***************************************************************************/
-
 ak_int SideBlockIp(ak_int player)
 {
         ak_char ch=-1;
-        printf("\n\tWhich side you want block of player [%d] [A-G](top-bottom)  : ",player);
+        printf("\n\tWhich side you want block of \"%s\" [A-G](top-bottom)  : ",name[player]);
         scanf(" %c",&ch);
         if( (ch>='a' && ch<='c') || (ch>='A' && ch<='C') )
                 ch=0;
@@ -139,12 +156,15 @@ ak_int SideBlockIp(ak_int player)
         return ch;
 }
 
+/***************************************************************************/
+/*      Distribute func represents it will distribute pichas in holes      */
+/*      if it got empty it fill search for next gunta                      */
+/***************************************************************************/
 int Distribute(ak_data *hptr,ak_int index,ak_int side)
 {
         ak_data *p = hptr,*q=SecondHalf(hptr),*indicator=0;
-        ak_int i,j,k,temp = -1;
+        ak_int i,temp = -1;
 
-        //        system("clear");                                                        //TODO :  remove
         for(i=0;i<index;i++)
                 (side) ? (q=q->next ) : ( p=p->next );
 
@@ -170,21 +190,24 @@ int Distribute(ak_data *hptr,ak_int index,ak_int side)
                                 {
                                         bank[side] += Occupy(indicator);
                                         Print(hptr,0);
-                                   printf("\n\t\t\t-------> Round Completed Player [%d] : A/c : %d <------\n",side+1,bank[side]);
-                                        usleep(100000);
+                     printf("\n\t\t\t-------> Round Completed %s  : A/c : %d <------\n",name[side],bank[side]);
                                         break;  
                                 }
                         }
                 }
         else
         {
-                printf("Player [%d] of index [%d] has ZERO in this Gunta\n",index,side);
+                printf("     %s of index [%d] has ZERO in this Gunta\n",name[index],side);
                 sleep(5);
                 return -1;
         }
 }
 
 
+/***************************************************************************/
+/*  Occupy func describes the occupies the gunta and respectibe opp to     */
+/*  team gunta and return the value to the A/c                             */
+/***************************************************************************/
 ak_int Occupy(ak_data *indicator)
 {
         ak_int temp = -1,tempIndex=-1;
@@ -205,11 +228,19 @@ ak_int Occupy(ak_data *indicator)
         return temp;
 }
 
+
+/***************************************************************************/
+/*      Says Opp team gunta index Value                                    */
+/***************************************************************************/
 ak_int Vennaka(ak_int Value)
 {
         return (13-Value);
 }
 
+/***************************************************************************/
+/*  NextNode Says NextNode-- Increment the counter until where the flag    */
+/*  becomes 0,upto then it will increment                                  */
+/***************************************************************************/
 void NextNode(ak_data **indicator)					//For NextNode ,otherthan "star"
 {
         do{
@@ -217,6 +248,9 @@ void NextNode(ak_data **indicator)					//For NextNode ,otherthan "star"
         }while((*indicator)->flag == 1);
 }
 
+/***************************************************************************/
+/*  Simply returns the value in that gunta                                 */ 
+/***************************************************************************/
 ak_int NextNum(ak_data*p)
 {
         return (p->num);

@@ -1,10 +1,22 @@
 #include"header_rain.h"
+extern ak_char name[2][15];
 
+/***************************************************************************/
+/*  Command line parsing function describes that ,it will parse the        */
+/*  elements,according to the input they given                             */
+/***************************************************************************/
 ak_int CmdLineParse(ak_int count,ak_char**string)
 {
         ak_int rtn=-1;
 
-        if(count == 1)
+        if(count == 4)
+        {
+                if(atoi(string[1]) < 100)
+                    rtn = atoi(string[1]);
+                strcpy(name[0],string[2]);
+                strcpy(name[1],string[3]);
+        }
+        else if(count == 1)
                 SmallHelp();
         else if(!strcmp("-h",string[1]) || !strcmp("--help",   string[1]))
                 Help();
@@ -22,11 +34,18 @@ ak_int CmdLineParse(ak_int count,ak_char**string)
         return rtn;
 }
 
+/***************************************************************************/
+/*  Small help is shortform of help ,Usage message                         */
+/***************************************************************************/
 void SmallHelp()
 {
         //TODO : short help
-
+        printf("Usage : ./rainholes [no.of pichas] [Player 1 name] [Player 2 name]\n");
 }
+
+/***************************************************************************/
+/*  Developer --> Says the about the legendary Developer                   */
+/***************************************************************************/
 void developer(void)
 {
         printf("\n\n\n\tWelcome to Rain Holes Game\n\t\t\t\t-By Kothamasu.Aravind\n");
@@ -36,11 +55,18 @@ void developer(void)
         printf("\tPhone    :  +91 9247727161.\n\n");
 }
 
+/***************************************************************************/
+/*  README --> need to develop the readme()                                */
+/*  It also generate the readme.md file                                    */
+/***************************************************************************/
 void readme(void)
 {
         //TODO : to create README.md file here
 }
 
+/***************************************************************************/
+/* help() -> Prints the main help version of the rainHoles                 */
+/***************************************************************************/
 void Help(void)
 {
         system("clear");
@@ -52,7 +78,13 @@ void Help(void)
 
 }
 
+/***************************************************************************/
+/*  version() ->Says the Software version developed by legendary C coder   */
+/*          - Aravind Kothamasu                                            */
+/***************************************************************************/
 ak_char* version(void)
 {
-        return "Version 1.3v Last modified time : 21:00 10th July 2020 Monday IST";
+        return "Version 2.1v Last modified time : 11:30 12th July 2020 Sunday IST";
 }
+
+////////////////////////////////////////////////////////////////////

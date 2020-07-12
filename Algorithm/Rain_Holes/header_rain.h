@@ -22,53 +22,43 @@ typedef struct data_structure
         struct data_structure *prev;
 }ak_data;
 
+
 /*         new.c    */ 
 
+void ReDistribute(ak_data* ,ak_int );
+void ReArrange(ak_data *,ak_int );
 void Maths(ak_data* ,ak_int ,ak_int ,ak_int );
 void Non_Lag(ak_data* ,ak_int ,ak_int );
 ak_int SideBlockIp(ak_int);
+void Panchadam(ak_data*,ak_int ,ak_int);
+int Distribute(ak_data *,ak_int,ak_int );
+ak_int Occupy(ak_data *);
+ak_int Vennaka(ak_int );
+void NextNode(ak_data **);		
+ak_int NextNum(ak_data*);
 
 
 ///////////////////////////////////////
+/*              support.c             */
+ak_int CmdLineParse(ak_int ,ak_char**);
 void SmallHelp(void);
-void create(ak_data **,ak_int,ak_int );
 void developer(void);
 void readme(void);
 void Help(void);
-ak_int CmdLineParse(ak_int ,ak_char**);
-ak_data * AddEnd(ak_data*);
 ak_char* version(void);
-ak_data * SecondHalf(ak_data *);
+
+
+///////////////////////////////////////
+/*              support.c             */
 ak_data * LastNode(ak_data * );
-void PrintAddr(ak_data*);
-void Print(ak_data*,ak_int );
 ak_int start(void);
+void create(ak_data **,ak_int,ak_int );
+void PrintAddr(ak_data*);
+ak_data * AddEnd(ak_data*);
+ak_data * SecondHalf(ak_data *);
 void my_Print(ak_data*);
+void Print(ak_data*,ak_int );
 ak_int input(int);	
-int Distribute(ak_data*,ak_int ,ak_int );
-void ReDistribute(ak_data* ,ak_int );
-void ReArrange(ak_data *,ak_int );
-void Panchadam(ak_data*,ak_int ,ak_int );
-void NextNode(ak_data **);		
-ak_int Vennaka(ak_int );
 
-ak_int NextNum(ak_data*);
-ak_int Occupy(ak_data *);
-ak_int NextNum(ak_data*);
-/*
-   void print(int);
-   int input(int );
-   int ReDis(int *,int *,int );
-   int distribute(int ,int );
-   int start(void);
- */
+
 #endif
-
-
-
-/*	TODO	
- *	print according star based
- *  
- */
-
-///////////////////////////////////////////////////

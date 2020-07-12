@@ -2,6 +2,11 @@
 
 #include"header_rain.h"
 extern ak_int bank[2];
+extern ak_char name[2][15];
+
+/***************************************************************************/
+/*      LastNode -> returns the last node of the index                     */
+/***************************************************************************/
 ak_data * LastNode(ak_data * hptr)
 {
         ak_data * p = hptr;
@@ -11,6 +16,9 @@ ak_data * LastNode(ak_data * hptr)
         return p;
 }
 
+/***************************************************************************/
+/*  Start : Who will start the game first either Player a/b                */
+/***************************************************************************/
 ak_int start(void)	
 {	
         ak_int   side=-1;	
@@ -33,6 +41,9 @@ ak_int start(void)
         return side;	
 }
 
+/***************************************************************************/
+/*  Create the circular linked list                                        */
+/***************************************************************************/
 void create(ak_data **hptr,ak_int value,ak_int index)
 {
         ak_data *p =0;
@@ -54,6 +65,9 @@ void create(ak_data **hptr,ak_int value,ak_int index)
         }
 }
 
+/***************************************************************************/
+/*  Prints Only Addresses                                                  */
+/***************************************************************************/
 void PrintAddr(ak_data*hptr)
 {
         ak_data *p = hptr;
@@ -63,6 +77,9 @@ void PrintAddr(ak_data*hptr)
         }while(p !=hptr);
 }	
 
+/***************************************************************************/
+/*  Add the data structure to the end of the list                          */
+/***************************************************************************/
 ak_data * AddEnd(ak_data*hptr)
 {
         ak_data *p = hptr;
@@ -72,6 +89,9 @@ ak_data * AddEnd(ak_data*hptr)
         return p;
 }
 
+/***************************************************************************/
+/*  SecondHalf -> Gives the Other Half starting Address                    */
+/***************************************************************************/
 ak_data * SecondHalf(ak_data *hptr)
 {
         ak_data *p= hptr;
@@ -82,27 +102,39 @@ ak_data * SecondHalf(ak_data *hptr)
         return p;
 }
 
+/***************************************************************************/
+/* my_Print defines the only the index and number                          */ 
+/***************************************************************************/
 void my_Print(ak_data*p)
 {
         int i;	
         for(i=0;i<14;i++,p=p->next)
-                printf("[%d]-->  %d\n",p->index,p->num);
-
+                printf("[%2d]-->  %d\n",p->index,p->num);
 }
 
+/***************************************************************************/
+/*  Print the all the elements in the gunta's for both the elements        */
+/***************************************************************************/
 void Print(ak_data*hptr,ak_int num)	
 {	
         ak_int   i;
         ak_data *p=hptr,*q=hptr;
 
         q=p->prev;
-        system("clear");					//TODO clear	
+        system("clear");
 
-        printf("\n\n\t\t-----  Player 1  ------\t\t\t\t\t\t\t-----  Player 2  ------\n\
-               ***** A/c no:%3d *****\t\t\t\t\t\t\t*****  A/c no:%3d *****\n\n",bank[0],bank[1]);
+        printf("\n\n\t\t-----  %s  ------\t\t\t\t\t\t\t-----  %s  ------\n\
+               ***** A/c no:%3d *****\t\t\t\t\t\t\t*****  A/c no:%3d *****\n\n",name[0],name[1],bank[0],bank[1]);
         printf("\t\t-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-\n\n");	
 
         for(i=0;i<7;i++,p=p->next,q=q->prev)	
+            if(p->flag )
+                printf("\t%c       v   %s      *\t\t\t\t\t---\t\t\t\t%3d   %s   ^   %c\n"\
+                                ,i+65,( ((num>>i)&1)?"-->":"   "),q->num,((num>>(13-i)&1)?"<--" :"   "),71-i);	
+            else if(q->flag)
+                printf("\t%c       v   %s    %3d\t\t\t\t\t---\t\t\t\t  *   %s    ^   %c\n"\
+                                ,i+65,( ((num>>i)&1)?"-->":"   "),p->num,((num>>(13-i)&1)?"<--" :"   "),71-i);	
+            else
                 printf("\t%c       v   %s   %3d\t\t\t\t\t---\t\t\t\t%3d   %s   ^   %c\n"\
                                 ,i+65,( ((num>>i)&1)?"-->":"   "),p->num,q->num,((num>>(13-i)&1)?"<--" :"   "),71-i);	
         printf("\n\t\t>->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->\n\n");	
@@ -110,13 +142,18 @@ void Print(ak_data*hptr,ak_int num)
                 sleep(1);	
 }
 
+/***************************************************************************/
+/*  Input says about which index u want to select the gunta                */
+/*  (A-G) and also (0-7) and you can also give 'q' for quit the game and   */
+/*  do settlement and rearrange the game                                   */
+/***************************************************************************/
 ak_int input(ak_int side)
 {
         ak_char ch=-1;
         if(side)
-                printf("\n\tPlayer 2 [A - G] /[q] for cancel:  ");
+                printf("\n\t%s [A - G] /[q] for cancel:  ",name[1]);
         else
-                printf("\n\tPlayer 1 [A - G] /[q] for cancel :  ");
+                printf("\n\t%s [A - G] /[q] for cancel :  ",name[0]);
         scanf(" %c",&ch);
         if (ch>='a' && ch<='g') 
                 ch -= 97;
@@ -124,7 +161,7 @@ ak_int input(ak_int side)
                 ch -= 65;
         else if(ch >= '0' && ch < '7')
                 ch -= 48;
-        else if(ch == 'q' && ch == 'Q')                                                 //TODO: need to quit 
+        else if(ch == 'q' || ch == 'Q')                                                 //TODO: need to quit 
                 ch = 'q';
         else if ( (ch>='g' && ch<='z') || (ch>='G' && ch<='Z') || (ch>'7' ) )
               {
@@ -135,17 +172,4 @@ ak_int input(ak_int side)
                 printf("Input : Something else\n");
         return ch;	
 }
-/*
-   ak_int   BankStatus(ak_data*hptr,ak_int   flag)
-   {
-   ak_data *p = hptr;
-   ak_int   i,j,value=0;
-   if(!flag)
-   for(i=0;i<7;i++)	
-   p=p->next;
-   for(i=0;i<7;i++)
-   value += p->bank;
-   return value;
-   }
- */
 ///////////////////////////////////////////
