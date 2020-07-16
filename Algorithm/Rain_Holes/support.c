@@ -61,7 +61,21 @@ void developer(void)
 /***************************************************************************/
 void readme(void)
 {
-        //TODO : to create README.md file here
+    ak_int FileDes = open("README.md",O_RDWR|O_CREAT|O_TRUNC,0664);
+    if(FileDes < 0)
+    {
+        printf("can't create README.md file\n");
+        return;
+    }
+    ak_char *p="\t\t\t\t---------------------------------------------------------------------------------\n\t\t\t\t---------------------------    Rain Holes    ------------------------------------\n\t\t\t\t---------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\tBy : -Kothamasu Aravind\n\n\tRain Holes Implementation :-\n\t---------------------------\n\t\t. Implmentation of Rain Holes in C language.\n\t\t. There is Cmd line parsing,given according to it.\n\t\t. There is a help session in the [./rainHoles][--help].\n\t\t. In order to give no.of pichas,u can give [./rainHoles][no.of pichas]\n\n.";
+
+    if(write(FileDes,p,strlen(p)) < 0)
+    {
+        printf("Writting into README.md failed --> %s\n",strerror(errno));
+        return;
+    }
+    else
+        printf("\n\tREADME.md file created in PWD\n");
 }
 
 /***************************************************************************/
@@ -84,7 +98,7 @@ void Help(void)
 /***************************************************************************/
 ak_char* version(void)
 {
-        return "Version 2.1v Last modified time : 11:30 12th July 2020 Sunday IST";
+        return "Version 2.2v Last modified time : 21:23 16th July 2020 Thursday IST";
 }
 
 ////////////////////////////////////////////////////////////////////
