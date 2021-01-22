@@ -1,6 +1,6 @@
 
 
 all:
-	gcc encode.c bst.c
-del:
-	rm -f a.out
+	gcc encode.c bst.c -o huffMan
+clean:
+	rm -f huffMan
