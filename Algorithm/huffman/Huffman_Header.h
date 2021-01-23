@@ -16,6 +16,9 @@
 #include<sys/stat.h>
 #include<stdint.h>
 
+#define console_print( format, ...)	      \
+    FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
+
 typedef struct myBst
 {
   struct myBst *left,*right,*parent;
@@ -37,11 +40,11 @@ typedef struct
 }sai_t;
 
 
-void console_print(char *,...);
 void CopyBuffer(sai_t *);
 bool ParseInputData (sai_t *);
 void ArrangeAssendingOrder(sai_t *);
 void FileOpening (char *,FILE **,char *);
+void FramingData( int , const char *, const char *, const char *, ...);
 
 
 

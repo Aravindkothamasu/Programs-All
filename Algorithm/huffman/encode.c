@@ -1,6 +1,5 @@
 
 #include"Huffman_Header.h"
-
 #define SIZE_BUFFER 10
 
 
@@ -53,7 +52,7 @@ void ArrangeAssendingOrder(sai_t *HuffMan)
       {
 	HuffMan->CountOfEachChar[i] = HuffMan->CountOfEachChar[j] + HuffMan->CountOfEachChar[i] - (HuffMan->CountOfEachChar[j] = HuffMan->CountOfEachChar[i]);
 	temp = HuffMan->characters[i];
-	HuffMan->characters[i] = HuffMan->characters[j];
+      HuffMan->characters[i] = HuffMan->characters[j];
 	HuffMan->characters[j] = temp;
       }
 }
@@ -68,14 +67,16 @@ void FileOpening (char *Filename,FILE **FilePtr,char *flags)
   }
 }
 
-void console_print(char *format,...)
-{
-  char buffer[150]={0};
-  va_list aptr;
-  va_start(aptr,format);
-  vsprintf(buffer,format,aptr);
-  printf("%s",buffer);
-  va_end(aptr);
+
+void FramingData( int Line, const char *Func, const char *File, const char *format, ...)
+{								    
+  char Buffer[500]={0};
+  va_list args;
+  va_start( args, format);					    
+  sprintf( Buffer, "#%s %s() [%d] : ", File, Func, Line);	    
+  vsprintf( &Buffer[strlen(Buffer)], format, args);		    
+  va_end(args);	
+  printf("%s\n", Buffer);
 }
 
 bool ParseInputData (sai_t *HuffMan)
