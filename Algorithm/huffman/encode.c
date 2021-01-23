@@ -1,6 +1,5 @@
 
 #include"Huffman_Header.h"
-#define SIZE_BUFFER 10
 
 
 void main(int argc , char **argv)

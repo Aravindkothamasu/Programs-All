@@ -16,6 +16,8 @@
 #include<sys/stat.h>
 #include<stdint.h>
 
+#define SIZE_BUFFER 10
+
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
