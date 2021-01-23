@@ -37,12 +37,12 @@ typedef struct
   FILE *InFileDes; 
   FILE *OutFileDes; 
   bst_t *root;
-}sai_t;
+}as_huff_t;
 
 
-void CopyBuffer(sai_t *);
-bool ParseInputData (sai_t *);
-void ArrangeAssendingOrder(sai_t *);
+void CopyBuffer(as_huff_t *);
+bool ParseInputData (as_huff_t *);
+void ArrangeAssendingOrder(as_huff_t*);
 void FileOpening (char *,FILE **,char *);
 void FramingData( int , const char *, const char *, const char *, ...);
 
@@ -50,7 +50,7 @@ void FramingData( int , const char *, const char *, const char *, ...);
 
 
 //*******************************************//
-void createBST(sai_t *);
+void createBST( as_huff_t  *);
 void CreateNewNode(bst_t **,char ,int );
 //int * filter( bst_t *root, char *);
 #endif

@@ -5,7 +5,7 @@
 
 void main(int argc , char **argv)
 {    
-  sai_t HuffMan={0};
+  as_huff_t  HuffMan={0};
   int i=0;
 
   if( argc != 3 )
@@ -36,13 +36,13 @@ void main(int argc , char **argv)
   createBST(&HuffMan);
 }
 
-void CopyBuffer(sai_t *HuffMan)
+void CopyBuffer(as_huff_t  *HuffMan)
 {
   HuffMan->Backup = malloc(sizeof(char)*(HuffMan->TotChar));
   strncpy(HuffMan->Backup,HuffMan->characters,HuffMan->TotChar);
 }
 
-void ArrangeAssendingOrder(sai_t *HuffMan)
+void ArrangeAssendingOrder(as_huff_t *HuffMan)
 {
   int i,j;
   char temp=0;
@@ -79,7 +79,7 @@ void FramingData( int Line, const char *Func, const char *File, const char *form
   printf("%s\n", Buffer);
 }
 
-bool ParseInputData (sai_t *HuffMan)
+bool ParseInputData (as_huff_t  *HuffMan)
 {
   bool Gotit=false;
   int i=0;

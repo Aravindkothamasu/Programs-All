@@ -2,7 +2,7 @@
 #include"Huffman_Header.h"
 
 
-void createBST(sai_t *HuffMan)
+void createBST(as_huff_t *HuffMan)
 {
   int i;
   for(i=0;i<HuffMan->TotChar;i++)
