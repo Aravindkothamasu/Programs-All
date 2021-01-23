@@ -1,0 +1,22 @@
+[alias]
+    st = status
+    df = difftool
+    dfo = difftool --name-only
+    co = checkout
+    br = branch
+[core]
+    editor = vi
+[merge]
+    tool = kdiff3
+[mergetool "kdiff3"]
+    trustExitCode = false
+[diff]
+    guitool = kdiff3
+[difftool "kdiff3"]
+    trustExitCode = false
+[user]
+	email = aravindkothamasu@gmail.com
+	name = Aravind Kothamasu
+[color]
+	ui = auto
+

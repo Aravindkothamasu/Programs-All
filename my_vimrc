@@ -1,0 +1,67 @@
+
+
+"************** ARAVIND  **************"
+set noerrorbells	
+""set tabstop=4 
+""set expandtab
+""set nowrap
+set incsearch 
+""set mouse=a
+set showcmd		    "SHOWS THE LAST CMD TYPED"
+set wildmenu		    "MENU FOR :e DISPLAY"
+set lazyredraw		    "MOVES CURSOR SLOW"
+set showmatch		    "SHOWS THE MATCH []"
+""set cursorline  	    "CUSOR LINE INDICATION"
+""set relativenumber	    "SETS THE RELATIVE NUMBER"
+set incsearch		    "INCREMENTAL SEARCH"
+set nohlsearch		    "HIGHLET THE SEARCH TEXT"
+""set foldmethod=indent	    "FOLD METHOD WHEN THE FUNCTION ARE MORE"
+set ignorecase		    "IGNORE THE CASE"
+set omnifunc=ccomplete
+set smartcase	
+filetype indent on
+
+
+command! W  w
+command! Wq wq
+command! Qall qall
+command! Wqall wqall
+
+
+
+
+
+""colorscheme fogbell
+""colorscheme fogbell_light
+""colorscheme nirvana
+""colorscheme wallaby
+""colorscheme phd
+
+"**************************************"
+
+set nu
+set ignorecase
+set splitright
+set nocompatible
+syntax on
+set shiftwidth=2
+set softtabstop=2
+set autoindent
+set infercase
+nmap <F12> \be
+map! <F12> <C-o>\be
+vmap <F12> \be
+
+function! Tab_Or_Complete()
+    if col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w'
+	return "\<C-N>"
+    else
+	return "\<Tab>"
+    endif
+endfunction
+inoremap <Tab> <C-R>=Tab_Or_Complete()<CR>
+
+set backupdir=/tmp//
+set directory=/tmp//
+set undodir=/tmp//
+
