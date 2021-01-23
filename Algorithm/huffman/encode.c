@@ -1,5 +1,5 @@
 
-#include"huffman_header.h"
+#include"Huffman_Header.h"
 
 #define SIZE_BUFFER 10
 
