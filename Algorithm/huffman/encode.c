@@ -1,8 +1,8 @@
 
 #include"Huffman_Header.h"
+int CountData[0x7F+1] = {0};
 
-
-void main(int argc , char **argv)
+void main(int argc, char **argv)
 {    
   as_huff_t  HuffMan={0};
   int i=0;
@@ -12,27 +12,59 @@ void main(int argc , char **argv)
     console_print("ERROR CMLD LINE USAGE : ./Executable   [Input File]   [OutputFile.bin]\n");
     return;
   }
-  FileOpening(argv[1],&(HuffMan.InFileDes),"r");
-  FileOpening(argv[2],&(HuffMan.OutFileDes),"w");
 
-
-  if(!ParseInputData(&HuffMan))
-  {
-    console_print("Something went Wrong\n");
+  HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
+  HuffMan.OutFileDes = FileOpening(argv[2], WRITE_MODE_FILE);
+  if( -1 == HuffMan.InFileDes || -1 == HuffMan.OutFileDes)
     return;
+  console_print("Opened Successfully\n");
+  ReadInputFile(HuffMan.InFileDes);
+  
+  for(i=0;i<=0x7f;i++)
+    if( 0 != CountData[i] )
+      console_print("%3d : %5d\n", i, CountData[i]);
+  /*  if(!ParseInputData(&HuffMan))
+      {
+      console_print("Something went Wrong\n");
+      return;
+      }
+      else
+      HuffMan.TotChar--;
+
+
+
+      for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
+      printf("ASCII %3d--%d   \n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
+
+      CopyBuffer(&HuffMan);
+
+      ArrangeAssendingOrder(&HuffMan);
+      for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
+      printf("ASCII %3d\t\t%d\n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
+      createBST(&HuffMan);
+   */
+}
+ 
+void ReadInputFile(int FileDes)
+{
+  char BufRead[200]={0};
+  int i,Len=0;
+
+  while( true )
+  {
+    bzero(BufRead, sizeof(BufRead));
+    Len = read(FileDes, BufRead, sizeof(BufRead));
+    if( Len == -1 )
+    {
+      console_print("Read Error: %s", strerror(errno));
+      break;
+    }
+    else if( 0 == Len )
+      break;
+    for( i=0;i<Len;i++)
+      CountData[ BufRead[i] ]++;
   }
-  else
-    HuffMan.TotChar--;
-
-  for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
-    printf("ASCII %3d--%d   \n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
-
-  CopyBuffer(&HuffMan);
-
-  ArrangeAssendingOrder(&HuffMan);
-  for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
-    printf("ASCII %3d\t\t%d\n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
-  createBST(&HuffMan);
+  console_print("Done\n");
 }
 
 void CopyBuffer(as_huff_t  *HuffMan)
@@ -56,14 +88,16 @@ void ArrangeAssendingOrder(as_huff_t *HuffMan)
       }
 }
 
-void FileOpening (char *Filename,FILE **FilePtr,char *flags)
+int FileOpening (char *Filename, int Flags)
 {
-  *FilePtr = fopen(Filename,flags);
-  if ( *FilePtr == NULL )
+  int FileDes;
+  FileDes = open( Filename, Flags,0664);
+  if ( -1 == FileDes )
   {
     console_print("ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
-    exit(1);
+    return -1;
   }
+  return FileDes;
 }
 
 
@@ -75,9 +109,10 @@ void FramingData( int Line, const char *Func, const char *File, const char *form
   sprintf( Buffer, "#%s %s() [%d] : ", File, Func, Line);	    
   vsprintf( &Buffer[strlen(Buffer)], format, args);		    
   va_end(args);	
-  printf("%s\n", Buffer);
+  printf("%s", Buffer);
 }
 
+#if 0
 bool ParseInputData (as_huff_t  *HuffMan)
 {
   bool Gotit=false;
@@ -140,4 +175,5 @@ bool ParseInputData (as_huff_t  *HuffMan)
   }
   return true;
 }
+#endif
 

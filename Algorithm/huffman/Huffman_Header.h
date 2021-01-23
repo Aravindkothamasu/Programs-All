@@ -17,6 +17,8 @@
 #include<stdint.h>
 
 #define SIZE_BUFFER 10
+#define READ_MODE_FILE	      O_RDONLY
+#define WRITE_MODE_FILE	      O_RDWR|O_TRUNC|O_CREAT
 
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
@@ -36,8 +38,8 @@ typedef struct
   char *Backup;
   int *CountOfEachChar;
   int TotChar;
-  FILE *InFileDes; 
-  FILE *OutFileDes; 
+  int InFileDes;
+  int OutFileDes;
   bst_t *root;
 }as_huff_t;
 
@@ -45,8 +47,9 @@ typedef struct
 void CopyBuffer(as_huff_t *);
 bool ParseInputData (as_huff_t *);
 void ArrangeAssendingOrder(as_huff_t*);
-void FileOpening (char *,FILE **,char *);
+int FileOpening (char *,int);
 void FramingData( int , const char *, const char *, const char *, ...);
+void ReadInputFile(int );
 
 
 
