@@ -40,6 +40,7 @@ typedef struct
   int TotChar;
   int InFileDes;
   int OutFileDes;
+  int StartIndex;
   bst_t *root;
 }as_huff_t;
 
@@ -50,6 +51,9 @@ void ArrangeAssendingOrder(as_huff_t*);
 int FileOpening (char *,int);
 void FramingData( int , const char *, const char *, const char *, ...);
 void ReadInputFile(int );
+void RearrangeData();
+void swap(int i, int j);
+int GetStartingPoint();
 
 
 

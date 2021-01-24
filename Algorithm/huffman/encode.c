@@ -1,6 +1,11 @@
 
 #include"Huffman_Header.h"
-int CountData[0x7F+1] = {0};
+typedef struct 
+{
+  int Count;
+  char Type;
+}as_data_t;
+as_data_t CountData[0x7f+1]={0};
 
 void main(int argc, char **argv)
 {    
@@ -15,14 +20,34 @@ void main(int argc, char **argv)
 
   HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
   HuffMan.OutFileDes = FileOpening(argv[2], WRITE_MODE_FILE);
+
   if( -1 == HuffMan.InFileDes || -1 == HuffMan.OutFileDes)
     return;
-  console_print("Opened Successfully\n");
+
+  for(i=0;i<=0x7f ;i++)
+    CountData[i].Type = i;
+
   ReadInputFile(HuffMan.InFileDes);
   
-  for(i=0;i<=0x7f;i++)
-    if( 0 != CountData[i] )
-      console_print("%3d : %5d\n", i, CountData[i]);
+  for(i=0 ; i<=0x7f ; i++)
+    if( 0 != CountData[i].Count )
+      console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Count );
+ 
+  RearrangeData();
+  console_print("After ReArranging\n");
+
+  for(i=0 ; i<=0x7f ; i++)
+    if( 0 != CountData[i].Count )
+      console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Count );
+
+  HuffMan.StartIndex = GetStartingPoint();
+  if( -1 == HuffMan.StartIndex )
+  { 
+    console_print("Error Occured in Getting StartIndex\n");
+    return;
+  }
+
+  console_print("Start Index : %3d\n",HuffMan.StartIndex);
   /*  if(!ParseInputData(&HuffMan))
       {
       console_print("Something went Wrong\n");
@@ -43,8 +68,36 @@ void main(int argc, char **argv)
       printf("ASCII %3d\t\t%d\n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
       createBST(&HuffMan);
    */
+
 }
- 
+
+int GetStartingPoint()
+{
+  int i=-1;
+  for( i=0;i<=0x7f;i++)
+    if( 0 != CountData[i].Count )
+	return i;
+  return i;
+}
+
+void RearrangeData()
+{
+  int i,j;
+  for( i=0;i<=0x7f-1;i++)
+    for( j=i+1 ; j<=0x7f ; j++)
+       
+      if( CountData[i].Count > CountData[j].Count )
+	swap(i,j);
+}
+
+void swap(int i, int j)
+{
+  as_data_t Buff={0};
+  Buff = CountData[i];
+  CountData[i] = CountData[j];
+  CountData[j] = Buff;
+}
+
 void ReadInputFile(int FileDes)
 {
   char BufRead[200]={0};
@@ -62,7 +115,7 @@ void ReadInputFile(int FileDes)
     else if( 0 == Len )
       break;
     for( i=0;i<Len;i++)
-      CountData[ BufRead[i] ]++;
+      (CountData[BufRead[i]].Count)++;
   }
   console_print("Done\n");
 }
@@ -106,7 +159,7 @@ void FramingData( int Line, const char *Func, const char *File, const char *form
   char Buffer[500]={0};
   va_list args;
   va_start( args, format);					    
-  sprintf( Buffer, "#%s %s() [%d] : ", File, Func, Line);	    
+  sprintf( Buffer, "#%s#  %s() [%d] : ", File, Func, Line);	    
   vsprintf( &Buffer[strlen(Buffer)], format, args);		    
   va_end(args);	
   printf("%s", Buffer);
