@@ -23,6 +23,12 @@
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
+typedef struct 
+{
+  int Count;
+  char Type;
+}as_data_t;
+
 typedef struct myBst
 {
   struct myBst *left,*right,*parent;

@@ -1,10 +1,5 @@
 
 #include"Huffman_Header.h"
-typedef struct 
-{
-  int Count;
-  char Type;
-}as_data_t;
 as_data_t CountData[0x7f+1]={0};
 
 void main(int argc, char **argv)
