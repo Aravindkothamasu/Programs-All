@@ -1,6 +1,7 @@
 
 #include"Huffman_Header.h"
-as_data_t CountData[0x7f+1]={0};
+
+as_data_t CountData[TOT_CHARS+1]={0};
 
 void main(int argc, char **argv)
 {    
@@ -19,7 +20,7 @@ void main(int argc, char **argv)
   if( -1 == HuffMan.InFileDes || -1 == HuffMan.OutFileDes)
     return;
 
-  for(i=0;i<=0x7f ;i++)
+  for(i=0;i<=0x7f ;i++)		//For Type Added to 1
     CountData[i].Type = i;
 
   ReadInputFile(HuffMan.InFileDes);
@@ -43,25 +44,29 @@ void main(int argc, char **argv)
   }
 
   console_print("Start Index : %3d\n",HuffMan.StartIndex);
-  /*  if(!ParseInputData(&HuffMan))
-      {
-      console_print("Something went Wrong\n");
-      return;
-      }
-      else
-      HuffMan.TotChar--;
+
+//  CreateBST( &HuffMan );
+
+  /*
+     if(!ParseInputData(&HuffMan))
+     {
+     console_print("Something went Wrong\n");
+     return;
+     }
+     else
+     HuffMan.TotChar--;
 
 
 
-      for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
-      printf("ASCII %3d--%d   \n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
+     for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
+     printf("ASCII %3d--%d   \n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
 
-      CopyBuffer(&HuffMan);
+     CopyBuffer(&HuffMan);
 
-      ArrangeAssendingOrder(&HuffMan);
-      for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
-      printf("ASCII %3d\t\t%d\n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
-      createBST(&HuffMan);
+     ArrangeAssendingOrder(&HuffMan);
+     for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
+     printf("ASCII %3d\t\t%d\n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
+     createBST(&HuffMan);
    */
 
 }

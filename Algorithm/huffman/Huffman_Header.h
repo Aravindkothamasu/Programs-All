@@ -20,6 +20,8 @@
 #define READ_MODE_FILE	      O_RDONLY
 #define WRITE_MODE_FILE	      O_RDWR|O_TRUNC|O_CREAT
 
+#define TOT_CHARS	      0x7f
+
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
@@ -35,8 +37,8 @@ typedef struct myBst
   unsigned long int Sum;
   uint8_t data;
   int freq;
-  bool side;
-}bst_t;
+  bool LorR;
+}as_bst_t;
 
 typedef struct 
 {
@@ -47,7 +49,7 @@ typedef struct
   int InFileDes;
   int OutFileDes;
   int StartIndex;
-  bst_t *root;
+  as_bst_t *root;
 }as_huff_t;
 
 
@@ -66,6 +68,6 @@ int GetStartingPoint();
 
 //*******************************************//
 void createBST( as_huff_t  *);
-void CreateNewNode(bst_t **,char ,int );
-//int * filter( bst_t *root, char *);
+void CreateNewNode(as_bst_t **,char ,int );
+//int * filter( as_bst_t *root, char *);
 #endif
