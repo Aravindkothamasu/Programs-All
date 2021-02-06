@@ -45,6 +45,8 @@ void main(int argc, char **argv)
 
   console_print("Start Index : %3d\n",HuffMan.StartIndex);
 
+  console_print("=====   Creating the Binary Tree ======\n");
+
 //  CreateBST( &HuffMan );
 
   /*

@@ -1,6 +1,6 @@
 
 
 all:
-	gcc encode.c bst.c -o Executable 
+	gcc greek.c  encode.c bst.c -o Executable 
 clean:
 	rm -f huffMan
