@@ -100,15 +100,6 @@ void buildMinHeap(struct MinHeap* minHeap)
     minHeapify(minHeap, i);
 }
 
-void printArr(int arr[], int n)
-{
-  int i;
-  for (i = 0; i < n; ++i)
-    printf("%d", arr[i]);
-
-  printf("\n");
-}
-
 int isLeaf(struct MinHeapNode* root)
 {
   return !(root->left) && !(root->right);
@@ -127,17 +118,26 @@ struct MinHeap* createAndBuildMinHeap( int StartIndex)
   return minHeap;
 }
 
-void printCodes(struct MinHeapNode* root, int arr[], int top,int StartIndex)
+void printArr(char  arr[], int n)
+{
+  int i;
+  for (i = 0; i < n; ++i)
+    printf("%c", arr[i]);
+
+  printf("\n");
+}
+
+void printCodes(struct MinHeapNode* root, char arr[], int top,int StartIndex)
 {
   if (root->left)
   {
-    arr[top] = 0;
+    arr[top] = '0';
     printCodes(root->left, arr, top + 1, StartIndex);
   }
 
   if (root->right)
   {
-    arr[top] = 1;
+    arr[top] = '1';
     printCodes(root->right, arr, top + 1, StartIndex);
   }
 
@@ -146,7 +146,10 @@ void printCodes(struct MinHeapNode* root, int arr[], int top,int StartIndex)
     printf("%3d %c: ", root->data, root->data);
     for ( int i = StartIndex; i<=0x7f;i++)
       if ( CountData[i].Type == root->data )
+      {
 	CountData[i].top = top;
+	strncpy( CountData[i].data, arr, top);
+      }
     printArr(arr, top);
   }
 }
@@ -175,7 +178,8 @@ struct MinHeapNode *  HuffmanCodes( int StartIndex )
 
   root = extractMin(minHeap);
 
-  int arr[MAX_TREE_HT], Itop = 0;
+  char  arr[MAX_TREE_HT];
+  int  Itop = 0;
 
   printCodes(root, arr, Itop, StartIndex);
   return root;

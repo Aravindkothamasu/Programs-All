@@ -32,6 +32,7 @@ typedef struct
   int Freq;
   char Type;
   int top;
+  char data[10];
 }as_data_t;
 
 typedef struct myBst

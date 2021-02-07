@@ -7,17 +7,30 @@ void main(int argc, char **argv)
 {    
   as_huff_t  HuffMan={0};
   struct MinHeapNode *root;
-
+  char FileName[36]={0};
+  char *temp;
   int i=0;
 
-  if( argc != 3 )
+  if( argc != 2 )
   {   
-    console_print("ERROR CMLD LINE USAGE : ./Executable   [Input File]   [OutputFile.bin]\n");
+    console_print("ERROR CMLD LINE USAGE : ./Executable   [Input File]\n");
     return;
   }
 
   HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
-  HuffMan.OutFileDes = FileOpening(argv[2], WRITE_MODE_FILE);
+  
+  console_print("argv[1] : %s\n", argv[1]);
+
+  temp =  strstr( argv[1],".");
+  if( NULL == temp)
+    HuffMan.OutFileDes = FileOpening(argv[1], WRITE_MODE_FILE);
+  else
+  {
+    strncpy( FileName, argv[1], temp - argv[1] );
+    strcat( FileName, ".bin");
+    HuffMan.OutFileDes = FileOpening( FileName, WRITE_MODE_FILE);
+  }
+
 
   if( -1 == HuffMan.InFileDes || -1 == HuffMan.OutFileDes)
     return;
@@ -26,12 +39,13 @@ void main(int argc, char **argv)
     CountData[i].Type = i;
 
   ReadInputFile(HuffMan.InFileDes);
-  close(HuffMan.InFileDes);
+//  close(HuffMan.InFileDes);
+//  lseek( HuffMan.InFileDes, 
 
   for(i=0 ; i<=0x7f ; i++)
     if( 0 != CountData[i].Freq )
       console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Freq);
- 
+
   RearrangeData();
 
   HuffMan.StartIndex = GetStartingPoint();
@@ -49,10 +63,13 @@ void main(int argc, char **argv)
   root = HuffmanCodes(HuffMan.StartIndex);
   console_print("After ReArranging\n");
 
+  WriteInToFile( HuffMan.OutFileDes,HuffMan.InFileDes );
+
   for(i=0 ; i<=0x7f ; i++)
     if( 0 != CountData[i].Freq)
-      console_print("[%2d]  %3d : %5d\n",
-	  CountData[i].top, CountData[i].Type, CountData[i].Freq);
+      console_print("[%2d]  %c : %3d--> %s\n",
+	  CountData[i].top, CountData[i].Type, CountData[i].Freq, CountData[i].data);
+
 
 }
 
