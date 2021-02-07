@@ -6,6 +6,8 @@ as_data_t CountData[TOT_CHARS+1]={0};
 void main(int argc, char **argv)
 {    
   as_huff_t  HuffMan={0};
+  struct MinHeapNode *root;
+
   int i=0;
 
   if( argc != 3 )
@@ -24,17 +26,13 @@ void main(int argc, char **argv)
     CountData[i].Type = i;
 
   ReadInputFile(HuffMan.InFileDes);
-  
-  for(i=0 ; i<=0x7f ; i++)
-    if( 0 != CountData[i].Count )
-      console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Count );
- 
-  RearrangeData();
-  console_print("After ReArranging\n");
+  close(HuffMan.InFileDes);
 
   for(i=0 ; i<=0x7f ; i++)
-    if( 0 != CountData[i].Count )
-      console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Count );
+    if( 0 != CountData[i].Freq )
+      console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Freq);
+ 
+  RearrangeData();
 
   HuffMan.StartIndex = GetStartingPoint();
   if( -1 == HuffMan.StartIndex )
@@ -47,29 +45,14 @@ void main(int argc, char **argv)
 
   console_print("=====   Creating the Binary Tree ======\n");
 
-//  CreateBST( &HuffMan );
 
-  /*
-     if(!ParseInputData(&HuffMan))
-     {
-     console_print("Something went Wrong\n");
-     return;
-     }
-     else
-     HuffMan.TotChar--;
+  root = HuffmanCodes(HuffMan.StartIndex);
+  console_print("After ReArranging\n");
 
-
-
-     for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
-     printf("ASCII %3d--%d   \n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
-
-     CopyBuffer(&HuffMan);
-
-     ArrangeAssendingOrder(&HuffMan);
-     for(i=0,printf("\n\n");i<HuffMan.TotChar;i++)
-     printf("ASCII %3d\t\t%d\n",(int)HuffMan.characters[i],HuffMan.CountOfEachChar[i]);
-     createBST(&HuffMan);
-   */
+  for(i=0 ; i<=0x7f ; i++)
+    if( 0 != CountData[i].Freq)
+      console_print("[%2d]  %3d : %5d\n",
+	  CountData[i].top, CountData[i].Type, CountData[i].Freq);
 
 }
 
@@ -77,7 +60,7 @@ int GetStartingPoint()
 {
   int i=-1;
   for( i=0;i<=0x7f;i++)
-    if( 0 != CountData[i].Count )
+    if( 0 != CountData[i].Freq )
 	return i;
   return i;
 }
@@ -88,7 +71,7 @@ void RearrangeData()
   for( i=0;i<=0x7f-1;i++)
     for( j=i+1 ; j<=0x7f ; j++)
        
-      if( CountData[i].Count > CountData[j].Count )
+      if( CountData[i].Freq  > CountData[j].Freq )
 	swap(i,j);
 }
 
@@ -117,7 +100,7 @@ void ReadInputFile(int FileDes)
     else if( 0 == Len )
       break;
     for( i=0;i<Len;i++)
-      (CountData[BufRead[i]].Count)++;
+      (CountData[BufRead[i]].Freq)++;
   }
   console_print("Done\n");
 }

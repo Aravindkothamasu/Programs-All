@@ -25,10 +25,13 @@
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
+#define CAL_SIZE(a)   (0x7f - a +1 )
+
 typedef struct 
 {
-  int Count;
+  int Freq;
   char Type;
+  int top;
 }as_data_t;
 
 typedef struct myBst
@@ -53,6 +56,17 @@ typedef struct
 }as_huff_t;
 
 
+struct MinHeapNode {
+  char data;
+  unsigned freq;
+  struct MinHeapNode *left, *right;
+};
+
+struct MinHeap {
+  unsigned size;
+  unsigned capacity;
+  struct MinHeapNode** array;
+};
 void CopyBuffer(as_huff_t *);
 bool ParseInputData (as_huff_t *);
 void ArrangeAssendingOrder(as_huff_t*);
@@ -70,4 +84,6 @@ int GetStartingPoint();
 void createBST( as_huff_t  *);
 void CreateNewNode(as_bst_t **,char ,int );
 //int * filter( as_bst_t *root, char *);
+//*******************************************//
+struct MinHeapNode *  HuffmanCodes( int );
 #endif
