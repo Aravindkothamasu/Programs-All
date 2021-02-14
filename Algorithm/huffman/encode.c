@@ -9,7 +9,7 @@ void main(int argc, char **argv)
   struct MinHeapNode *root;
   char FileName[36]={0};
   char *temp;
-  int i=0;
+  int i=0,j=0;
 
   if( argc != 2 )
   {   
@@ -18,7 +18,7 @@ void main(int argc, char **argv)
   }
 
   HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
-  
+
   console_print("argv[1] : %s\n", argv[1]);
 
   temp =  strstr( argv[1],".");
@@ -39,8 +39,8 @@ void main(int argc, char **argv)
     CountData[i].Type = i;
 
   ReadInputFile(HuffMan.InFileDes);
-//  close(HuffMan.InFileDes);
-//  lseek( HuffMan.InFileDes, 
+  //  close(HuffMan.InFileDes);
+  //  lseek( HuffMan.InFileDes, 
 
   for(i=0 ; i<=0x7f ; i++)
     if( 0 != CountData[i].Freq )
@@ -63,14 +63,23 @@ void main(int argc, char **argv)
   root = HuffmanCodes(HuffMan.StartIndex);
   console_print("After ReArranging\n");
 
-  WriteInToFile( HuffMan.OutFileDes,HuffMan.InFileDes );
+  // WriteInToFile( HuffMan.OutFileDes,HuffMan.InFileDes );
 
-  for(i=0 ; i<=0x7f ; i++)
-    if( 0 != CountData[i].Freq)
-      console_print("[%2d]  %c : %3d--> %s\n",
-	  CountData[i].top, CountData[i].Type, CountData[i].Freq, CountData[i].data);
+  i = HuffMan.StartIndex;
+//  for( i = HuffMan.StartIndex; i<=0x7F ; i++ )
+  {
+    for( j = 0 ; j+CountData[i].data < CountData[i].data+strlen(CountData[i].data) ; j++)
+    {
+      printf("-->  %c\n", CountData[i].data[j]);
+      CountData[i].EncData = ( ( CountData[i].EncData << j ) | ( CountData[i].data[j] -48 ) );
 
+    }
+    printf(" j = %d, [%s] %X\n", j, CountData[i].data, CountData[i].EncData);
+  }
 
+  for(i=HuffMan.StartIndex ; i<=0x7f ; i++)
+    console_print("%3d, [%2d]  %d : %3d--> %s End : %d\n", i,
+	CountData[i].top, CountData[i].Type, CountData[i].Freq, CountData[i].data, CountData[i].EncData);
 }
 
 int GetStartingPoint()

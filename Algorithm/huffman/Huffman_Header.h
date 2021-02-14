@@ -33,6 +33,10 @@ typedef struct
   char Type;
   int top;
   char data[10];
+
+  uint8_t    EncData;
+  uint8_t    IndexofEnc; 
+
 }as_data_t;
 
 typedef struct myBst
