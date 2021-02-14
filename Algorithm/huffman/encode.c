@@ -2,6 +2,7 @@
 #include"Huffman_Header.h"
 
 as_data_t CountData[TOT_CHARS+1]={0};
+ uint64_t DataToSend = 0;
 
 void main(int argc, char **argv)
 {    
@@ -9,6 +10,7 @@ void main(int argc, char **argv)
   struct MinHeapNode *root;
   char FileName[36]={0};
   char *temp;
+  uint8_t BufWrite[15] = {0};
   int i=0,j=0;
 
   if( argc != 2 )
@@ -39,8 +41,6 @@ void main(int argc, char **argv)
     CountData[i].Type = i;
 
   ReadInputFile(HuffMan.InFileDes);
-  //  close(HuffMan.InFileDes);
-  //  lseek( HuffMan.InFileDes, 
 
   for(i=0 ; i<=0x7f ; i++)
     if( 0 != CountData[i].Freq )
@@ -63,23 +63,95 @@ void main(int argc, char **argv)
   root = HuffmanCodes(HuffMan.StartIndex);
   console_print("After ReArranging\n");
 
-  // WriteInToFile( HuffMan.OutFileDes,HuffMan.InFileDes );
 
-  i = HuffMan.StartIndex;
-//  for( i = HuffMan.StartIndex; i<=0x7F ; i++ )
+  for( i = HuffMan.StartIndex; i<=TOT_CHARS; i++ )
   {
     for( j = 0 ; j+CountData[i].data < CountData[i].data+strlen(CountData[i].data) ; j++)
-    {
-      printf("-->  %c\n", CountData[i].data[j]);
-      CountData[i].EncData = ( ( CountData[i].EncData << j ) | ( CountData[i].data[j] -48 ) );
-
-    }
-    printf(" j = %d, [%s] %X\n", j, CountData[i].data, CountData[i].EncData);
+      CountData[i].EncData = ( ( CountData[i].EncData << 1 ) | ( CountData[i].data[j] -48 ) );
+    CountData[i].BitOfEnc = j;
   }
 
-  for(i=HuffMan.StartIndex ; i<=0x7f ; i++)
-    console_print("%3d, [%2d]  %d : %3d--> %s End : %d\n", i,
-	CountData[i].top, CountData[i].Type, CountData[i].Freq, CountData[i].data, CountData[i].EncData);
+  for(i=HuffMan.StartIndex ; i<=TOT_CHARS; i++)
+    console_print("%3d, [%3d] Data:%X || Freq: %X || Data:%s || End : %x\n", i,
+	CountData[i].top, CountData[i].Type, CountData[i].Freq,
+	CountData[i].data, CountData[i].EncData);
+
+  /////////////////////////////////////////////////////////////////////////
+
+    BufWrite[0] = ASCII_DLE;
+    BufWrite[1] = ASCII_STX;
+
+    BufWrite[5] = ASCII_DLE;
+    BufWrite[6] = ASCII_ETX;
+
+  for ( i = HuffMan.StartIndex ; i <= 0x7f ; i++ )
+  {
+    BufWrite[2] = CountData[i].Type;  
+    BufWrite[3] = CountData[i].EncData;
+    BufWrite[4] = CountData[i].BitOfEnc;
+    if( 7 != write( HuffMan.OutFileDes, BufWrite,7) )
+      console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
+  }
+
+
+ if( -1 ==  lseek( HuffMan.InFileDes, SEEK_SET, 0) )
+ {
+    close(HuffMan.InFileDes );
+    HuffMan.InFileDes = open(argv[1], READ_MODE_FILE);
+    if( -1 == HuffMan.InFileDes )
+    {
+      console_print("Unable to Open READ file : %s\n", argv[1] );
+      return;
+    } 
+ }
+
+ while( true )
+ {
+   BytesRead = read( HuffMan.InFileDes, ReadBuf, sizeof(ReadBuf));
+   if( 0 == BytesRead )
+   {
+      console_print("Reading Done\n");
+      break;
+   }
+   else if( -1 == BytesRead )
+   {
+     console_print("Uable to read the input File : %s\n", strerror(errno));
+     break;
+   }
+   else
+   {
+      for( i=0 ; i<BytesRead ; i++ )
+      {
+	for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
+	  if( ReadBuf[i] == CountData[j].Type)
+	  {
+	    DataSend( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes);
+	    break;
+	  }
+      }
+
+   }
+
+ }
+
+
+  close( HuffMan.InFileDes );
+  close( HuffMan.OutFileDes );
+}
+
+void DataSend(uint8_t EncData, int BitOfEnc, int OutFileDes)	  //Incomplete
+{
+ if( No_BitSend+BitOfEnc >= 64 )
+ {
+  DataToSend = DataToSend >> CountData[j].BitOfEnc |
+    CountData[j].EncData;
+ }
+}
+
+int WriteInToFile()
+{
+
+
 }
 
 int GetStartingPoint()

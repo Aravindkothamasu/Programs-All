@@ -16,6 +16,12 @@
 #include<sys/stat.h>
 #include<stdint.h>
 
+
+
+#define ASCII_DLE	 0X10
+#define ASCII_STX	 0X02
+#define ASCII_ETX	 0X03
+
 #define SIZE_BUFFER 10
 #define READ_MODE_FILE	      O_RDONLY
 #define WRITE_MODE_FILE	      O_RDWR|O_TRUNC|O_CREAT
@@ -35,7 +41,7 @@ typedef struct
   char data[10];
 
   uint8_t    EncData;
-  uint8_t    IndexofEnc; 
+  uint8_t    BitOfEnc; 
 
 }as_data_t;
 
