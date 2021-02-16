@@ -57,7 +57,7 @@ void main(int argc, char **argv)
 
   console_print("Start Index : %3d\n",HuffMan.StartIndex);
 
-  console_print("=====   Creating the Binary Tree ======\n");
+  console_print("=====   Creating the Binary Tree  ======\n");
 
 
   root = HuffmanCodes(HuffMan.StartIndex);
@@ -110,8 +110,8 @@ void main(int argc, char **argv)
    BytesRead = read( HuffMan.InFileDes, ReadBuf, sizeof(ReadBuf));
    if( 0 == BytesRead )
    {
-      console_print("Reading Done\n");
-      break;
+     console_print("Reading Done\n");
+     break;
    }
    else if( -1 == BytesRead )
    {
@@ -120,15 +120,15 @@ void main(int argc, char **argv)
    }
    else
    {
-      for( i=0 ; i<BytesRead ; i++ )
-      {
-	for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
-	  if( ReadBuf[i] == CountData[j].Type)
-	  {
-	    DataSend( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes);
-	    break;
-	  }
-      }
+     for( i=0 ; i<BytesRead ; i++ )
+     {
+       for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
+	 if( ReadBuf[i] == CountData[j].Type)
+	 {
+	   DataSend( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes);
+	   break;
+	 }
+     }
 
    }
 
