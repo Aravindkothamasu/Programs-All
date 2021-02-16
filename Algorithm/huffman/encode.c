@@ -3,6 +3,7 @@
 
 as_data_t CountData[TOT_CHARS+1]={0};
  uint64_t DataToSend = 0;
+ int BitsOfInd = 0;
 
 void main(int argc, char **argv)
 {    
@@ -78,11 +79,11 @@ void main(int argc, char **argv)
 
   /////////////////////////////////////////////////////////////////////////
 
-    BufWrite[0] = ASCII_DLE;
-    BufWrite[1] = ASCII_STX;
+  BufWrite[0] = ASCII_DLE;
+  BufWrite[1] = ASCII_STX;
 
-    BufWrite[5] = ASCII_DLE;
-    BufWrite[6] = ASCII_ETX;
+  BufWrite[5] = ASCII_DLE;
+  BufWrite[6] = ASCII_ETX;
 
   for ( i = HuffMan.StartIndex ; i <= 0x7f ; i++ )
   {
@@ -94,8 +95,8 @@ void main(int argc, char **argv)
   }
 
 
- if( -1 ==  lseek( HuffMan.InFileDes, SEEK_SET, 0) )
- {
+  if( -1 ==  lseek( HuffMan.InFileDes, SEEK_SET, 0) )
+  {
     close(HuffMan.InFileDes );
     HuffMan.InFileDes = open(argv[1], READ_MODE_FILE);
     if( -1 == HuffMan.InFileDes )
@@ -103,49 +104,57 @@ void main(int argc, char **argv)
       console_print("Unable to Open READ file : %s\n", argv[1] );
       return;
     } 
- }
+  }
 
- while( true )
- {
-   BytesRead = read( HuffMan.InFileDes, ReadBuf, sizeof(ReadBuf));
-   if( 0 == BytesRead )
-   {
-     console_print("Reading Done\n");
-     break;
-   }
-   else if( -1 == BytesRead )
-   {
-     console_print("Uable to read the input File : %s\n", strerror(errno));
-     break;
-   }
-   else
-   {
-     for( i=0 ; i<BytesRead ; i++ )
-     {
-       for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
-	 if( ReadBuf[i] == CountData[j].Type)
-	 {
-	   DataSend( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes);
-	   break;
-	 }
-     }
-
-   }
-
- }
-
+  while( true )
+  {
+    BytesRead = read( HuffMan.InFileDes, ReadBuf, sizeof(ReadBuf));
+    if( 0 == BytesRead )
+    {
+      console_print("Reading Done\n");
+      break;
+    }
+    else if( -1 == BytesRead )
+    {
+      console_print("Uable to read the input File : %s\n", strerror(errno));
+      break;
+    }
+    else
+    {
+      for( i=0 ; i<BytesRead ; i++ )
+      {
+	for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
+	  if( ReadBuf[i] == CountData[j].Type)
+	  {
+	    DataSend( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes);
+	    break;
+	  }
+      }
+    }
+  }
 
   close( HuffMan.InFileDes );
   close( HuffMan.OutFileDes );
 }
 
+#define CheckDiff (a)	\
+{			\
+    if( BitsOfInd	\       
+    //Enka Avvallee
+}
+
 void DataSend(uint8_t EncData, int BitOfEnc, int OutFileDes)	  //Incomplete
 {
- if( No_BitSend+BitOfEnc >= 64 )
- {
-  DataToSend = DataToSend >> CountData[j].BitOfEnc |
-    CountData[j].EncData;
- }
+  if( BitsOfInd + BitOfEnc >= 63 )
+  {
+    DataToSend = DataToSend << CheckDiff( BitOfEnc ) | EncData >> ( BitOfEnc - 
+    BitsOfInd 
+  }
+  else
+  {
+    DataToSend = DataToSend << BitOfEnc | EncData;
+    BitsOfInd += BitOfEnc;
+  }
 }
 
 int WriteInToFile()
