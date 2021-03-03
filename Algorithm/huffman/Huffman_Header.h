@@ -28,6 +28,7 @@
 
 #define TOT_CHARS	      0x7f
 
+
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
