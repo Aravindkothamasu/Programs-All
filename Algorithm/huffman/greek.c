@@ -1,5 +1,6 @@
 #include "Huffman_Header.h"
 #define MAX_TREE_HT 100
+
 extern as_data_t CountData[0x7f+1];
 
 struct MinHeapNode* newNode(char data, unsigned freq)
