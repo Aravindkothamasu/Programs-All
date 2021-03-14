@@ -2,14 +2,17 @@
 #include"Huffman_Header.h"
 
 as_data_t CountData[TOT_CHARS+1]={0};
- uint64_t DataToSend = 0;
- int BitsOfInd = 0;
+uint64_t DataToSend = 0;
+int BitsOfIndex = 0;
+
+int BytesRead=0;
+uint8_t ReadBuf[16] = {0};
 
 void main(int argc, char **argv)
 {    
   as_huff_t  HuffMan={0};
   struct MinHeapNode *root;
-  char FileName[36]={0};
+  char OutFileName[36]={0};
   char *temp;
   uint8_t BufWrite[15] = {0};
   int i=0,j=0;
@@ -29,9 +32,9 @@ void main(int argc, char **argv)
     HuffMan.OutFileDes = FileOpening(argv[1], WRITE_MODE_FILE);
   else
   {
-    strncpy( FileName, argv[1], temp - argv[1] );
-    strcat( FileName, ".bin");
-    HuffMan.OutFileDes = FileOpening( FileName, WRITE_MODE_FILE);
+    strncpy( OutFileName, argv[1], temp - argv[1] );
+    strcat( OutFileName, ".bin");
+    HuffMan.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
   }
 
 
@@ -73,11 +76,27 @@ void main(int argc, char **argv)
   }
 
   for(i=HuffMan.StartIndex ; i<=TOT_CHARS; i++)
-    console_print("%3d, [%3d] Data:%X || Freq: %X || Data:%s || End : %x\n", i,
+    console_print("%3d, [%3d] Data: %2X || Freq: %X || Data:%s || End : %x\n", i,
 	CountData[i].top, CountData[i].Type, CountData[i].Freq,
 	CountData[i].data, CountData[i].EncData);
 
   /////////////////////////////////////////////////////////////////////////
+
+
+  if( -1 ==  lseek( HuffMan.InFileDes, SEEK_SET, 0) )
+  {
+    close(HuffMan.InFileDes );
+    HuffMan.InFileDes = open(argv[1], READ_MODE_FILE);
+    if( -1 == HuffMan.InFileDes )
+    {
+      console_print("Unable to Open READ file : %s : %s\n", argv[1], strerror(errno)  );
+      return;
+    } 
+  }
+
+  ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
+
+  // DLE-STR TYPE[] EncData[] BitOfEnc[] DLR ETX	
 
   BufWrite[0] = ASCII_DLE;
   BufWrite[1] = ASCII_STX;
@@ -94,21 +113,12 @@ void main(int argc, char **argv)
       console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
   }
 
-
-  if( -1 ==  lseek( HuffMan.InFileDes, SEEK_SET, 0) )
-  {
-    close(HuffMan.InFileDes );
-    HuffMan.InFileDes = open(argv[1], READ_MODE_FILE);
-    if( -1 == HuffMan.InFileDes )
-    {
-      console_print("Unable to Open READ file : %s\n", argv[1] );
-      return;
-    } 
-  }
+  //TODO : Write ETX and STX into File for identifying the data incoming 
 
   while( true )
   {
     BytesRead = read( HuffMan.InFileDes, ReadBuf, sizeof(ReadBuf));
+
     if( 0 == BytesRead )
     {
       console_print("Reading Done\n");
@@ -121,46 +131,153 @@ void main(int argc, char **argv)
     }
     else
     {
-      for( i=0 ; i<BytesRead ; i++ )
-      {
-	for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
-	  if( ReadBuf[i] == CountData[j].Type)
-	  {
-	    DataSend( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes);
-	    break;
-	  }
-      }
+      /*
+	 for( i=0 ; i<BytesRead ; i++ )
+	 {
+	 for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
+	 if( ReadBuf[i] == CountData[j].Type)
+	 {
+	 if( true == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc) )
+	 {
+	 if( 8 !=  write( HuffMan.OutFileDes, &DataToSend, sizeof( DataToSend ) ) )
+	 {
+	 console_print("Error in writing into Output File : %s %s", OutFileName, strerror(errno) );
+	 return;
+	 }
+	 }
+	 break;
+	 }
+	 }
+       */
     }
   }
 
   close( HuffMan.InFileDes );
+
+  console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
+
+  for( i =61;i<=69 ;i++)
+    if ( i <= 63 )
+    {
+      if( false ==  CreateArray(i, 6, HuffMan.OutFileDes) )
+	return;
+    }
+    else
+      if( false ==  CreateArray( i, 7, HuffMan.OutFileDes) )
+	return;
+
+  CreateArray( 0x4b, 7, HuffMan.OutFileDes);
+
   close( HuffMan.OutFileDes );
+  console_print( "%08x\n", DataToSend);
 }
 
-#define CheckDiff (a)	\
-{			\
-    if( BitsOfInd	\       
-    //Enka Avvallee
+int CheckDiff ()	
+{			
+  return MAX_LEN_BUF_BITS - BitsOfIndex + 1;
 }
 
-void DataSend(uint8_t EncData, int BitOfEnc, int OutFileDes)	  //Incomplete
+char Buffer[128]={0};
+
+char * Binary (uint64_t  a,int size_in_bytes)	
 {
-  if( BitsOfInd + BitOfEnc >= 63 )
+  int i=0,bit=63;
+  bzero( Buffer, sizeof( Buffer));
+
+
+
+  for( ;bit+1 ; i++ )
   {
-    DataToSend = DataToSend << CheckDiff( BitOfEnc ) | EncData >> ( BitOfEnc - 
-    BitsOfInd 
+
+    Buffer[i] = ( a>>bit&1 ) ? '1' : '0';
+    bit -= 1;
+
+    if( 0 == (bit+1) % 4 )
+      Buffer[++i] = '|';
+  }
+  return Buffer;
+}
+
+uint8_t MaskData(uint8_t a)
+{
+  uint8_t RtnVal;
+  switch( a)
+  {
+    case 1: RtnVal = 1; break;
+    case 2: RtnVal = 3; break;
+    case 3: RtnVal = 7; break;
+    case 4: RtnVal = 15; break;
+    case 5: RtnVal = 31; break;
+    case 6: RtnVal = 63; break;
+    case 7: RtnVal = 127; break;
+  }	
+  return RtnVal;
+}
+
+bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes) 
+{
+  uint8_t TempData = 0;
+
+  if( BitsOfIndex + BitOfEnc >= MAX_LEN_BUF_BITS )
+  {
+    TempData = EncData;
+
+    console_print("Enter into if \n\n");
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+    DataToSend = DataToSend << CheckDiff( );
+
+    DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+    if( true ==  WriteInToFile( FileDes) )
+    {
+      //GET REMAINING DATA
+      DataToSend = 0;  
+      DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
+      BitsOfIndex = BitOfEnc - CheckDiff();
+
+    }
+    else
+    {
+      console_print("Error Writing into file\n");
+      return false;
+    }
+
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+    return true;
   }
   else
   {
     DataToSend = DataToSend << BitOfEnc | EncData;
-    BitsOfInd += BitOfEnc;
+    BitsOfIndex += BitOfEnc;
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
   }
+
+  return true;
 }
 
-int WriteInToFile()
+bool WriteInToFile(int FileDes)
 {
+  uint8_t *uPtr8 ;
+  int i;
+  uPtr8 = ( uint8_t *) &DataToSend + 7;
 
-
+  for( i=0 ;i<8;i++)
+  {
+    if( write( FileDes, uPtr8, 1) < 0 )
+    {
+      console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
+      return false;
+    }
+    else
+    {
+      console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
+    }
+    uPtr8--;
+  }
+  return true;
 }
 
 int GetStartingPoint()

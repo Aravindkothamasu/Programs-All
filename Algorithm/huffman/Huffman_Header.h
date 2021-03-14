@@ -17,10 +17,11 @@
 #include<stdint.h>
 
 
-
 #define ASCII_DLE	 0X10
 #define ASCII_STX	 0X02
 #define ASCII_ETX	 0X03
+
+#define MAX_LEN_BUF_BITS    63
 
 #define SIZE_BUFFER 10
 #define READ_MODE_FILE	      O_RDONLY
@@ -79,6 +80,8 @@ struct MinHeap {
   unsigned capacity;
   struct MinHeapNode** array;
 };
+
+
 void CopyBuffer(as_huff_t *);
 bool ParseInputData (as_huff_t *);
 void ArrangeAssendingOrder(as_huff_t*);
@@ -88,6 +91,8 @@ void ReadInputFile(int );
 void RearrangeData();
 void swap(int i, int j);
 int GetStartingPoint();
+bool CreateArray(uint8_t , int, int);
+bool WriteInToFile(int );
 
 
 
