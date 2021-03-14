@@ -24,21 +24,23 @@ void main(int argc, char **argv)
   }
 
   HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
+  if ( HuffMan.InFileDes < 0 )
+    return;
 
   console_print("argv[1] : %s\n", argv[1]);
 
   temp =  strstr( argv[1],".");
+
   if( NULL == temp)
-    HuffMan.OutFileDes = FileOpening(argv[1], WRITE_MODE_FILE);
+    strcpy( OutFileName, argv[1] );
   else
-  {
     strncpy( OutFileName, argv[1], temp - argv[1] );
-    strcat( OutFileName, ".bin");
-    HuffMan.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
-  }
+
+  strcat( OutFileName, ".bin");
+  HuffMan.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
 
 
-  if( -1 == HuffMan.InFileDes || -1 == HuffMan.OutFileDes)
+  if( -1 == HuffMan.OutFileDes)
     return;
 
   for(i=0;i<=0x7f ;i++)		//For Type Added to 1
@@ -114,7 +116,7 @@ void main(int argc, char **argv)
       console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
   }
 
-  //TODO : Write ETX and STX into File for identifying the data incoming 
+  Header( HuffMan.OutFileDes );
 
   while( true )
   {
@@ -132,24 +134,19 @@ void main(int argc, char **argv)
     }
     else
     {
-      /*
-	 for( i=0 ; i<BytesRead ; i++ )
-	 {
-	 for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
-	 if( ReadBuf[i] == CountData[j].Type)
-	 {
-	 if( true == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc) )
-	 {
-	 if( 8 !=  write( HuffMan.OutFileDes, &DataToSend, sizeof( DataToSend ) ) )
-	 {
-	 console_print("Error in writing into Output File : %s %s", OutFileName, strerror(errno) );
-	 return;
-	 }
-	 }
-	 break;
-	 }
-	 }
-       */
+      for( i=0 ; i<BytesRead ; i++ )
+      {
+	for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
+	  if( ReadBuf[i] == CountData[j].Type)
+	  {
+	    if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes) )
+	    {
+	      console_print(" ERROR in Creating Frame\n");
+	      return;
+	    }
+	    break;
+	  }
+      }
     }
   }
 
@@ -157,28 +154,67 @@ void main(int argc, char **argv)
 
   console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
 
+  Fooder( HuffMan.OutFileDes );
+
+  WriteRemaingData( HuffMan.OutFileDes);
+
+  close( HuffMan.OutFileDes );
+
+  console_print("\n");
+  console_print("*************   ENCODE OF [%s] DONE    ******************\n", argv[1]);
+  console_print("\n\n");
+}
+
+void testing( int FileDes)
+{
+  int i;
+
   for( i = 0x21 ;i<= 0x5a ;i++)
     if ( i >= 0x21 && i<= 0x3f )
     {
-      if( false ==  CreateArray( i, 6, HuffMan.OutFileDes) )
+      if( false ==  CreateArray( i, 6, FileDes) )
 	return;
     }
     else if( i >= 0x40 && i <= 0x4f )
     {
-      if( false ==  CreateArray( i, 7, HuffMan.OutFileDes) )
+      if( false ==  CreateArray( i, 7, FileDes) )
 	return;
     }
     else if( i >= 0x50  )
     {
-      if( false ==  CreateArray( i, 7, HuffMan.OutFileDes) )
+      if( false ==  CreateArray( i, 7, FileDes) )
 	return;
     }
-
-
-
-  close( HuffMan.OutFileDes );
-  console_print( "%08x\n", DataToSend);
 }
+
+
+void WriteRemaingData( int FileDes)
+{
+  WriteInToFile( FileDes);
+
+}
+
+void Header( int FileDes)
+{
+
+  // STX - EOT - STX - EOT
+
+  CreateArray( ENCODE_HEADER_1, 8, FileDes);
+  CreateArray( ENCODE_HEADER_2, 8, FileDes);
+  CreateArray( ENCODE_HEADER_3, 8, FileDes);
+  CreateArray( ENCODE_HEADER_4, 8, FileDes);
+}
+
+void Fooder(int FileDes)
+{
+  // ETX - ETB - ETX - ETB
+
+  CreateArray( ENCODE_FOODER_1, 8, FileDes);
+  CreateArray( ENCODE_FOODER_2, 8, FileDes);
+  CreateArray( ENCODE_FOODER_3, 8, FileDes);
+  CreateArray( ENCODE_FOODER_4, 8, FileDes);
+}
+
 
 bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes) 
 {
@@ -276,15 +312,16 @@ bool WriteInToFile(int FileDes)
 
   for( i=0 ;i<8;i++)
   {
-    if( write( FileDes, uPtr8, 1) < 0 )
-    {
-      console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
-      return false;
-    }
-    else
-    {
-      console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
-    }
+    if( *uPtr8 )
+      if( write( FileDes, uPtr8, 1) < 0 )
+      {
+	console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
+	return false;
+      }
+      else
+      {
+	console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
+      }
     uPtr8--;
   }
   return true;
@@ -295,7 +332,7 @@ int GetStartingPoint()
   int i=-1;
   for( i=0;i<=0x7f;i++)
     if( 0 != CountData[i].Freq )
-	return i;
+      return i;
   return i;
 }
 
@@ -304,7 +341,7 @@ void RearrangeData()
   int i,j;
   for( i=0;i<=0x7f-1;i++)
     for( j=i+1 ; j<=0x7f ; j++)
-       
+
       if( CountData[i].Freq  > CountData[j].Freq )
 	swap(i,j);
 }
@@ -355,7 +392,7 @@ void ArrangeAssendingOrder(as_huff_t *HuffMan)
       {
 	HuffMan->CountOfEachChar[i] = HuffMan->CountOfEachChar[j] + HuffMan->CountOfEachChar[i] - (HuffMan->CountOfEachChar[j] = HuffMan->CountOfEachChar[i]);
 	temp = HuffMan->characters[i];
-      HuffMan->characters[i] = HuffMan->characters[j];
+	HuffMan->characters[i] = HuffMan->characters[j];
 	HuffMan->characters[j] = temp;
       }
 }

@@ -20,6 +20,25 @@
 #define ASCII_DLE	 0X10
 #define ASCII_STX	 0X02
 #define ASCII_ETX	 0X03
+#define ASCII_EOT	 0x04
+#define ASCII_ETB	 0x17
+
+
+////////////////////////////////////////////////////////
+
+#define ENCODE_HEADER_1	     ASCII_STX
+#define ENCODE_HEADER_2	     ASCII_EOT
+#define ENCODE_HEADER_3	     ASCII_STX
+#define ENCODE_HEADER_4	     ASCII_EOT
+
+////////////////////////////////////////////////////////
+
+#define ENCODE_FOODER_1	     ASCII_ETX
+#define ENCODE_FOODER_2	     ASCII_ETB
+#define ENCODE_FOODER_3	     ASCII_ETX
+#define ENCODE_FOODER_4	     ASCII_ETB
+
+////////////////////////////////////////////////////////
 
 #define MAX_LEN_BUF_BITS    63
 
@@ -107,6 +126,9 @@ char * Binary (uint64_t  a,int size_in_bytes)	;
 uint8_t MaskData(uint8_t );
 int CheckDiff();
 
+void Fooder(int );
+void Header( int );
 
+void WriteRemaingData( int );
 
 #endif
