@@ -103,4 +103,10 @@ void CreateNewNode(as_bst_t **,char ,int );
 //int * filter( as_bst_t *root, char *);
 //*******************************************//
 struct MinHeapNode *  HuffmanCodes( int );
+char * Binary (uint64_t  a,int size_in_bytes)	;
+uint8_t MaskData(uint8_t );
+int CheckDiff();
+
+
+
 #endif

@@ -109,6 +109,7 @@ void main(int argc, char **argv)
     BufWrite[2] = CountData[i].Type;  
     BufWrite[3] = CountData[i].EncData;
     BufWrite[4] = CountData[i].BitOfEnc;
+
     if( 7 != write( HuffMan.OutFileDes, BufWrite,7) )
       console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
   }
@@ -156,21 +157,73 @@ void main(int argc, char **argv)
 
   console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
 
-  for( i =61;i<=69 ;i++)
-    if ( i <= 63 )
+  for( i = 0x21 ;i<= 0x5a ;i++)
+    if ( i >= 0x21 && i<= 0x3f )
     {
-      if( false ==  CreateArray(i, 6, HuffMan.OutFileDes) )
+      if( false ==  CreateArray( i, 6, HuffMan.OutFileDes) )
 	return;
     }
-    else
+    else if( i >= 0x40 && i <= 0x4f )
+    {
       if( false ==  CreateArray( i, 7, HuffMan.OutFileDes) )
 	return;
+    }
+    else if( i >= 0x50  )
+    {
+      if( false ==  CreateArray( i, 7, HuffMan.OutFileDes) )
+	return;
+    }
 
-  CreateArray( 0x4b, 7, HuffMan.OutFileDes);
+
 
   close( HuffMan.OutFileDes );
   console_print( "%08x\n", DataToSend);
 }
+
+bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes) 
+{
+  uint8_t TempData = 0;
+
+  if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS )
+  {
+    TempData = EncData;
+
+    console_print("Enter into if \n\n");
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+    DataToSend = DataToSend << CheckDiff( );
+
+    DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+    if( true ==  WriteInToFile( FileDes) )
+    {
+      //GET REMAINING DATA
+      DataToSend = 0;  
+      DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
+      BitsOfIndex = BitOfEnc - CheckDiff();
+      console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+    }
+    else
+    {
+      console_print("Error Writing into file\n");
+      return false;
+    }
+
+  }
+  else
+  {
+    DataToSend = DataToSend << BitOfEnc | EncData;
+    BitsOfIndex += BitOfEnc;
+  }
+
+  console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+
+  return true;
+}
+
+
 
 int CheckDiff ()	
 {			
@@ -214,49 +267,6 @@ uint8_t MaskData(uint8_t a)
   return RtnVal;
 }
 
-bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes) 
-{
-  uint8_t TempData = 0;
-
-  if( BitsOfIndex + BitOfEnc >= MAX_LEN_BUF_BITS )
-  {
-    TempData = EncData;
-
-    console_print("Enter into if \n\n");
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
-
-    DataToSend = DataToSend << CheckDiff( );
-
-    DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
-
-    if( true ==  WriteInToFile( FileDes) )
-    {
-      //GET REMAINING DATA
-      DataToSend = 0;  
-      DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
-      BitsOfIndex = BitOfEnc - CheckDiff();
-
-    }
-    else
-    {
-      console_print("Error Writing into file\n");
-      return false;
-    }
-
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
-
-    return true;
-  }
-  else
-  {
-    DataToSend = DataToSend << BitOfEnc | EncData;
-    BitsOfIndex += BitOfEnc;
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llx\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
-  }
-
-  return true;
-}
 
 bool WriteInToFile(int FileDes)
 {
