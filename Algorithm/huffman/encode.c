@@ -79,8 +79,8 @@ void main(int argc, char **argv)
 
   for(i=HuffMan.StartIndex ; i<=TOT_CHARS; i++)
     console_print("%3d, [%3d] Data: %2X || Freq: %X || Data:%s || End : %x\n", i,
-	CountData[i].top, CountData[i].Type, CountData[i].Freq,
-	CountData[i].data, CountData[i].EncData);
+        CountData[i].top, CountData[i].Type, CountData[i].Freq,
+        CountData[i].data, CountData[i].EncData);
 
   /////////////////////////////////////////////////////////////////////////
 
@@ -136,16 +136,16 @@ void main(int argc, char **argv)
     {
       for( i=0 ; i<BytesRead ; i++ )
       {
-	for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
-	  if( ReadBuf[i] == CountData[j].Type)
-	  {
-	    if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes) )
-	    {
-	      console_print(" ERROR in Creating Frame\n");
-	      return;
-	    }
-	    break;
-	  }
+        for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
+          if( ReadBuf[i] == CountData[j].Type)
+          {
+            if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes) )
+            {
+              console_print(" ERROR in Creating Frame\n");
+              return;
+            }
+            break;
+          }
       }
     }
   }
