@@ -8,6 +8,7 @@ int BitsOfIndex = 0;
 int BytesRead=0;
 uint8_t ReadBuf[16] = {0};
 
+
 void main(int argc, char **argv)
 {    
   as_huff_t  HuffMan={0};
@@ -17,12 +18,8 @@ void main(int argc, char **argv)
   uint8_t BufWrite[15] = {0};
   int i=0,j=0;
 
-  if( argc != 2 )
-  {   
-    console_print("ERROR CMLD LINE USAGE : ./Executable   [Input File]\n");
-    return;
-  }
-
+  CmdLineCheck (argc);
+  
   HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
   if ( HuffMan.InFileDes < 0 )
     return;
@@ -303,6 +300,14 @@ uint8_t MaskData(uint8_t a)
   return RtnVal;
 }
 
+int CmdLineCheck(int argc)
+{
+  if( argc != 2 )
+  {   
+    console_print("ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
+	exit(0);
+  }
+}
 
 bool WriteInToFile(int FileDes)
 {
