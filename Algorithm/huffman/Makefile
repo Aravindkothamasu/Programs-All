@@ -1,6 +1,7 @@
 
 
 all:
-	gcc greek.c encode.c -o Executable 
+	gcc greek.c encode.c -o Encode
+	gcc greek.c decode.c -o Decode
 clean:
-	rm -f Executable *.bin
+	rm -f Encode Decode *.bin
