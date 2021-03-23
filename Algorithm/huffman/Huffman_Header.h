@@ -125,6 +125,7 @@ struct MinHeapNode *  HuffmanCodes( int );
 char * Binary (uint64_t  a,int size_in_bytes)	;
 uint8_t MaskData(uint8_t );
 int CheckDiff();
+int CmdLineCheck(int );
 
 void Fooder(int );
 void Header( int );
