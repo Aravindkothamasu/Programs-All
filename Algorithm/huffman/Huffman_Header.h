@@ -22,6 +22,19 @@
 #define ASCII_ETX	 0X03
 #define ASCII_EOT	 0x04
 #define ASCII_ETB	 0x17
+#define ASCII_SOH	 0x01
+#define ASCII_EM	 0x19
+
+
+#define START_INDEX_BYTE_0    ASCII_DLE
+#define START_INDEX_BYTE_1    ASCII_SOH
+#define START_INDEX_BYTE_3    ASCII_DLE
+#define START_INDEX_BYTE_4    ASCII_EM
+
+#define DATA_ST_BYTE_0	    ASCII_DLE
+#define DATA_ST_BYTE_1	    ASCII_STX
+#define DATA_ST_BYTE_5	    ASCII_DLE
+#define DATA_ST_BYTE_6	    ASCII_ETX
 
 
 ////////////////////////////////////////////////////////
@@ -126,6 +139,7 @@ char * Binary (uint64_t  a,int size_in_bytes)	;
 uint8_t MaskData(uint8_t );
 int CheckDiff();
 int CmdLineCheck(int );
+void CreateOutFileName( char *, char *);
 
 void Fooder(int );
 void Header( int );

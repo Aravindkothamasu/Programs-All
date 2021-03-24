@@ -11,39 +11,25 @@ uint8_t ReadBuf[16] = {0};
 
 void main(int argc, char **argv)
 {    
-  as_huff_t  HuffMan={0};
+  as_huff_t  Huff={0};
   struct MinHeapNode *root;
   char OutFileName[36]={0};
-  char *temp;
   uint8_t BufWrite[15] = {0};
   int i=0,j=0;
 
   CmdLineCheck (argc);
-  
-  HuffMan.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
-  if ( HuffMan.InFileDes < 0 )
-    return;
 
-  console_print("argv[1] : %s\n", argv[1]);
+  Huff.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
 
-  temp =  strstr( argv[1],".");
+  CreateOutFileName( argv[1], OutFileName);
 
-  if( NULL == temp)
-    strcpy( OutFileName, argv[1] );
-  else
-    strncpy( OutFileName, argv[1], temp - argv[1] );
+  Huff.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
 
-  strcat( OutFileName, ".bin");
-  HuffMan.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
-
-
-  if( -1 == HuffMan.OutFileDes)
-    return;
 
   for(i=0;i<=0x7f ;i++)		//For Type Added to 1
     CountData[i].Type = i;
 
-  ReadInputFile(HuffMan.InFileDes);
+  ReadInputFile(Huff.InFileDes);
 
   for(i=0 ; i<=0x7f ; i++)
     if( 0 != CountData[i].Freq )
@@ -51,73 +37,79 @@ void main(int argc, char **argv)
 
   RearrangeData();
 
-  HuffMan.StartIndex = GetStartingPoint();
-  if( -1 == HuffMan.StartIndex )
+  Huff.StartIndex = GetStartingPoint();
+  if( -1 == Huff.StartIndex )
   { 
     console_print("Error Occured in Getting StartIndex\n");
     return;
   }
 
-  console_print("Start Index : %3d\n",HuffMan.StartIndex);
+  console_print("Start Index : %3d\n",Huff.StartIndex);
 
   console_print("=====   Creating the Binary Tree  ======\n");
 
 
-  root = HuffmanCodes(HuffMan.StartIndex);
+  root = HuffmanCodes(Huff.StartIndex);
   console_print("After ReArranging\n");
 
 
-  for( i = HuffMan.StartIndex; i<=TOT_CHARS; i++ )
+  for( i = Huff.StartIndex; i<=TOT_CHARS; i++ )
   {
     for( j = 0 ; j+CountData[i].data < CountData[i].data+strlen(CountData[i].data) ; j++)
       CountData[i].EncData = ( ( CountData[i].EncData << 1 ) | ( CountData[i].data[j] -48 ) );
     CountData[i].BitOfEnc = j;
   }
 
-  for(i=HuffMan.StartIndex ; i<=TOT_CHARS; i++)
+  for(i=Huff.StartIndex ; i<=TOT_CHARS; i++)
     console_print("%3d, [%3d] Data: %2X || Freq: %X || Data:%s || End : %x\n", i,
-        CountData[i].top, CountData[i].Type, CountData[i].Freq,
-        CountData[i].data, CountData[i].EncData);
+	CountData[i].top, CountData[i].Type, CountData[i].Freq,
+	CountData[i].data, CountData[i].EncData);
 
   /////////////////////////////////////////////////////////////////////////
 
 
-  if( -1 ==  lseek( HuffMan.InFileDes, SEEK_SET, 0) )
+  if( -1 ==  lseek( Huff.InFileDes, SEEK_SET, 0) )
   {
-    close(HuffMan.InFileDes );
-    HuffMan.InFileDes = open(argv[1], READ_MODE_FILE);
-    if( -1 == HuffMan.InFileDes )
-    {
-      console_print("Unable to Open READ file : %s : %s\n", argv[1], strerror(errno)  );
-      return;
-    } 
+    close(Huff.InFileDes );
+    Huff.InFileDes = FileOpening( argv[1], READ_MODE_FILE);
   }
+
+
 
   ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
 
-  // DLE-STR TYPE[] EncData[] BitOfEnc[] DLR ETX	
+  BufWrite[0] = START_INDEX_BYTE_0;
+  BufWrite[1] = START_INDEX_BYTE_1;
+  BufWrite[2] = TOT_CHARS - Huff.StartIndex + 1;
+  BufWrite[3] = START_INDEX_BYTE_3;
+  BufWrite[4] = START_INDEX_BYTE_4;
 
-  BufWrite[0] = ASCII_DLE;
-  BufWrite[1] = ASCII_STX;
+  write( Huff.OutFileDes, BufWrite, 5);
+  memset( BufWrite, 0, sizeof(BufWrite));     //Writing No.of Data strcture need to create
 
-  BufWrite[5] = ASCII_DLE;
-  BufWrite[6] = ASCII_ETX;
+  // DLE-STX TYPE[] EncData[] BitOfEnc[] DLE ETX	
 
-  for ( i = HuffMan.StartIndex ; i <= 0x7f ; i++ )
+  BufWrite[0] = DATA_ST_BYTE_0;
+  BufWrite[1] = DATA_ST_BYTE_1;
+
+  BufWrite[5] = DATA_ST_BYTE_5;
+  BufWrite[6] = DATA_ST_BYTE_6;
+
+  for ( i = Huff.StartIndex ; i <= 0x7f ; i++ )
   {
     BufWrite[2] = CountData[i].Type;  
     BufWrite[3] = CountData[i].EncData;
     BufWrite[4] = CountData[i].BitOfEnc;
 
-    if( 7 != write( HuffMan.OutFileDes, BufWrite,7) )
+    if( 7 != write( Huff.OutFileDes, BufWrite,7) )
       console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
   }
 
-  Header( HuffMan.OutFileDes );
+  Header( Huff.OutFileDes );	      //Wrinting Headers into OutFile
 
   while( true )
   {
-    BytesRead = read( HuffMan.InFileDes, ReadBuf, sizeof(ReadBuf));
+    BytesRead = read( Huff.InFileDes, ReadBuf, sizeof(ReadBuf));
 
     if( 0 == BytesRead )
     {
@@ -133,33 +125,41 @@ void main(int argc, char **argv)
     {
       for( i=0 ; i<BytesRead ; i++ )
       {
-        for( j=HuffMan.StartIndex ; j<= 0x7f ; j++ )
-          if( ReadBuf[i] == CountData[j].Type)
-          {
-            if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, HuffMan.OutFileDes) )
-            {
-              console_print(" ERROR in Creating Frame\n");
-              return;
-            }
-            break;
-          }
+	for( j=Huff.StartIndex ; j<= TOT_CHARS; j++ )
+	  if( ReadBuf[i] == CountData[j].Type)
+	  {
+	    if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
+	    {
+	      console_print(" ERROR in Creating Frame\n");
+	      return;
+	    }
+	    break;
+	  }
       }
     }
   }
 
-  close( HuffMan.InFileDes );
+  close( Huff.InFileDes );
 
   console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
 
-  Fooder( HuffMan.OutFileDes );
+  Fooder( Huff.OutFileDes );
 
-  WriteRemaingData( HuffMan.OutFileDes);
+  WriteRemaingData( Huff.OutFileDes);
 
-  close( HuffMan.OutFileDes );
+  close( Huff.OutFileDes );
 
   console_print("\n");
   console_print("*************   ENCODE OF [%s] DONE    ******************\n", argv[1]);
+  console_print("!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
   console_print("\n\n");
+}
+
+void CreateOutFileName( char *InFileName, char *OutFileName)
+{
+  strcpy( OutFileName, InFileName);
+  strcat( OutFileName, ".bin");
+  return;
 }
 
 void testing( int FileDes)
@@ -305,7 +305,7 @@ int CmdLineCheck(int argc)
   if( argc != 2 )
   {   
     console_print("ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
-	exit(0);
+    exit(0);
   }
 }
 
@@ -409,7 +409,7 @@ int FileOpening (char *Filename, int Flags)
   if ( -1 == FileDes )
   {
     console_print("ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
-    return -1;
+    exit(0);
   }
   return FileDes;
 }
