@@ -17,7 +17,7 @@ void main(int argc, char **argv)
   uint8_t BufWrite[15] = {0};
   int i=0,j=0;
 
-  CmdLineCheck (argc);
+  CmdLineCheck (argc, 2);
 
   Huff.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
 
@@ -300,14 +300,6 @@ uint8_t MaskData(uint8_t a)
   return RtnVal;
 }
 
-int CmdLineCheck(int argc)
-{
-  if( argc != 2 )
-  {   
-    console_print("ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
-    exit(0);
-  }
-}
 
 bool WriteInToFile(int FileDes)
 {
@@ -402,29 +394,8 @@ void ArrangeAssendingOrder(as_huff_t *HuffMan)
       }
 }
 
-int FileOpening (char *Filename, int Flags)
-{
-  int FileDes;
-  FileDes = open( Filename, Flags,0664);
-  if ( -1 == FileDes )
-  {
-    console_print("ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
-    exit(0);
-  }
-  return FileDes;
-}
 
 
-void FramingData( int Line, const char *Func, const char *File, const char *format, ...)
-{								    
-  char Buffer[500]={0};
-  va_list args;
-  va_start( args, format);					    
-  sprintf( Buffer, "#%s#  %s() [%d] : ", File, Func, Line);	    
-  vsprintf( &Buffer[strlen(Buffer)], format, args);		    
-  va_end(args);	
-  printf("%s", Buffer);
-}
 
 #if 0
 bool ParseInputData (as_huff_t  *HuffMan)
