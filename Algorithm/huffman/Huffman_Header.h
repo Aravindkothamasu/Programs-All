@@ -117,7 +117,7 @@ struct MinHeap {
 void CopyBuffer(as_huff_t *);
 bool ParseInputData (as_huff_t *);
 void ArrangeAssendingOrder(as_huff_t*);
-int FileOpening (char *,int);
+int FileOpening (char *,short int);
 void FramingData( int , const char *, const char *, const char *, ...);
 void ReadInputFile(int );
 void RearrangeData();
@@ -145,5 +145,26 @@ void Fooder(int );
 void Header( int );
 
 void WriteRemaingData( int );
+
+
+
+
+///////////////////////     DECODE.C      /////////////////////
+typedef struct 
+{
+   uint8_t EncData;
+   uint8_t BitOfEnc;
+   uint8_t Type;
+}sa_data_decode_t;
+
+void CheckFile( char *);
+void CreateOutFileName ( char *, char *);
+uint8_t ReadDS(sa_data_decode_t *, int );
+char * GetOutFileExtent( int , char *);
+int GetCountDS( int );
+
+
+
+
 
 #endif

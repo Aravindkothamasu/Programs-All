@@ -12,7 +12,7 @@ int CmdLineCheck(int argc, int MaxCount)
 }
 
 
-int FileOpening (char *Filename, int Flags)
+int FileOpening (char *Filename, short int Flags)
 {
   int FileDes;
   FileDes = open( Filename, Flags,0664);
