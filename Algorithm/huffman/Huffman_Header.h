@@ -157,11 +157,25 @@ typedef struct
    uint8_t Type;
 }sa_data_decode_t;
 
+typedef struct
+{
+  int                    InFileDes;
+  int                   OutFileDes;
+  int                   CountIndex;
+
+
+  char                  OutFileName[150];
+  sa_data_decode_t       **DataPtr;
+}sa_app_t;
+
+
 void CheckFile( char *);
 void CreateOutFileName ( char *, char *);
 uint8_t ReadDS(sa_data_decode_t *, int );
 char * GetOutFileExtent( int , char *);
 int GetCountDS( int );
+void MapData( sa_app_t *);
+void CheckEncodeHddr( int );
 
 
 

@@ -1,19 +1,10 @@
 #include "Huffman_Header.h"
 
 
-
 void main (int argc, char **argv)
 {  
-  char *Ext;
-  char OutFileName[150]={0};
-  int   InFileDes = -1;
-  int   OutFileDes = -1;
-
-  int StartIndex,i;
-  sa_data_decode_t **DataPtr;
-
-
-
+  sa_app_t  App={0};
+  int i;
 
 
   CmdLineCheck( argc, 2);
@@ -21,36 +12,37 @@ void main (int argc, char **argv)
 
 
 
-  InFileDes = FileOpening( argv[1], READ_MODE_FILE);
+  App.InFileDes = FileOpening( argv[1], READ_MODE_FILE);
 
-  CreateOutFileName( OutFileName, argv[1]);
+  CreateOutFileName( App.OutFileName, argv[1]);
 
-  strcat( OutFileName, "_Tmp");             //TODO : Remove after testing
+  strcat( App.OutFileName, "_Tmp");             //TODO : Remove after testing
+
   console_print("I/p FileName : %s\n", argv[1] );
-  console_print("O/p FileName : %s\n", OutFileName);
+  console_print("O/p FileName : %s\n", App.OutFileName);
 
-  OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
+  App.OutFileDes = FileOpening( App.OutFileName, WRITE_MODE_FILE);
 
 
-  StartIndex = GetCountDS( InFileDes);
+  App.CountIndex = GetCountDS( App.InFileDes);
 
-  if( StartIndex < 0)
+  if( App.CountIndex < 0)
   {
     console_print("Error in Reading Binary Data\n");
     return;
   }
   else
-    console_print("StartIndex : %d\n", StartIndex);
+    console_print("CountIndex : %d\n", App.CountIndex);
 
-  DataPtr = calloc( sizeof( sa_data_decode_t), StartIndex);
+  App.DataPtr = calloc( sizeof( sa_data_decode_t), App.CountIndex);
 
-  if( NULL != DataPtr )
+  if( NULL != App.DataPtr )
   {
-    for( i=0;i<StartIndex;i++)
+    for( i=0;i< App.CountIndex;i++)
     {
-      DataPtr[i] = malloc( sizeof(sa_data_decode_t));
+      App.DataPtr[i] = malloc( sizeof(sa_data_decode_t));
 
-      switch( ReadDS( DataPtr[i], InFileDes) )
+      switch( ReadDS( App.DataPtr[i], App.InFileDes) )
       {
         case 0:
           //console_print("Read Data Not Matched\n");
@@ -58,7 +50,7 @@ void main (int argc, char **argv)
           break;
         case 1:
           console_print("%3d Data : %X EncData : %X Bit : %X\n", i,
-              DataPtr[i]->Type, DataPtr[i]->EncData, DataPtr[i]->BitOfEnc);
+              App.DataPtr[i]->Type, App.DataPtr[i]->EncData, App.DataPtr[i]->BitOfEnc);
 
           break;
         case 2:
@@ -67,6 +59,10 @@ void main (int argc, char **argv)
           break;
       }
     }
+    CheckEncodeHddr( App.InFileDes);
+
+
+    MapData( &App);
   }
   else
   {
@@ -75,6 +71,42 @@ void main (int argc, char **argv)
   }
 
 }
+
+void MapData( sa_app_t *AppPtr)
+{
+  
+
+
+
+}
+
+void CheckEncodeHddr( int FileDes)
+{
+
+  uint8_t DataRead[4] = {0};
+
+  if( -1 != read( FileDes, DataRead, sizeof( DataRead)) )
+  {
+    if( ( ENCODE_HEADER_1 != DataRead[0] ) && ( ENCODE_HEADER_2 != DataRead[1] ) &&
+        ( ENCODE_HEADER_3 != DataRead[2] ) && ( ENCODE_HEADER_4 != DataRead[3] ) )
+    {
+      console_print("Error in Parsing Encoding Header %X %X %X %X\n",
+          DataRead[0], DataRead[1], DataRead[2], DataRead[3]);
+      exit(0);
+    }
+    else
+    {
+      console_print("CheckEncodeHddr PASSED\n");
+      return;
+    }
+  }
+  else 
+  {
+    console_print("Error in Reading CheckEncodeHddr : %s\n", strerror(errno));
+    exit(0);
+  }
+}
+
 
 uint8_t ReadDS(sa_data_decode_t *Ptr, int FileDes)
 {
