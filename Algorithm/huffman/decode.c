@@ -49,7 +49,7 @@ void main (int argc, char **argv)
 
           break;
         case 1:
-          console_print("%3d Data : %X EncData : %X Bit : %X\n", i,
+          console_print("%3d Data : %2X EncData : %2X Bit : %2X\n", i+1,
               App.DataPtr[i]->Type, App.DataPtr[i]->EncData, App.DataPtr[i]->BitOfEnc);
 
           break;
@@ -119,6 +119,7 @@ uint8_t ReadDS(sa_data_decode_t *Ptr, int FileDes)
   }
   else
   {
+    /*
     console_print("Data Read Ds : %X %x %x %x %x %x %x\n",
         Data[0],
         Data[1],
@@ -127,7 +128,7 @@ uint8_t ReadDS(sa_data_decode_t *Ptr, int FileDes)
         Data[4],
         Data[5],
         Data[6]);
-
+*/
     if( Data[0] != DATA_ST_BYTE_0 )
       return 0;
     if( Data[1] != DATA_ST_BYTE_1 )
