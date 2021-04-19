@@ -8,7 +8,7 @@ from mfrc522 import SimpleMFRC522
 reader = SimpleMFRC522()
 
 ide = [660020036596,308090068794,908477334317,578417205842]
-name= ["aravind","aravind","Adithya","abcdef"]
+name= [ "Aravind", "DhanRaj", "Viswa", "Darshan"]
 
 e=" "
 buf=" "
@@ -37,7 +37,7 @@ def rfid_check(id) :
 
 try: 
     fileDes = open('/home/pi/Desktop/DataBase','a')
-    fileDes.write("\n\t---------- Secession Started at : ") 
+    fileDes.write("\n\t---------- Session Started at : ") 
     fileDes.write(time.asctime( time.localtime(time.time()) ) ) 
     fileDes.write(" ----------------\n\n") 
 
