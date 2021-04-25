@@ -2,6 +2,10 @@
 #define MAX_TREE_HT 100
 
 extern as_data_t CountData[0x7f+1];
+char TmpBuf[128] = {0};
+
+
+
 
 struct MinHeapNode* newNode(char data, unsigned freq)
 {
@@ -20,10 +24,11 @@ struct MinHeap* createMinHeap(unsigned capacity)
   struct MinHeap* minHeap
     = (struct MinHeap*)malloc(sizeof(struct MinHeap));
 
-  minHeap->size = 0;
+  minHeap->size	    = 0;
   minHeap->capacity = capacity;
-  minHeap->array = (struct MinHeapNode**)malloc(
-      minHeap->capacity * sizeof(struct MinHeapNode*));
+  minHeap->array    = (struct MinHeapNode**)
+    malloc( minHeap->capacity * sizeof(struct MinHeapNode*));
+
   return minHeap;
 }
 
@@ -36,22 +41,21 @@ void swapMinHeapNode(struct MinHeapNode** a,  struct MinHeapNode** b)
 
 void minHeapify(struct MinHeap* minHeap, int idx)
 {
-
   int smallest = idx;
   int left = 2 * idx + 1;
   int right = 2 * idx + 2;
 
-  if (left < minHeap->size
-      && minHeap->array[left]->freq
-      < minHeap->array[smallest]->freq)
+  if (left < minHeap->size  &&
+      minHeap->array[left ]->freq  < minHeap->array[smallest]->freq)	      // Mainly these 2 condiftions only for checking the Increasing order of the functions.
     smallest = left;
+  // encode.c file already sending the all the Data structure while filtering only.
 
-  if (right < minHeap->size
-      && minHeap->array[right]->freq
-      < minHeap->array[smallest]->freq)
+  if (right < minHeap->size && 
+      minHeap->array[right]->freq  < minHeap->array[smallest]->freq)
     smallest = right;
 
-  if (smallest != idx) {
+  if (smallest != idx)
+  {
     swapMinHeapNode(&minHeap->array[smallest],
 	&minHeap->array[idx]);
     minHeapify(minHeap, smallest);
@@ -97,6 +101,8 @@ void buildMinHeap(struct MinHeap* minHeap)
   int n = minHeap->size - 1;
   int i;
 
+  console_print("___________  SIZE : %d ___________\n", minHeap->size);
+
   for (i = (n - 1) / 2; i >= 0; --i)
     minHeapify(minHeap, i);
 }
@@ -119,41 +125,87 @@ struct MinHeap* createAndBuildMinHeap( int StartIndex)
   return minHeap;
 }
 
-void printArr(char  arr[], int n)
+void printArr(char  Data, int Freq, char  arr[], int n)
 {
   int i;
+
+  printf(" Data : %2X : Freq : %6d -> BitofEnc : %3d Data : ", Data, Freq, n);
   for (i = 0; i < n; ++i)
     printf("%c", arr[i]);
 
   printf("\n");
 }
 
-void printCodes(struct MinHeapNode* root, char arr[], int top,int StartIndex)
+void PrintArrBin ( as_data_t CountData )
+{
+  console_print(" Data : %2X : Freq : %6d -> BitofEnc : %3d Data : ", 
+      CountData.Type, CountData.Freq, CountData.BitOfEnc );
+
+  printf( "%s\n" ,GetBinary ( CountData.EncData, 8, TmpBuf) );
+
+}
+
+
+void printCodes(struct MinHeapNode* root, uint64_t *EncDataPtr, int top, int StartIndex )
 {
   if (root->left)
   {
-    arr[top] = '0';
-    printCodes(root->left, arr, top + 1, StartIndex);
+    *EncDataPtr |= 1 << top;
+    printCodes(root->left, EncDataPtr, top + 1, StartIndex );
   }
 
   if (root->right)
   {
-    arr[top] = '1';
-    printCodes(root->right, arr, top + 1, StartIndex);
+    *EncDataPtr &= ~( 1 << top );
+    printCodes(root->right, EncDataPtr, top + 1, StartIndex );
   }
 
   if (isLeaf(root))
   {
-    printf("%3d %c: ", root->data, root->data);
-    for ( int i = StartIndex; i<=0x7f;i++)
+    //printf("%3d %c: ", root->data, root->data);
+    for ( int i = StartIndex; i <= 0x7f ; i++)
       if ( CountData[i].Type == root->data )
       {
-	CountData[i].top = top;
-	strncpy( CountData[i].data, arr, top);
+	CountData[i].BitOfEnc = top;
+	CountData[i].EncData  = ReverseBits( MaskRemBits( *EncDataPtr, top), top );
+	PrintArrBin( CountData[i] );
       }
-    printArr(arr, top);
   }
 }
+
+uint64_t ReverseBits ( uint64_t BitOfEnc, int BitCount )
+{
+  uint64_t Rslt = 0;
+  int i = 0, j = BitCount - 1;
+
+  Rslt = BitOfEnc;
+
+  for (    ; i < j ; i++, j-- )
+  {
+    if ( (( Rslt >> i ) & 1 ) != (( Rslt >> j ) & 1 ) )
+    {
+      Rslt ^= 1 << i;
+      Rslt ^= 1 << j;
+    }
+  }
+
+  return Rslt;
+}
+
+
+uint64_t MaskRemBits ( uint64_t BitOfEnc, int BitCount )
+{
+  uint64_t Rslt = 0;
+  int	   indx = 0;
+
+  for( indx = 0; indx < BitCount ; indx++ )
+    Rslt |= 1 << indx;
+  
+  Rslt = Rslt & BitOfEnc;
+
+  return Rslt; 
+}
+
 
 struct MinHeapNode *  HuffmanCodes( int StartIndex ) 
 {
@@ -161,10 +213,11 @@ struct MinHeapNode *  HuffmanCodes( int StartIndex )
   struct MinHeapNode *left, *right, *top;
   struct MinHeapNode *root;
 
-  struct MinHeap* minHeap
-    = createAndBuildMinHeap( StartIndex);
+  struct MinHeap* minHeap;
 
-  while (!isSizeOne(minHeap)) 
+  minHeap = createAndBuildMinHeap( StartIndex);
+
+  while ( ! isSizeOne(minHeap) )
   {
     left = extractMin(minHeap);
     right = extractMin(minHeap);
@@ -179,10 +232,12 @@ struct MinHeapNode *  HuffmanCodes( int StartIndex )
 
   root = extractMin(minHeap);
 
-  char  arr[MAX_TREE_HT];
+  char  arr[MAX_TREE_HT] = {0};
+  uint64_t EncData = 0;
   int  Itop = 0;
 
-  printCodes(root, arr, Itop, StartIndex);
+
+  printCodes(root, &EncData, Itop, StartIndex);
   return root;
 }
 

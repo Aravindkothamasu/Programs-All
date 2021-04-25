@@ -7,6 +7,7 @@ int BitsOfIndex = 0;
 
 int BytesRead=0;
 uint8_t ReadBuf[16] = {0};
+char Buffer[128]={0};
 
 
 void main(int argc, char **argv)
@@ -31,13 +32,26 @@ void main(int argc, char **argv)
 
   ReadInputFile(Huff.InFileDes);
 
+#if DEBUG_ON_ENCODE
   for(i=0 ; i<=0x7f ; i++)
     if( 0 != CountData[i].Freq )
-      console_print("%3d, %3d : %5d\n",i, CountData[i].Type, CountData[i].Freq);
+      console_print("RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
+	  i, CountData[i].Type, CountData[i].Freq);
+#endif
 
   RearrangeData();
+  console_print("\n");
+
+#if DEBUG_ON_ENCODE
+
+  for(i=0 ; i<=0x7f ; i++)
+    if( 0 != CountData[i].Freq )
+      console_print("AFTR_SORT -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
+	  i, CountData[i].Type, CountData[i].Freq);
+#endif
 
   Huff.StartIndex = GetStartingPoint();
+
   if( -1 == Huff.StartIndex )
   { 
     console_print("Error Occured in Getting StartIndex\n");
@@ -47,23 +61,33 @@ void main(int argc, char **argv)
   console_print("Start Index : %3d\n",Huff.StartIndex);
 
   console_print("=====   Creating the Binary Tree  ======\n");
+  console_print("\n\n\n");
 
 
   root = HuffmanCodes(Huff.StartIndex);
-  console_print("After ReArranging\n");
+  console_print("After Creating HuffMan Tree Start Indx : %d CAL : %d\n",
+      Huff.StartIndex, CAL_SIZE ( Huff.StartIndex ) );
 
 
+#if 0
+  for( i = Huff.StartIndex; i <= TOT_CHARS ; i++ )
+  {
+    console_print ("INDX [%3d] Freq : %4d  Data : %2X EncData : %8X  BitofEnc : %3d : Data : %s\n", 
+	i, CountData[i].Freq, CountData[i].Type, CountData[i].EncData, CountData[i].BitOfEnc, CountData[i].data  );
+  }
+#endif
+
+
+#if 0	      // Replaced while Creating Array
   for( i = Huff.StartIndex; i<=TOT_CHARS; i++ )
   {
     for( j = 0 ; j+CountData[i].data < CountData[i].data+strlen(CountData[i].data) ; j++)
       CountData[i].EncData = ( ( CountData[i].EncData << 1 ) | ( CountData[i].data[j] -48 ) );
+
     CountData[i].BitOfEnc = j;
   }
+#endif
 
-  for(i=Huff.StartIndex ; i<=TOT_CHARS; i++)
-    console_print("%3d, [%3d] Data: %2X || Freq: %X || Data:%s || End : %x\n", i,
-	CountData[i].top, CountData[i].Type, CountData[i].Freq,
-	CountData[i].data, CountData[i].EncData);
 
   /////////////////////////////////////////////////////////////////////////
 
@@ -101,12 +125,24 @@ void main(int argc, char **argv)
     BufWrite[3] = CountData[i].EncData;
     BufWrite[4] = CountData[i].BitOfEnc;
 
+#if 0
+    console_print("%3d, [%3d] Data: %2X || Freq: %7d || EncData : %2X|| Data : %s\n", i,
+	CountData[i].top, CountData[i].Type, CountData[i].Freq,
+	CountData[i].EncData, CountData[i].data);
+#endif
+
     if( 7 != write( Huff.OutFileDes, BufWrite,7) )
       console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
   }
 
-  Header( Huff.OutFileDes );	      //Wrinting Headers into OutFile
+  console_print("============   COMPLETED WRITING DS INTO FILE =============\n");
+  console_print("\n\n");
 
+  Header( Huff.OutFileDes );	      //Wrinting Headers into OutFile
+  printf("\n\n");
+  console_print("============   COMPLETED WRITING DS INTO FILE =============\n");
+
+#if 0
   while( true )
   {
     BytesRead = read( Huff.InFileDes, ReadBuf, sizeof(ReadBuf));
@@ -138,7 +174,7 @@ void main(int argc, char **argv)
       }
     }
   }
-
+#endif 
   close( Huff.InFileDes );
 
   console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
@@ -154,6 +190,9 @@ void main(int argc, char **argv)
   console_print("!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
   console_print("\n\n");
 }
+
+
+
 
 void CreateOutFileName( char *InFileName, char *OutFileName)
 {
@@ -222,12 +261,16 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
     TempData = EncData;
 
     console_print("Enter into if \n\n");
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+	EncData, BitsOfIndex, 
+	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 
     DataToSend = DataToSend << CheckDiff( );
 
     DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n",
+	EncData, BitsOfIndex, 
+	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 
     if( true ==  WriteInToFile( FileDes) )
     {
@@ -235,8 +278,10 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
       DataToSend = 0;  
       DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
       BitsOfIndex = BitOfEnc - CheckDiff();
-      console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
 
+      console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+	  EncData, BitsOfIndex, 
+	  GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
     }
     else
     {
@@ -251,7 +296,9 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
     BitsOfIndex += BitOfEnc;
   }
 
-  console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", EncData, BitsOfIndex, Binary(DataToSend, sizeof( DataToSend )), DataToSend);
+  console_print(" Data : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+      EncData, BitsOfIndex, 
+      GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 
   return true;
 }
@@ -263,25 +310,22 @@ int CheckDiff ()
   return MAX_LEN_BUF_BITS - BitsOfIndex + 1;
 }
 
-char Buffer[128]={0};
 
-char * Binary (uint64_t  a,int size_in_bytes)	
+char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)	
 {
   int i=0,bit=63;
-  bzero( Buffer, sizeof( Buffer));
-
-
+  bzero( Buf, 128 );
 
   for( ;bit+1 ; i++ )
   {
 
-    Buffer[i] = ( a>>bit&1 ) ? '1' : '0';
+    Buf[i] = ( a>>bit&1 ) ? '1' : '0';
     bit -= 1;
 
     if( 0 == (bit+1) % 4 )
-      Buffer[++i] = '|';
+      Buf[++i] = '|';
   }
-  return Buffer;
+  return Buf;
 }
 
 uint8_t MaskData(uint8_t a)
@@ -336,16 +380,20 @@ int GetStartingPoint()
 void RearrangeData()
 {
   int i,j;
+
   for( i=0;i<=0x7f-1;i++)
     for( j=i+1 ; j<=0x7f ; j++)
-
+    {
       if( CountData[i].Freq  > CountData[j].Freq )
 	swap(i,j);
+    }
 }
 
 void swap(int i, int j)
 {
   as_data_t Buff={0};
+
+
   Buff = CountData[i];
   CountData[i] = CountData[j];
   CountData[j] = Buff;

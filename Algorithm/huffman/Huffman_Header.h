@@ -61,6 +61,8 @@
 
 #define TOT_CHARS	      0x7f
 
+#define DEBUG_ON_ENCODE		0
+#define DEBUG_ON_DECODE		1
 
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
@@ -69,13 +71,10 @@
 
 typedef struct 
 {
-  int Freq;
-  char Type;
-  int top;
-  char data[10];
-
-  uint8_t    EncData;
+  uint64_t    EncData;
   uint8_t    BitOfEnc; 
+  uint8_t     Type;
+  uint32_t     Freq;
 
 }as_data_t;
 
@@ -125,6 +124,8 @@ void swap(int i, int j);
 int GetStartingPoint();
 bool CreateArray(uint8_t , int, int);
 bool WriteInToFile(int );
+uint64_t MaskRemBits ( uint64_t , int );
+uint64_t ReverseBits ( uint64_t , int );
 
 
 
@@ -135,7 +136,7 @@ void CreateNewNode(as_bst_t **,char ,int );
 //int * filter( as_bst_t *root, char *);
 //*******************************************//
 struct MinHeapNode *  HuffmanCodes( int );
-char * Binary (uint64_t  a,int size_in_bytes)	;
+char * GetBinary (uint64_t  ,int , char *);
 uint8_t MaskData(uint8_t );
 int CheckDiff();
 int CmdLineCheck(int, int );
@@ -143,6 +144,7 @@ void CreateOutFileName( char *, char *);
 
 void Fooder(int );
 void Header( int );
+void PrintDataStruct ( struct MinHeapNode *, as_huff_t *);
 
 void WriteRemaingData( int );
 
