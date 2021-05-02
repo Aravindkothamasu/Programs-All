@@ -34,7 +34,7 @@ void FramingData( int Line, const char *Func, const char *File, const char *form
   char Buffer[500]={0};
   va_list args;
   va_start( args, format);					    
-  sprintf( Buffer, "#%s#  %s() [%d] : ", File, Func, Line);	    
+  sprintf( Buffer, "#%s#  %s() [%3d] : ", File, Func, Line);	    
   vsprintf( &Buffer[strlen(Buffer)], format, args);		    
   va_end(args);	
   printf("%s", Buffer);

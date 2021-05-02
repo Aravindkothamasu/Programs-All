@@ -182,8 +182,9 @@ typedef enum
   DEC_DS_COUNT		    ,
   DEC_ALLOCATE		    ,
   DEC_GET_DS		    ,
-  DEC_FOOTER		    ,
+  DEC_HEADER		    ,
   DEC_MAP_DATA		    ,
+  DEC_FOOTER		    ,
 
 }Huff_Decode_State_t;
 
@@ -225,12 +226,12 @@ uint8_t ReadDS( Huff_Decode_DataStru_t *, int );
 char * GetOutFileExtent( int , char *);
 int GetCountDS( Huff_Decode_app_t * );
 void MapData( Huff_Decode_app_t *);
-void CheckEncodeHddr( int );
+bool CheckEncode( bool , uint8_t *);
 bool AllocateMainMem( Huff_Decode_app_t *);
 void ReadData( Huff_Decode_app_t *);
 bool PrcsIpData( Huff_Decode_app_t *, uint8_t );
 bool AllocateSubMemory( Huff_Decode_app_t *);
-void DecodeHuffMan(Huff_Decode_app_t *, int , char **);;;
+void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void PrintDSdata(  Huff_Decode_app_t  * );
 
 

@@ -115,25 +115,44 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	      console_print("============  Reading the Frame Format Completed ===========\n");
 	      i--;
 	      PrintDSdata( AppPtr );
-	      AppPtr->MainSt = DEC_FOOTER;
+	      AppPtr->MainSt = DEC_HEADER;
 	    }
 	  }
 	  break;
 
-	case DEC_FOOTER :
+	case DEC_HEADER :
 	  {
-
-
+	    if( true == CheckEncode( true, AppPtr->IpData + i ) )
+	    {
+	      console_print("============  Decoding HEADER SUCCESS  ===========\n");
+	      console_print(" Function : %x  +1 : %X +2 : %X\n", AppPtr->IpData[i], AppPtr->IpData[i+1], AppPtr->IpData[i+2]  );
+	      //    i += 4;
+	      AppPtr->MainSt = DEC_MAP_DATA;
+	    }
+	    else
+	      return;
 	  }
 	  break;
 
 	case DEC_MAP_DATA :
 	  {
-
-
+	    MapData( AppPtr );
+	    AppPtr->MainSt = DEC_FOOTER;
 	  }
 	  break;
 
+	case DEC_FOOTER:
+	  {
+	    if( true == CheckEncode( false, AppPtr->IpData + i ) )
+	    {
+	      console_print("============  Decoding FOOTER SUCCESS  ===========\n");
+
+	      return;
+	    }
+	    else
+	      return;
+	  }
+	  break;
 	default :
 	  {
 	    console_print("Unknown State : %d\n", AppPtr->MainSt );
@@ -310,32 +329,29 @@ void MapData( Huff_Decode_app_t *AppPtr)
 
 }
 
-void CheckEncodeHddr( int FileDes)
+bool CheckEncode( bool isHeader, uint8_t *DataRead )
 {
-
-  uint8_t DataRead[4] = {0};
-
-  if( -1 != read( FileDes, DataRead, sizeof( DataRead)) )
+  if ( isHeader )
   {
-    if( ( ENCODE_HEADER_1 != DataRead[0] ) && ( ENCODE_HEADER_2 != DataRead[1] ) &&
-	( ENCODE_HEADER_3 != DataRead[2] ) && ( ENCODE_HEADER_4 != DataRead[3] ) )
+    if( ( ENCODE_HEADER_1 == DataRead[0] ) && ( ENCODE_HEADER_2 == DataRead[1] ) &&
+	( ENCODE_HEADER_3 == DataRead[2] ) && ( ENCODE_HEADER_4 == DataRead[3] ) )
     {
-      console_print("Error in Parsing Encoding Header %X %X %X %X\n",
-	  DataRead[0], DataRead[1], DataRead[2], DataRead[3]);
-      exit(0);
-    }
-    else
-    {
-      console_print("CheckEncodeHddr PASSED\n");
-      return;
+      console_print("Encoding FOOTER PASSED\n");
+      return true;
     }
   }
-  else 
+  else
   {
-    console_print("Error in Reading CheckEncodeHddr : %s\n", strerror(errno));
-    exit(0);
+    if( ( ENCODE_FOODER_1 == DataRead[0] ) && ( ENCODE_FOODER_2 == DataRead[1] ) &&
+	( ENCODE_FOODER_3 == DataRead[2] ) && ( ENCODE_FOODER_4 == DataRead[3] ) )
+    {
+      console_print("Encoding FOOTER PASSED\n");
+      return true;
+    }
   }
-
+  console_print("Error in Parsing Encoding [%s] %X %X %X %X\n", isHeader ? "HEADER" : "FOOTER", 
+      DataRead[0], DataRead[1], DataRead[2], DataRead[3]);
+return false;
 }
 
 
