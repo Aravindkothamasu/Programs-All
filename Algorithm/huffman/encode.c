@@ -10,13 +10,15 @@ uint8_t ReadBuf[16] = {0};
 char Buffer[128]={0};
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {    
   as_huff_t  Huff={0};
-  struct MinHeapNode *root;
   char OutFileName[36]={0};
-  uint8_t BufWrite[15] = {0};
-  int i=0,j=0;
+  uint8_t BufWrite[20] = {0};
+  int i=0,j;
+
+  uint64_t TempBit = 0;
+
 
   CmdLineCheck (argc, 2);
 
@@ -55,7 +57,7 @@ void main(int argc, char **argv)
   if( -1 == Huff.StartIndex )
   { 
     console_print("Error Occured in Getting StartIndex\n");
-    return;
+    return -1;
   }
 
   console_print("Start Index : %3d\n",Huff.StartIndex);
@@ -64,29 +66,19 @@ void main(int argc, char **argv)
   console_print("\n\n\n");
 
 
-  root = HuffmanCodes(Huff.StartIndex);
+  HuffmanCodes(Huff.StartIndex);
   console_print("After Creating HuffMan Tree Start Indx : %d CAL : %d\n",
       Huff.StartIndex, CAL_SIZE ( Huff.StartIndex ) );
 
-
-#if 0
   for( i = Huff.StartIndex; i <= TOT_CHARS ; i++ )
   {
-    console_print ("INDX [%3d] Freq : %4d  Data : %2X EncData : %8X  BitofEnc : %3d : Data : %s\n", 
-	i, CountData[i].Freq, CountData[i].Type, CountData[i].EncData, CountData[i].BitOfEnc, CountData[i].data  );
+    TempBit += CountData[i].BitOfEnc;
   }
-#endif
 
 
-#if 0	      // Replaced while Creating Array
-  for( i = Huff.StartIndex; i<=TOT_CHARS; i++ )
-  {
-    for( j = 0 ; j+CountData[i].data < CountData[i].data+strlen(CountData[i].data) ; j++)
-      CountData[i].EncData = ( ( CountData[i].EncData << 1 ) | ( CountData[i].data[j] -48 ) );
+  console_print(" ============  Bit of Enc Tot : %d =========\n", TempBit);
+  console_print(" ============= Tot Chars : %d ===========\n", CAL_SIZE( Huff.StartIndex ) * 8 ); 
 
-    CountData[i].BitOfEnc = j;
-  }
-#endif
 
 
   /////////////////////////////////////////////////////////////////////////
@@ -99,50 +91,19 @@ void main(int argc, char **argv)
   }
 
 
-
   ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
 
-  BufWrite[0] = START_INDEX_BYTE_0;
-  BufWrite[1] = START_INDEX_BYTE_1;
-  BufWrite[2] = TOT_CHARS - Huff.StartIndex + 1;
-  BufWrite[3] = START_INDEX_BYTE_3;
-  BufWrite[4] = START_INDEX_BYTE_4;
+  WriteCountDS( &Huff );	      // Writing Total Count of Data Structure in File
 
-  write( Huff.OutFileDes, BufWrite, 5);
-  memset( BufWrite, 0, sizeof(BufWrite));     //Writing No.of Data strcture need to create
+  CreateDSFrame( &Huff );	      // Writing Data Structures Frames into Out File
 
-  // DLE-STX TYPE[] EncData[] BitOfEnc[] DLE ETX	
+  Header( Huff.OutFileDes );	      // Writing Headers into OutFile
 
-  BufWrite[0] = DATA_ST_BYTE_0;
-  BufWrite[1] = DATA_ST_BYTE_1;
 
-  BufWrite[5] = DATA_ST_BYTE_5;
-  BufWrite[6] = DATA_ST_BYTE_6;
-
-  for ( i = Huff.StartIndex ; i <= 0x7f ; i++ )
-  {
-    BufWrite[2] = CountData[i].Type;  
-    BufWrite[3] = CountData[i].EncData;
-    BufWrite[4] = CountData[i].BitOfEnc;
-
-#if 0
-    console_print("%3d, [%3d] Data: %2X || Freq: %7d || EncData : %2X|| Data : %s\n", i,
-	CountData[i].top, CountData[i].Type, CountData[i].Freq,
-	CountData[i].EncData, CountData[i].data);
-#endif
-
-    if( 7 != write( Huff.OutFileDes, BufWrite,7) )
-      console_print("--> %d <-- Write Error : %s\n", i, strerror(errno));
-  }
 
   console_print("============   COMPLETED WRITING DS INTO FILE =============\n");
-  console_print("\n\n");
 
-  Header( Huff.OutFileDes );	      //Wrinting Headers into OutFile
-  printf("\n\n");
-  console_print("============   COMPLETED WRITING DS INTO FILE =============\n");
-
-#if 0
+#if 1
   while( true )
   {
     BytesRead = read( Huff.InFileDes, ReadBuf, sizeof(ReadBuf));
@@ -167,7 +128,7 @@ void main(int argc, char **argv)
 	    if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
 	    {
 	      console_print(" ERROR in Creating Frame\n");
-	      return;
+	      return -1;
 	    }
 	    break;
 	  }
@@ -189,9 +150,68 @@ void main(int argc, char **argv)
   console_print("*************   ENCODE OF [%s] DONE    ******************\n", argv[1]);
   console_print("!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
   console_print("\n\n");
+
+  return 0;
 }
 
+void WriteCountDS ( as_huff_t *Huff )
+{
+  uint8_t BufWrite[7] = {0};
 
+  BufWrite[0] = START_INDEX_BYTE_0;
+  BufWrite[1] = START_INDEX_BYTE_1;
+  BufWrite[2] = CAL_SIZE( Huff->StartIndex );
+  BufWrite[3] = START_INDEX_BYTE_3;
+  BufWrite[4] = START_INDEX_BYTE_4;
+
+
+  if( false == WriteDataIntoFile( Huff, BufWrite, 5) )
+    exit( 0 );
+}
+
+void CreateDSFrame( as_huff_t *Huff )
+{
+  uint8_t i,j=0,k=0;
+  uint8_t BufWrite[20] = {0};
+
+  // DLE-STX TYPE[] BitOfEnc[] EncData[] - DLE-ETX	
+
+  for( i = Huff->StartIndex ; i <= TOT_CHARS ; i++,j=0 )
+  {
+    memset( BufWrite, 0, sizeof( BufWrite ));
+
+    BufWrite[j++] = DATA_ST_BYTE_0;
+    BufWrite[j++] = DATA_ST_BYTE_1;
+
+
+    BufWrite[j++] = CountData[i].Type;
+    BufWrite[j++] = CountData[i].BitOfEnc;
+
+    for( k = CountData[i].BitOfEnc ; k > 0 ; k /= 8 )
+    {
+      BufWrite[j++] = ( CountData[i].EncData >> ( k/8 ) * 8 ) & 0XFF; 
+      //To UnderStand This u need to have master brain
+    }
+
+    BufWrite[j++] = DATA_ST_BYTE_5;
+    BufWrite[j++] = DATA_ST_BYTE_6;
+
+
+    if( false == WriteDataIntoFile( Huff, BufWrite, j) )
+      exit( 0 );
+  }
+}
+
+bool WriteDataIntoFile( as_huff_t *Huff, uint8_t *DataPtr, int DataLen )
+{
+  if( -1 == write( Huff->OutFileDes, DataPtr, DataLen ) )
+  {
+    console_print(" Write SYSTEM call fails : %s", strerror(errno));
+    return false;
+  }
+  else 
+    return true;
+}
 
 
 void CreateOutFileName( char *InFileName, char *OutFileName)
@@ -259,18 +279,21 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
   if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS )
   {
     TempData = EncData;
-
+#if 0
     console_print("Enter into if \n\n");
     console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+#endif
 
     DataToSend = DataToSend << CheckDiff( );
 
     DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
+#if 0
     console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n",
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+#endif
 
     if( true ==  WriteInToFile( FileDes) )
     {
@@ -278,10 +301,11 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
       DataToSend = 0;  
       DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
       BitsOfIndex = BitOfEnc - CheckDiff();
-
+#if 0
       console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
 	  EncData, BitsOfIndex, 
 	  GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+#endif
     }
     else
     {
@@ -296,9 +320,12 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
     BitsOfIndex += BitOfEnc;
   }
 
+#if 0
   console_print(" Data : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
       EncData, BitsOfIndex, 
       GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+#endif
+
 
   return true;
 }
@@ -361,7 +388,9 @@ bool WriteInToFile(int FileDes)
       }
       else
       {
+#if 0
 	console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
+#endif
       }
     uPtr8--;
   }

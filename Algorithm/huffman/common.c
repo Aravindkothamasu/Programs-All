@@ -2,13 +2,15 @@
 
 
 
-int CmdLineCheck(int argc, int MaxCount)
+void CmdLineCheck(int argc, int MaxCount)
 {
   if( argc != MaxCount)
   {   
     console_print("ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
     exit(0);
   }
+
+  return;
 }
 
 
@@ -16,6 +18,7 @@ int FileOpening (char *Filename, short int Flags)
 {
   int FileDes;
   FileDes = open( Filename, Flags,0664);
+
   if ( -1 == FileDes )
   {
     console_print("ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));

@@ -123,9 +123,12 @@ void RearrangeData();
 void swap(int i, int j);
 int GetStartingPoint();
 bool CreateArray(uint8_t , int, int);
+void CreateDSFrame( as_huff_t *);
 bool WriteInToFile(int );
 uint64_t MaskRemBits ( uint64_t , int );
 uint64_t ReverseBits ( uint64_t , int );
+bool WriteDataIntoFile( as_huff_t *, uint8_t *, int );
+void WriteCountDS ( as_huff_t *);
 
 
 
@@ -139,7 +142,7 @@ struct MinHeapNode *  HuffmanCodes( int );
 char * GetBinary (uint64_t  ,int , char *);
 uint8_t MaskData(uint8_t );
 int CheckDiff();
-int CmdLineCheck(int, int );
+void CmdLineCheck(int , int );
 void CreateOutFileName( char *, char *);
 
 void Fooder(int );
@@ -152,12 +155,46 @@ void WriteRemaingData( int );
 
 
 ///////////////////////     DECODE.C      /////////////////////
+
+
+
+#define MAX_DATA_CAN_READ   100
+
+typedef enum
+{
+  DS_HDDR_STR_1	   = 0,
+  DS_HDDR_STR_2    = 1,
+  DS_DATA_TYPE     = 2,
+  DS_DATA_BIT_ENC  = 3,
+  DS_DATA_ENC_DATA = 4,
+  DS_DATA_FOOT_1   = 5,
+  DS_DATA_FOOT_2   = 6,
+
+}Huff_Decode_DataFlow_t;
+
+
+typedef enum 
+{
+  DEC_CHCK_IN_FILE	    ,
+  DEC_IN_FILE		    ,
+  DEC_CREATE_OUT_FILENAME   ,
+  DEC_OPEN_OUTFILE	    ,
+  DEC_DS_COUNT		    ,
+  DEC_ALLOCATE		    ,
+  DEC_GET_DS		    ,
+  DEC_FOOTER		    ,
+  DEC_MAP_DATA		    ,
+
+}Huff_Decode_State_t;
+
+
 typedef struct 
 {
-   uint8_t EncData;
+   uint64_t EncData;
    uint8_t BitOfEnc;
    uint8_t Type;
-}sa_data_decode_t;
+
+}Huff_Decode_DataStru_t;
 
 typedef struct
 {
@@ -167,17 +204,34 @@ typedef struct
 
 
   char                  OutFileName[150];
-  sa_data_decode_t       **DataPtr;
-}sa_app_t;
+
+  
+  uint8_t		IpData[ MAX_DATA_CAN_READ];
+  int			RdRtnBytes;
 
 
-void CheckFile( char *);
+  Huff_Decode_DataStru_t **DataPtr;
+  int			  Indx;
+
+  Huff_Decode_DataFlow_t  DataFlowSt;
+  Huff_Decode_State_t	  MainSt;
+
+}Huff_Decode_app_t;
+
+
+void CheckIpFile( char *);
 void CreateOutFileName ( char *, char *);
-uint8_t ReadDS(sa_data_decode_t *, int );
+uint8_t ReadDS( Huff_Decode_DataStru_t *, int );
 char * GetOutFileExtent( int , char *);
-int GetCountDS( int );
-void MapData( sa_app_t *);
+int GetCountDS( Huff_Decode_app_t * );
+void MapData( Huff_Decode_app_t *);
 void CheckEncodeHddr( int );
+bool AllocateMainMem( Huff_Decode_app_t *);
+void ReadData( Huff_Decode_app_t *);
+bool PrcsIpData( Huff_Decode_app_t *, uint8_t );
+bool AllocateSubMemory( Huff_Decode_app_t *);
+void DecodeHuffMan(Huff_Decode_app_t *, int , char **);;;
+void PrintDSdata(  Huff_Decode_app_t  * );
 
 
 
