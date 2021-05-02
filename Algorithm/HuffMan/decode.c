@@ -18,12 +18,12 @@ void main (int argc, char **argv)
      ReadDataFrame ( &App );
      }while( true == PrcsIpData( &App, 'a' ) );
 
-   CheckEncodeHddr( App.InFileDes);
+     CheckEncodeHddr( App.InFileDes);
 
 
-   }
- */
-}
+     }
+   */
+  }
 
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 {
@@ -125,8 +125,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    if( true == CheckEncode( true, AppPtr->IpData + i ) )
 	    {
 	      console_print("============  Decoding HEADER SUCCESS  ===========\n");
-	      console_print(" Function : %x  +1 : %X +2 : %X\n", AppPtr->IpData[i], AppPtr->IpData[i+1], AppPtr->IpData[i+2]  );
-	      //    i += 4;
+	      i += 3;
 	      AppPtr->MainSt = DEC_MAP_DATA;
 	    }
 	    else
@@ -273,14 +272,14 @@ void PrintDSdata(  Huff_Decode_app_t  * AppPtr )
   for( i=0; i < AppPtr->CountIndex ; i ++ )
   {
     console_print("INDX[%3d] TYPE : %2X | BitEnc %2X | EncData : %8X\n",
-	  i+1, AppPtr->DataPtr[i]->Type, AppPtr->DataPtr[i]->BitOfEnc, AppPtr->DataPtr[i]->EncData );
+	i+1, AppPtr->DataPtr[i]->Type, AppPtr->DataPtr[i]->BitOfEnc, AppPtr->DataPtr[i]->EncData );
   }
 }
 
 void ReadData( Huff_Decode_app_t *AppPtr )
 {
   memset( AppPtr->IpData, 0, sizeof( AppPtr->IpData ) );
-  
+
   AppPtr->RdRtnBytes = read( AppPtr->InFileDes, AppPtr->IpData, MAX_DATA_CAN_READ );
 
   if( -1 == AppPtr->RdRtnBytes )
@@ -323,7 +322,7 @@ bool AllocateMainMem( Huff_Decode_app_t *AppPtr)
 
 void MapData( Huff_Decode_app_t *AppPtr)
 {
-  
+
 
 
 
@@ -351,7 +350,7 @@ bool CheckEncode( bool isHeader, uint8_t *DataRead )
   }
   console_print("Error in Parsing Encoding [%s] %X %X %X %X\n", isHeader ? "HEADER" : "FOOTER", 
       DataRead[0], DataRead[1], DataRead[2], DataRead[3]);
-return false;
+  return false;
 }
 
 
@@ -369,15 +368,15 @@ uint8_t ReadDS( Huff_Decode_DataStru_t *Ptr, int FileDes)
   else
   {
     /*
-    console_print("Data Read Ds : %X %x %x %x %x %x %x\n",
-        Data[0],
-        Data[1],
-        Data[2],
-        Data[3],
-        Data[4],
-        Data[5],
-        Data[6]);
-*/
+       console_print("Data Read Ds : %X %x %x %x %x %x %x\n",
+       Data[0],
+       Data[1],
+       Data[2],
+       Data[3],
+       Data[4],
+       Data[5],
+       Data[6]);
+     */
     if( Data[0] != DATA_ST_BYTE_0 )
       return 0;
     if( Data[1] != DATA_ST_BYTE_1 )

@@ -208,6 +208,7 @@ typedef struct
 
   
   uint8_t		IpData[ MAX_DATA_CAN_READ];
+  uint8_t		OpData[ MAX_DATA_CAN_READ];
   int			RdRtnBytes;
 
 
