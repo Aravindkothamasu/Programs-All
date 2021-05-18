@@ -9,21 +9,10 @@ void main (int argc, char **argv)
 
   CmdLineCheck( argc, 2);
 
-
-
   App.RdRtnBytes = 4;
 
   DecodeHuffMan( &App, argc, argv );
-  /*
-     ReadDataFrame ( &App );
-     }while( true == PrcsIpData( &App, 'a' ) );
-
-     CheckEncodeHddr( App.InFileDes);
-
-
-     }
-   */
-  }
+}
 
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 {
@@ -135,8 +124,11 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	case DEC_MAP_DATA :
 	  {
-	    MapData( AppPtr );
-	    AppPtr->MainSt = DEC_FOOTER;
+	    if( true == MapData( AppPtr, AppPtr->IpData[i] ) )
+	    {
+	      console_print("============  Mapping Data SUCCESS  ===========\n");
+	      AppPtr->MainSt = DEC_FOOTER;
+	    }
 	  }
 	  break;
 
@@ -145,13 +137,13 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    if( true == CheckEncode( false, AppPtr->IpData + i ) )
 	    {
 	      console_print("============  Decoding FOOTER SUCCESS  ===========\n");
-
 	      return;
 	    }
 	    else
 	      return;
 	  }
 	  break;
+
 	default :
 	  {
 	    console_print("Unknown State : %d\n", AppPtr->MainSt );
@@ -320,9 +312,29 @@ bool AllocateMainMem( Huff_Decode_app_t *AppPtr)
 }
 
 
-void MapData( Huff_Decode_app_t *AppPtr)
+bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData)
 {
+  uint8_t IndxTmp = 0;
+  uint8_t BitTmp  = 0;
+  uint8_t FormatData = 7;
 
+  console_print("****** MAP DATA CALLED ******\n");
+
+}
+
+void WriteData( Huff_Decode_app_t *AppPtr )
+{
+  if( -1 == write( AppPtr->OutFileDes, AppPtr->OpData, AppPtr->WritePtr ) )
+  {
+    console_print("-----> Write Data into FILE : %s Failure : %s\n", strerror(errno) );
+    exit( 0 );
+  }
+  else
+    console_print("Writing Data SUCCESS : %d", AppPtr->WritePtr );
+}
+
+bool GetBitVal( uint64_t Data, uint8_t BitIndx )
+{
 
 
 

@@ -185,6 +185,7 @@ typedef enum
   DEC_HEADER		    ,
   DEC_MAP_DATA		    ,
   DEC_FOOTER		    ,
+  DEC_SENDOFF		    ,
 
 }Huff_Decode_State_t;
 
@@ -210,6 +211,7 @@ typedef struct
   uint8_t		IpData[ MAX_DATA_CAN_READ];
   uint8_t		OpData[ MAX_DATA_CAN_READ];
   int			RdRtnBytes;
+  int			WritePtr;
 
 
   Huff_Decode_DataStru_t **DataPtr;
@@ -218,6 +220,11 @@ typedef struct
   Huff_Decode_DataFlow_t  DataFlowSt;
   Huff_Decode_State_t	  MainSt;
 
+
+
+
+  int			LastIndx;
+  int			LastBit;
 }Huff_Decode_app_t;
 
 
@@ -226,7 +233,7 @@ void CreateOutFileName ( char *, char *);
 uint8_t ReadDS( Huff_Decode_DataStru_t *, int );
 char * GetOutFileExtent( int , char *);
 int GetCountDS( Huff_Decode_app_t * );
-void MapData( Huff_Decode_app_t *);
+bool MapData( Huff_Decode_app_t *, uint8_t);
 bool CheckEncode( bool , uint8_t *);
 bool AllocateMainMem( Huff_Decode_app_t *);
 void ReadData( Huff_Decode_app_t *);
@@ -234,6 +241,8 @@ bool PrcsIpData( Huff_Decode_app_t *, uint8_t );
 bool AllocateSubMemory( Huff_Decode_app_t *);
 void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void PrintDSdata(  Huff_Decode_app_t  * );
+bool GetBitVal( uint64_t , uint8_t );
+void WriteData( Huff_Decode_app_t *);
 
 
 
