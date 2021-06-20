@@ -48,11 +48,10 @@ typedef struct
 
 typedef struct
 {
-  int CountIndx;
-  uint8_t BitOfIndx;
+  uint64_t  Data;
+  uint8_t   EnnoBit;
+  uint8_t   Ennodhi;
 
-  uint8_t PrevData;
-  uint8_t BitOf;
 
 }Huff_Dec_Prev_St;
 
@@ -79,6 +78,7 @@ typedef struct
   Huff_Decode_DataFlow_t  DataFlowSt;
   Huff_Decode_State_t	  MainSt;
 
+  Huff_Dec_Prev_St	  Prev;
 
 }Huff_Decode_app_t;
 
