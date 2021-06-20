@@ -1,6 +1,10 @@
 
 #include"Huffman_Header.h"
 
+#define DEBUG_ON_ENCODE_PRINT  1
+
+
+
 as_data_t CountData[TOT_CHARS+1]={0};
 uint64_t DataToSend = 0;
 int BitsOfIndex = 0;
@@ -75,10 +79,12 @@ int main(int argc, char **argv)
     TempBit += CountData[i].BitOfEnc;
   }
 
-
-  console_print(" ============  Bit of Enc Tot : %d =========\n", TempBit);
-  console_print(" ============= Tot Chars : %d ===========\n", CAL_SIZE( Huff.StartIndex ) * 8 ); 
-
+  console_print( "\n" );
+  console_print( "\t===========================================\n" );
+  console_print("\t\t Bit of Enc Tot : %d \n", TempBit);
+  console_print("\t\t Tot Chars : %d \n", CAL_SIZE( Huff.StartIndex ) * 8 ); 
+  console_print( "\t===========================================\n" );
+  console_print( "\n" );
 
 
   /////////////////////////////////////////////////////////////////////////
@@ -94,15 +100,17 @@ int main(int argc, char **argv)
   ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
 
   WriteCountDS( &Huff );	      // Writing Total Count of Data Structure in File
+  console_print( "Writing Count DS Done\n" );
 
   CreateDSFrame( &Huff );	      // Writing Data Structures Frames into Out File
+  console_print( "Writing Frame Format Writing Done\n");
 
   Header( Huff.OutFileDes );	      // Writing Headers into OutFile
 
 
+  console_print( " ============  COMPLETED WRITING DS INTO FILE =============\n");
 
-  console_print("============   COMPLETED WRITING DS INTO FILE =============\n");
-
+  sleep( 5 );
 #if 1
   while( true )
   {
@@ -171,13 +179,17 @@ void WriteCountDS ( as_huff_t *Huff )
 
 void CreateDSFrame( as_huff_t *Huff )
 {
-  uint8_t i,j=0,k=0;
+  uint8_t i,j=0;
+  int k = 0;
   uint8_t BufWrite[20] = {0};
 
   // DLE-STX TYPE[] BitOfEnc[] EncData[] - DLE-ETX	
 
   for( i = Huff->StartIndex ; i <= TOT_CHARS ; i++,j=0 )
   {
+    console_print( "ASCII_DATA : %2X -- BitOfEnc : %2X -- EncData : %X\n", 
+	CountData[i].Type, CountData[i].BitOfEnc, CountData[i].EncData );
+
     memset( BufWrite, 0, sizeof( BufWrite ));
 
     BufWrite[j++] = DATA_ST_BYTE_0;
@@ -187,9 +199,9 @@ void CreateDSFrame( as_huff_t *Huff )
     BufWrite[j++] = CountData[i].Type;
     BufWrite[j++] = CountData[i].BitOfEnc;
 
-    for( k = CountData[i].BitOfEnc ; k > 0 ; k /= 8 )
+    for( k = CountData[i].BitOfEnc ; k >= 0 ; k -= 8 )	  //FIXME : Need to Cross verify
     {
-      BufWrite[j++] = ( CountData[i].EncData >> ( k/8 ) * 8 ) & 0XFF; 
+      BufWrite[j++] = ( CountData[i].EncData >> ( ( k/8 ) * 8 ) ) & 0XFF; 
       //To UnderStand This u need to have master brain
     }
 
@@ -272,16 +284,16 @@ void Fooder(int FileDes)
 }
 
 
-bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes) 
+bool CreateArray( uint64_t EncData, int BitOfEnc, int FileDes) 
 {
-  uint8_t TempData = 0;
+  uint64_t TempData = 0;
 
   if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS )
   {
     TempData = EncData;
-#if 0
+#if DEBUG_ON_ENCODE_PRINT
     console_print("Enter into if \n\n");
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+    console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -289,8 +301,8 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
     DataToSend = DataToSend << CheckDiff( );
 
     DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
-#if 0
-    console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n",
+#if DEBUG_ON_ENCODE_PRINT
+    console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n",
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -301,8 +313,8 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
       DataToSend = 0;  
       DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
       BitsOfIndex = BitOfEnc - CheckDiff();
-#if 0
-      console_print(" Data : %x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+#if DEBUG_ON_ENCODE_PRINT
+      console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
 	  EncData, BitsOfIndex, 
 	  GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -320,8 +332,8 @@ bool CreateArray(uint8_t EncData, int BitOfEnc, int FileDes)
     BitsOfIndex += BitOfEnc;
   }
 
-#if 0
-  console_print(" Data : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+#if DEBUG_ON_ENCODE_PRINT
+  console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
       EncData, BitsOfIndex, 
       GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif

@@ -1,5 +1,3 @@
-
-
 #ifndef __HUFFMAN_HEADER_H__
 #define __HUFFMAN_HEADER_H__
 
@@ -125,7 +123,7 @@ void ReadInputFile(int );
 void RearrangeData();
 void swap(int i, int j);
 int GetStartingPoint();
-bool CreateArray(uint8_t , int, int);
+bool CreateArray( uint64_t , int, int);
 void CreateDSFrame( as_huff_t *);
 bool WriteInToFile(int );
 uint64_t MaskRemBits ( uint64_t , int );
