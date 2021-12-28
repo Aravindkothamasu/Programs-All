@@ -3,7 +3,7 @@
 
 int EncDataByts = 0;
 
-void main (int argc, char **argv)
+int main (int argc, char **argv)
 {  
   Huff_Decode_app_t App={0};
 
@@ -12,6 +12,7 @@ void main (int argc, char **argv)
   App.RdRtnBytes = 4;
 
   DecodeHuffMan( &App, argc, argv );
+  return 0;
 }
 
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
@@ -319,7 +320,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData)
   uint8_t FormatData = 7;
 
   console_print("****** MAP DATA CALLED ******\n");
-
+  return false;
 }
 
 void WriteData( Huff_Decode_app_t *AppPtr )
@@ -338,6 +339,7 @@ bool GetBitVal( uint64_t Data, uint8_t BitIndx )
 
 
 
+  return false;
 }
 
 bool CheckEncode( bool isHeader, uint8_t *DataRead )

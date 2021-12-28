@@ -393,6 +393,7 @@ bool WriteInToFile(int FileDes)
   for( i=0 ;i<8;i++)
   {
     if( *uPtr8 )
+    {
       if( write( FileDes, uPtr8, 1) < 0 )
       {
 	console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
@@ -404,6 +405,7 @@ bool WriteInToFile(int FileDes)
 	console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
 #endif
       }
+    }
     uPtr8--;
   }
   return true;

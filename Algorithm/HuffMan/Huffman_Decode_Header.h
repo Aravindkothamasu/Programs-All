@@ -96,7 +96,7 @@ bool PrcsIpData( Huff_Decode_app_t *, uint8_t );
 bool AllocateSubMemory( Huff_Decode_app_t *);
 void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void PrintDSdata(  Huff_Decode_app_t  * );
-bool GetBitVal( uint8_t , uint64_t );
+bool GetBitVal( uint64_t, uint8_t );
 void WriteData( Huff_Decode_app_t *);
 
 
