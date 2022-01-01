@@ -20,6 +20,7 @@ set nohlsearch		    "HIGHLET THE SEARCH TEXT"
 set ignorecase		    "IGNORE THE CASE"
 set omnifunc=ccomplete
 set smartcase	
+set wildignorecase
 filetype indent on
 
 
@@ -28,6 +29,7 @@ command! Wq wq
 command! Qall qall
 command! Wqall wqall
 
+command! Vt  vertical terminal
 
 
 
@@ -65,4 +67,8 @@ inoremap <Tab> <C-R>=Tab_Or_Complete()<CR>
 set backupdir=/tmp//
 set directory=/tmp//
 set undodir=/tmp//
+
+let &t_SI = "\e[6 q"
+let &t_SR = "\e[4 q"
+let &t_EI = "\e[2 q"
 

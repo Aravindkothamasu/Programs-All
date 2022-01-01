@@ -30,41 +30,15 @@ sh /home/trakmate/TCU500/naasontham/.aravind.sh
 #############################################################
 alias remo='sudo ssh-keygen -f "/home/trakmate/.ssh/known_hosts" -R "192.168.2.2"'
 alias remoc='sudo ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.2.2"'
-alias updc='echo "nothing"'
-alias dhan='ssh trakmate11@192.168.1.118'
-alias con='sudo ssh root@192.168.2.2'
-alias tcu='cd $BASE/apps/tcu500/;'
-alias lee='cd $BASE/legato;'
-alias rme='rm -rf _build_* *.wp76xx.update Target_Legato_Debug;
-           cd *Component;
-           rm -rf inc_gen;
-           cd -;'
-alias mk='mkapp -i $BASE/legato/interfaces/modemServices \
-                -i $BASE/legato/interfaces/positioning   \
-                -i $BASE/legato/interfaces/wifi          \
-                -i $BASE/legato/interfaces               \
-                -i $BASE/apps/tcu500/interfaces          \
-                -t wp76xx *.adef'
 
-alias mkb='mkapp -i $BASE/legato/interfaces/modemServices \
-                -i $BASE/legato/interfaces/positioning   \
-                -i $BASE/legato/interfaces/wifi          \
-                -i $BASE/legato/interfaces               \
-                -i $BASE/apps/tcu500/interfaces          \
-                -t wp76xx *.adef -b'
-alias upd='update *.wp76xx.update 192.168.2.2;'
-alias pdf='cd $BASE/../OBD/TrakMate/TCU500_EXIDE ;'
-alias wifi='sudo arp-scan --interface=wlp1s0 --localnet | grep Murata'
-alias tot='update *.remove.update 192.168.2.2;
-           rm -rf _build_* *.wp76xx.update Target_Legato_Debug;
-           cd *Component;rm -rf inc_gen;cd -;
-           mkapp -i $BASE/legato/interfaces/modemServices \
-                -i $BASE/legato/interfaces/positioning   \
-                -i $BASE/legato/interfaces/wifi          \
-                -i $BASE/legato/interfaces               \
-                -t wp76xx *.adef
-           update *.wp76xx.update 192.168.2.2;'
 
+export LESS_TERMCAP_mb=$'\e[1;32m'
+export LESS_TERMCAP_md=$'\e[1;32m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_se=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[01;33m'
+export LESS_TERMCAP_ue=$'\e[0m'
+export LESS_TERMCAP_us=$'\e[1;4;31m'
 #############################################################
 alias  m='cd ..'
 alias 2.='cd ../../'
