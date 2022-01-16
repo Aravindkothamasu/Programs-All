@@ -25,5 +25,5 @@ clean:
 	$(DEL) $(DEST_ENCODE) $(DEST_DECODE) $(DEL_TMP_FILE) a.out
 
 cleanall:
-	$(DEL) $(DEST_ENCODE) $(DEST_DECODE) $(ENCODE_SRC) $(DECODE_SRC) 	
+	$(DEL) $(ENCODE_SRC) $(DECODE_SRC) $(DEST_ENCODE) $(DEST_DECODE) 	
 	$(DEL) $(DEL_TMP_FILE) a.out
