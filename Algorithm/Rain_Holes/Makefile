@@ -1,8 +1,15 @@
 
-all:
-	rm -rf *.ra
-	cat  header_rain.h > backup.ra
-	cat *.c >> backup.ra
-	time gcc -static *.c -o rainHoles
+CC=gcc
+DEL=rm -f
+DEL_TMP_FILE=*.ra
+SRC=extra.o new.o support.o
+EXECUTABLE=rainHolesExe
+CFLAGS = -static -Wall
+TIME=time
+
+
+all: $(SRC)
+	$(DEL) $(DEL_TMP_FILE) a.out
+	$(CC) $(CFLAGS) $(SRC) -o $(EXECUTABLE) 
 clean:
-	rm -rf rainHoles *.ra *.md
+	$(DEL) $(DEL_TMP_FILE) a.out $(EXECUTABLE) $(SRC)

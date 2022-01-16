@@ -72,7 +72,8 @@ void PrintAddr(ak_data*hptr)
 {
         ak_data *p = hptr;
         do{
-                printf("prev %x Addr %x next %x num %d\n",(ak_uint64)p->prev,(ak_uint64)p,(ak_uint64)p->next,p->num);
+                printf("prev %p Addr %p next %p num %d\n",
+		    p->prev, p, p->next, p->num);
                 p=p->next;
         }while(p !=hptr);
 }	
