@@ -1,0 +1,267 @@
+###################################
+set nocompatible
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+
+set ve=all            "set virtual edit to all        
+set co=160            "set the number of columns      
+set lines=60            "set the number of lines        
+set nowrap            "disable ling wrapping          
+"set go+=b            "show the horizontal scrollbar  
+"colors darkblue            "use the darkblue color scheme  
+colors lanzarotta
+"colors moria
+"colors midnight2
+"colors transparent
+set gfn=lucida_console:h9       "set the font
+"set gfn=Terminal:h6
+filetype indent on              "set automatic indenting on
+"set cursorline                  "Show the cursor line 
+set shiftwidth=2                "indentation level is 2
+set tabstop=2
+set expandtab                   "convert tabs to spaces
+set ignorecase                  "default ignore case during searches
+set smartcase                   "ignore ignorecase when capitals in the string
+set nohlsearch
+set makeprg=mhmake              "set mhmake as default make program
+set backupdir=d:\backup\
+set noundofile
+set undodir=d:\backup\
+"set patchmode=.orig
+set hidden    " make buffers hidden instead of unloadin when switchin in window
+set history=512   " Set number of commands in history
+set directory=c:\temp
+set path=.,d:\cm\sources,,
+
+set wildmenu
+set wildmode=longest:full
+
+let Tlist_Ctags_Cmd = '$VIMRUNTIME/ctags.exe'
+let Tlist_Auto_Open = 0
+
+set tags=./tags,tags,d:\cm\sources\tags
+
+"open the directory browser
+map <Leader>e :Explore<cr>
+"split window and open directory browser
+map <Leader>s :Sexplore<cr>     
+
+nmap <C-Left> b
+nmap <C-Right> w
+nmap <C-S-Right> vw<C-G>
+nmap <C-S-Left> vb<C-G>
+" Make <C-Left> and <C-Right> wct the same in Insert Mode as in Normal Mode.
+imap <C-S-Right> <C-O>vw<C-G>
+imap <C-S-Left> <C-O>vb<C-G>
+vmap <C-Left> b
+vmap <C-Right> w
+vmap <C-S-Left> b
+vmap <C-S-Right> w
+
+imap <C-Q> <C-O><C-Q>
+
+" Map <m-/> to start searching when in insert mode.
+nmap <m-/> /
+nmap <F3>  n
+nmap <S-F3> N
+"nmap <C-F3> :promptfind<CR>
+nmap <C-F3> *
+nmap <C-H> :promptrepl<CR>
+imap <m-/> <c-O>/
+imap <F3>  <C-O>n
+imap <S-F3> <C-O>N
+"imap <C-F3> <C-O>:promptfind<CR>
+imap <C-F3> <C-O>*
+imap <C-H>  <C-O>:promptrepl<CR>
+vmap <F3>   n
+vmap <S-F3> N
+"vmap <C-F3> ygV:promptfind <C-R>"<CR>
+vmap <C-F3> ygV/<C-R>"<CR>
+vmap <C-H>  ygv:promptrepl <C-R>"<CR>
+
+" goto the next error
+map  <F4>   :cn<CR>
+map! <F4>   <C-o>:cn<CR>
+" goto the previous error
+map  <S-F4> :cp<CR>
+map! <S-F4> <C-o>:cp<CR>
+" goto previous error list
+map  <S-F6> :cold<CR>
+map! <S-F6> <C-o>:cold<CR>
+" goto next error list
+map  <F6> :cnew<CR>
+map! <F6> <C-o>:cnew<CR>
+
+" close burrent buffer
+"map <C-F4> :bd<CR>
+"map! <C-F4> <C-O>:bd<CR>
+let g:BufClose_AltBuffer="#"
+map <C-F4> :BufClose<CR>
+map! <C-F4> <C-O>:BufClose<CR>
+" goto the next error in the next file
+map <F5>   :cnf<CR>
+
+
+function! Mosh_Tab_Or_Complete() 
+    if col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w' 
+        return "\<C-n>" 
+    else 
+        return "\<Tab>" 
+endfunction 
+
+function! Mosh_UnTab_Or_Complete() 
+    if col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w' 
+        return "\<C-p>" 
+    else 
+        return "\<S-Tab>" 
+endfunction 
+
+:inoremap <Tab> <C-R>=Mosh_Tab_Or_Complete()<CR>
+:inoremap <S-Tab> <C-R>=Mosh_UnTab_Or_Complete()<CR>
+
+" exchange m-n and c-n
+inoremap <M-n> <C-n>
+inoremap <C-n> <M-n>
+inoremap <M-p> <C-p>
+inoremap <C-p> <M-p>
+
+" goto to the next buffer in the list
+nmap <C-n>  :bnext<CR>
+map! <C-n>  <C-o>:bnext<CR>
+vmap <C-n>  :bnext<CR> 
+" goto the previous buffer in the list
+nmap <C-p>  :bprev<CR>
+map! <C-p>  <C-o>:bprev<CR>
+vmap <C-p>  :bprev<CR>
+
+nmap <F12> \be
+map! <F12> <C-o>\be
+vmap <F12> \be
+
+" (jumps between 1.column / 1. non-whitespace-char of line)
+map <Home> :call HomeWok()<cr>
+map! <Home> <C-o>:call HomeWok()<cr>
+vmap <Home> :call HomeWok()<cr>v
+
+" Assign the python shell command to \sh
+"nmap \sh                  :source $VIM\vimsh\vimsh.vim<CR>
+
+" Assign the greptool search command to <C-F>
+nmap <F2> :pyfile $VIMRUNTIME\pygrep\pygrep.py<CR>
+map! <F2> <C-o>:pyfile $VIMRUNTIME\pygrep\pygrep.py<CR>
+vmap <F2> "+y:pyfile $VIMRUNTIME\pygrep\pygrepsel.py<CR>
+
+" Assign find command to C-f
+nmap <C-f> :promptfind<CR>
+map! <C-f> <C-o>:promptfind<CR>
+vmap <C-f> :promptfind<CR>
+
+" Assign the mhmake command to <F7>
+nmap <F7> :pyfile $VIMRUNTIME\mhmakepy\mhmakepy.py<CR>
+map! <F7> <C-o>:pyfile $VIMRUNTIME\mhmakepy\mhmakepy.py<CR>
+vmap <F7> :pyfile $VIMRUNTIME\mhmakepy\mhmakepy.py<CR>
+
+nmap <End>  $<Right>
+nmap <C-End>  i<C-End><Right><ESC>
+
+" WOK: Visual C++ like TAB 
+" (indent/unindent block in visual/select mode with TAB: keeps last selection!)
+vmap <TAB> :><cr>gv
+vmap <S-TAB> :<<cr>gv
+
+" WOK: <CTRL><SHIFT><TAB> switches to previous buffer, like MS Visual C++
+map! <C-S-TAB> <C-o>:bN<CR>
+map  <C-S-TAB> :bN<CR>
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = ''
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  silent execute '!$VIMRUNTIME\diff -a ' . opt . v:fname_in . ' ' . v:fname_new . ' > ' . v:fname_out
+endfunction
+
+" <Home> toggles cursor pos between first-column and first-non-whitespace-column
+func! HomeWok()
+  " get current column...
+  let oldcol = col(".")
+  " go to first non-white
+  normal ^
+  " in what column are we now?
+  let newcol = col(".")
+  " not moved (so we already where at first-non-white)?
+  if (oldcol == newcol)
+    normal $
+    let lastcol = col(".")
+    if (newcol == lastcol)
+      " workaround: append one space, when line has only 1 char
+      normal a 0
+    else
+      " go to column '1'
+      normal 0
+    endif
+  " we did move - but forward...
+  elseif ((oldcol != 1) && (newcol > oldcol))
+    " go to column '1'
+    normal 0
+  endif
+endfunc
+
+autocmd BufEnter * :syntax sync fromstart
+
+"" Highlight all instances of word under cursor, when idle.
+"" Useful when studying strange source code.
+"" Turn on/off with z/ (or key of your choice)
+"
+"map z/ :call Mosh_Auto_Highlight_Toggle()<CR>
+"
+"func! Mosh_Auto_Highlight_Cword()
+"    exe "let @/='\\<".expand("<cword>")."\\>'"
+"endfunct
+"
+"let g:AutoHighlightOn = 0
+"func! Mosh_Auto_Highlight_Toggle()
+"    if g:AutoHighlightOn == 1
+"      let g:AutoHighlightOn = 0
+"      au! CursorHold *
+"      let @/=''
+"    else
+"      let g:AutoHighlightOn = 1
+"      set updatetime=500
+"      au! CursorHold * nested call Mosh_Auto_Highlight_Cword()
+"      set hlsearch
+"    endif
+"endfunc
+
+"cscopen stuff
+set cscopeprg=$VIMRUNTIME\cscope.exe
+set cscopequickfix=c+,d+,e+,i+,s+,t+
+set cscopetag
+set csto=0
+cs add d:\cm\sources\cscope.out d:\cm\sources
+
+nmap g<C-]> :cs find 1 <C-R>=expand("<cword>")<CR><CR>
+map! <C-]> <C-o>:cs find 1 <C-R>=expand("<cword>")<CR><CR>
+vmap g<C-]> :cs find 1 <C-R>=expand("<cword>")<CR><CR>
+
+nmap <C-\> :cs find 0 <C-R>=expand("<cword>")<CR><CR>
+map! <C-\> <C-o>:cs find 0 <C-R>=expand("<cword>")<CR><CR>
+vmap <C-\> :cs find 0 <C-R>=expand("<cword>")<CR><CR>
+
+nmap <MiddleMouse> <LeftMouse>
+map! <MiddleMouse> <LeftMouse>
+vmap <MiddleMouse> <LeftMouse>
+
+nmap <2-MiddleMouse> <2-LeftMouse>
+map! <2-MiddleMouse> <2-LeftMouse>
+vmap <2-MiddleMouse> <2-LeftMouse>
+
+nmap <3-MiddleMouse> <3-LeftMouse>
+map! <3-MiddleMouse> <3-LeftMouse>
+vmap <3-MiddleMouse> <3-LeftMouse>
+
+nmap <4-MiddleMouse> <4-LeftMouse>
+map! <4-MiddleMouse> <4-LeftMouse>
+vmap <4-MiddleMouse> <4-LeftMouse>
+
+
