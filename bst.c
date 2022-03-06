@@ -1,4 +1,5 @@
 #include"bst_header.h"				//try i/p 23 65 1 5435 2 67
+
 void main(int argc,char **argv)
 {
 	B *p = 0;			//Marchipoku 0 pettadam
