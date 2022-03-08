@@ -1,29 +1,42 @@
 
 CC=gcc
-DEL=rm -f
+DEL=rm -rf
+#CFLAGS = -Wall
 
-ENCODE_SRC=greek.o encode.o common.o 
-DECODE_SRC=decode.o common.o
-DEST_ENCODE=encHuff
-DEST_DECODE=decHuff
+OBJDIR = objs
+OBJDIRDATA_ENC = $(OBJDIR)/Encode
+OBJDIRDATA_DEC = $(OBJDIR)/Decode
+EXE_ENCODE=encHuff
+EXE_DECODE=decHuff
 DEL_TMP_FILE=*.bin *_Tmp
 
 
-all: $(ENCODE_SRC) $(DECODE_SRC)
-	$(CC) $(ENCODE_SRC) -o $(DEST_ENCODE)
-	$(CC) $(DECODE_SRC) -o $(DEST_DECODE)
+.PHONY: all clean cleanall
+
+all: encode decode
+
+ENCODE_SRC= $(addprefix $(OBJDIRDATA_ENC)/,  greek.o encode.o common.o )
+DECODE_SRC= $(addprefix $(OBJDIRDATA_DEC)/,  decode.o common.o )
+
+$(OBJDIRDATA_ENC)/%.o : %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIRDATA_DEC)/%.o : %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
 encode: $(ENCODE_SRC)
-	$(CC) $(ENCODE_SRC) -o $(DEST_ENCODE)
+	$(CC) $(ENCODE_SRC) -o $(EXE_ENCODE)
 
 decode:	$(DECODE_SRC)
-	$(CC) $(DECODE_SRC) -o $(DEST_DECODE)
+	$(CC) $(DECODE_SRC) -o $(EXE_DECODE)
 
 
 clean:
-	$(DEL) $(DEST_ENCODE) $(DEST_DECODE) $(DEL_TMP_FILE) a.out
+	$(DEL) $(EXE_ENCODE) $(EXE_DECODE) $(DEL_TMP_FILE) a.out
 
 cleanall:
-	$(DEL) $(ENCODE_SRC) $(DECODE_SRC) $(DEST_ENCODE) $(DEST_DECODE) 	
+	$(DEL) $(OBJDIR) $(EXE_ENCODE) $(EXE_DECODE) 	
 	$(DEL) $(DEL_TMP_FILE) a.out

@@ -39,3 +39,20 @@ void FramingData( int Line, const char *Func, const char *File, const char *form
   va_end(args);	
   printf("%s", Buffer);
 }
+
+char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)	
+{
+  int i=0,bit=63;
+  bzero( Buf, 128 );
+
+  for( ;bit+1 ; i++ )
+  {
+
+    Buf[i] = ( a>>bit&1 ) ? '1' : '0';
+    bit -= 1;
+
+    if( 0 == (bit+1) % 4 )
+      Buf[++i] = '|';
+  }
+  return Buf;
+}
