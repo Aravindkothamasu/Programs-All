@@ -117,8 +117,6 @@ struct MinHeap {
 void CopyBuffer(as_huff_t *);
 bool ParseInputData (as_huff_t *);
 void ArrangeAssendingOrder(as_huff_t*);
-int FileOpening (char *,short int);
-void FramingData( int , const char *, const char *, const char *, ...);
 void ReadInputFile(int );
 void RearrangeData();
 void swap(int i, int j);
@@ -140,10 +138,8 @@ void CreateNewNode(as_bst_t **,char ,int );
 //int * filter( as_bst_t *root, char *);
 //*******************************************//
 struct MinHeapNode *  HuffmanCodes( int );
-char * GetBinary (uint64_t  ,int , char *);
 uint8_t MaskData(uint8_t );
 int CheckDiff();
-void CmdLineCheck(int , int );
 void CreateOutFileName( char *, char *);
 
 void Fooder(int );
@@ -153,5 +149,11 @@ void PrintDataStruct ( struct MinHeapNode *, as_huff_t *);
 void WriteRemaingData( int );
 
 
+/***********************    COMMON.C	********************/
+
+void CmdLineCheck(int , int );
+int FileOpening (char *, short int );
+void FramingData( int , const char *, const char *, const char *, ...);
+char * GetBinary (uint64_t , int , char *);
 
 #endif
