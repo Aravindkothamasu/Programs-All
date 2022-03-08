@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 
   console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
 
-  Fooder( Huff.OutFileDes );
+  // Fooder( Huff.OutFileDes );
 
   WriteRemaingData( Huff.OutFileDes);
 
@@ -350,22 +350,6 @@ int CheckDiff ()
 }
 
 
-char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)	
-{
-  int i=0,bit=63;
-  bzero( Buf, 128 );
-
-  for( ;bit+1 ; i++ )
-  {
-
-    Buf[i] = ( a>>bit&1 ) ? '1' : '0';
-    bit -= 1;
-
-    if( 0 == (bit+1) % 4 )
-      Buf[++i] = '|';
-  }
-  return Buf;
-}
 
 uint8_t MaskData(uint8_t a)
 {
