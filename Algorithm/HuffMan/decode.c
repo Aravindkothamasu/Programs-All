@@ -23,7 +23,18 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
   while( true )
   {
     if( AppPtr->MainSt >= DEC_DS_COUNT )
+    {
       ReadData( AppPtr ); 
+
+      if( -1 == AppPtr->RdRtnBytes )
+      {
+	exit(0);
+      }
+      else if( 0 == AppPtr->RdRtnBytes )
+      { // FIXME : Change
+	exit(0);
+      }
+    }
 
     for( i = 0 ; i < AppPtr->RdRtnBytes ; i++ )
     {
@@ -119,16 +130,25 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	      AppPtr->MainSt = DEC_MAP_DATA;
 	    }
 	    else
+	    {
+	      console_print( "**** DEC Header Else Executed \n" );
 	      return;
+	    }
 	  }
 	  break;
 
 	case DEC_MAP_DATA :
 	  {
-	    if( true == MapData( AppPtr, AppPtr->IpData[i] ) )
+	    if( true == MapData( AppPtr, AppPtr->IpData[i], sizeof( uint8_t) * 8 ) )
 	    {
-	      console_print("============  Mapping Data SUCCESS  ===========\n");
-	      AppPtr->MainSt = DEC_FOOTER;
+	      // console_print("============  Mapping Data SUCCESS  ===========\n");
+	      // AppPtr->MainSt = DEC_FOOTER;
+	    }
+	    else
+	    {
+	      // Something nasty has happened, control should not come here
+	      console_print( "Something nasty has happened, control should not come here\n" );
+	      return;
 	    }
 	  }
 	  break;
@@ -261,15 +281,17 @@ bool PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 void PrintDSdata(  Huff_Decode_app_t  * AppPtr )
 {
   int i;
+  char Temp[150] = {0};
 
   for( i=0; i < AppPtr->CountIndex ; i ++ )
   {
-    console_print("INDX[%3d] TYPE : %2X | BitEnc %2X | EncData : %8X\n",
-	i+1, AppPtr->DataPtr[i]->Type, AppPtr->DataPtr[i]->BitOfEnc, AppPtr->DataPtr[i]->EncData );
+    GetBinary( AppPtr->DataPtr[i]->EncData, sizeof( uint64_t ), Temp );
+    console_print("INDX[%3d] Data : %2X | BitEnc %2d | EncData : %6X | Bin : %s\n",
+	i+1, AppPtr->DataPtr[i]->Type, AppPtr->DataPtr[i]->BitOfEnc, AppPtr->DataPtr[i]->EncData, Temp );
   }
 }
 
-void ReadData( Huff_Decode_app_t *AppPtr )
+int ReadData( Huff_Decode_app_t *AppPtr )
 {
   memset( AppPtr->IpData, 0, sizeof( AppPtr->IpData ) );
 
@@ -278,8 +300,12 @@ void ReadData( Huff_Decode_app_t *AppPtr )
   if( -1 == AppPtr->RdRtnBytes )
   {
     console_print("Error in Reading from input File : %s\n", strerror( errno ));
-    exit(0);
   }
+  else if( 0 == AppPtr->RdRtnBytes )
+  {
+    console_print("Reading from input File DONE \n" );
+  }
+  return AppPtr->RdRtnBytes;
 }
 
 
@@ -312,15 +338,30 @@ bool AllocateMainMem( Huff_Decode_app_t *AppPtr)
   return false;
 }
 
+uint64_t DataRx = 0;
+int	 DataRxIndex = 0;
 
-bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData)
+
+void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *DataPtr, int *DataIndexPtr )
 {
-  uint8_t IndxTmp = 0;
-  uint8_t BitTmp  = 0;
-  uint8_t FormatData = 7;
+  int i,j;
+  console_print( "Data %llX Len %d\n", *DataPtr, *DataIndexPtr );
 
-  console_print("****** MAP DATA CALLED ******\n");
-  return false;
+}
+
+bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
+{
+  console_print("****** MAP DATA CALLED : %02X : %llX ******\n", EncData, DataRx );
+
+  if( DataRxIndex + BitOfEnc > MAX_LEN_BUF_BITS )
+  {
+    Decode_ParseData( AppPtr, &DataRx, &DataRxIndex );
+  }
+
+  DataRx = DataRx << BitOfEnc | EncData;
+  DataRxIndex += BitOfEnc;
+
+  return true;
 }
 
 void WriteData( Huff_Decode_app_t *AppPtr )
