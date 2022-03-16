@@ -1,11 +1,11 @@
 
 CC=gcc
 DEL=rm -rf
-#CFLAGS = -Wall
+CFLAGS = -Wall
 
 OBJDIR = objs
-OBJDIRDATA_ENC = $(OBJDIR)/Encode
-OBJDIRDATA_DEC = $(OBJDIR)/Decode
+OBJDIR_ENCODE = $(OBJDIR)/Encode
+OBJDIR_DECODE = $(OBJDIR)/Decode
 EXE_ENCODE=encHuff
 EXE_DECODE=decHuff
 DEL_TMP_FILE=*.bin *_Tmp
@@ -15,14 +15,14 @@ DEL_TMP_FILE=*.bin *_Tmp
 
 all: encode decode
 
-ENCODE_SRC= $(addprefix $(OBJDIRDATA_ENC)/,  greek.o encode.o common.o )
-DECODE_SRC= $(addprefix $(OBJDIRDATA_DEC)/,  decode.o common.o )
+ENCODE_SRC= $(addprefix $(OBJDIR_ENCODE)/,  greek.o encode.o common.o )
+DECODE_SRC= $(addprefix $(OBJDIR_DECODE)/,  decode.o common.o )
 
-$(OBJDIRDATA_ENC)/%.o : %.c
+$(OBJDIR_ENCODE)/%.o : %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIRDATA_DEC)/%.o : %.c
+$(OBJDIR_DECODE)/%.o : %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
