@@ -344,9 +344,7 @@ int	 DataRxIndex = 0;
 
 void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *DataPtr, int *DataIndexPtr )
 {
-  int i,j;
   console_print( "Data %llX Len %d\n", *DataPtr, *DataIndexPtr );
-
 }
 
 bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
