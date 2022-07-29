@@ -25,9 +25,12 @@ filetype indent on
 
 
 command! W  w
+command! Q  q
 command! Wq wq
 command! Qall qall
 command! Wqall wqall
+command! Hl set hlsearch
+command! No set nohlsearch
 
 command! Vt  vertical terminal
 
@@ -71,4 +74,5 @@ set undodir=/tmp//
 let &t_SI = "\e[6 q"
 let &t_SR = "\e[4 q"
 let &t_EI = "\e[2 q"
+source ~/.vim/plugin/cscope_maps.vim
 
