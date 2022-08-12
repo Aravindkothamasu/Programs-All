@@ -1,5 +1,5 @@
 
-#include"Huffman_Header.h"
+#include"Huffman_Encode_Header.h"
 
 #define DEBUG_ON_ENCODE_PRINT  1
 
@@ -18,7 +18,6 @@ int main(int argc, char **argv)
 {    
   as_huff_t  Huff={0};
   char OutFileName[36]={0};
-  uint8_t BufWrite[20] = {0};
   int i=0,j;
 
   uint64_t TempBit = 0;
@@ -286,11 +285,8 @@ void Fooder(int FileDes)
 
 bool CreateArray( uint64_t EncData, int BitOfEnc, int FileDes) 
 {
-  uint64_t TempData = 0;
-
   if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS )
   {
-    TempData = EncData;
 #if DEBUG_ON_ENCODE_PRINT
     console_print("Enter into if \n\n");
     console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
@@ -429,6 +425,7 @@ void swap(int i, int j)
 void ReadInputFile(int FileDes)
 {
   char BufRead[200]={0};
+  uint8_t char_data = 0;
   int i,Len=0;
 
   while( true )
@@ -442,12 +439,20 @@ void ReadInputFile(int FileDes)
     }
     else if( 0 == Len )
       break;
+
     for( i=0;i<Len;i++)
-      (CountData[BufRead[i]].Freq)++;
+    {
+      char_data = BufRead[i];
+      (CountData[ char_data ].Freq)++;
+    }
   }
   console_print("Done\n");
 }
 
+
+
+
+#if 0
 void CopyBuffer(as_huff_t  *HuffMan)
 {
   HuffMan->Backup = malloc(sizeof(char)*(HuffMan->TotChar));
@@ -470,9 +475,6 @@ void ArrangeAssendingOrder(as_huff_t *HuffMan)
 }
 
 
-
-
-#if 0
 bool ParseInputData (as_huff_t  *HuffMan)
 {
   bool Gotit=false;

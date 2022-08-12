@@ -1,4 +1,7 @@
-#include "Huffman_Header.h"
+#include "Huffman_Encode_Header.h"
+
+
+
 #define MAX_TREE_HT 60
 
 extern as_data_t CountData[0x7f+1];
