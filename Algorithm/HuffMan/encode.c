@@ -98,18 +98,13 @@ int main(int argc, char **argv)
 
   ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
 
-  WriteCountDS( &Huff );	      // Writing Total Count of Data Structure in File
-  console_print( "Writing Count DS Done\n" );
-
-  CreateDSFrame( &Huff );	      // Writing Data Structures Frames into Out File
-  console_print( "Writing Frame Format Writing Done\n");
-
+  WriteMetadata( &Huff );
   Header( Huff.OutFileDes );	      // Writing Headers into OutFile
 
 
   console_print( " ============  COMPLETED WRITING DS INTO FILE =============\n");
 
-  sleep( 5 );
+  sleep( 2 );
 #if 1
   while( true )
   {
@@ -132,7 +127,7 @@ int main(int argc, char **argv)
 	for( j=Huff.StartIndex ; j<= TOT_CHARS; j++ )
 	  if( ReadBuf[i] == CountData[j].Type)
 	  {
-	    if( false == CreateArray( CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
+	    if( false == CreateArray( CountData[j].Type, CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
 	    {
 	      console_print(" ERROR in Creating Frame\n");
 	      return -1;
@@ -160,6 +155,20 @@ int main(int argc, char **argv)
 
   return 0;
 }
+
+
+
+void WriteMetadata ( as_huff_t *HuffPtr )
+{
+
+  WriteCountDS( HuffPtr );	      // Writing Total Count of Data Structure in File
+  console_print( "Writing Count DS Done\n" );
+
+  CreateDSFrame( HuffPtr );	      // Writing Data Structures Frames into Out File
+  console_print( "Writing Frame Format Writing Done\n");
+}
+
+
 
 void WriteCountDS ( as_huff_t *Huff )
 {
@@ -239,17 +248,17 @@ void testing( int FileDes)
   for( i = 0x21 ;i<= 0x5a ;i++)
     if ( i >= 0x21 && i<= 0x3f )
     {
-      if( false ==  CreateArray( i, 6, FileDes) )
+      if( false ==  CreateArray( 0, i, 6, FileDes) )
 	return;
     }
     else if( i >= 0x40 && i <= 0x4f )
     {
-      if( false ==  CreateArray( i, 7, FileDes) )
+      if( false ==  CreateArray( 0, i, 7, FileDes) )
 	return;
     }
     else if( i >= 0x50  )
     {
-      if( false ==  CreateArray( i, 7, FileDes) )
+      if( false ==  CreateArray( 0, i, 7, FileDes) )
 	return;
     }
 }
@@ -257,6 +266,30 @@ void testing( int FileDes)
 
 void WriteRemaingData( int FileDes)
 {
+  int Bit = 0, i = 0;
+  int temp = 0;
+
+  GetBinary( DataToSend, 8, Buffer ); 
+  console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
+
+  /////////////////////////////
+
+  Bit = ( BitsOfIndex / 8 ) + 1;
+  console_print( "No.of Bytes : %d Bal %d\n", Bit, Bit * 8 - BitsOfIndex );
+  console_print( "Start : %d END : %d\n", Bit*8,  BitsOfIndex );
+  temp = BitsOfIndex;
+
+  for( i = Bit*8 ; i > temp; i-- )
+  {
+    console_print( "-----\n" );
+    DataToSend = DataToSend << 1 | 0;
+    INCCIRCULARINDEX( BitsOfIndex, MAX_LEN_BUF_BITS );
+  }
+
+  /////////////////////////////
+  GetBinary( DataToSend, 8, Buffer ); 
+  console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
+
   WriteInToFile( FileDes);
 
 }
@@ -266,30 +299,35 @@ void Header( int FileDes)
 
   // STX - EOT - STX - EOT
 
-  CreateArray( ENCODE_HEADER_1, 8, FileDes);
-  CreateArray( ENCODE_HEADER_2, 8, FileDes);
-  CreateArray( ENCODE_HEADER_3, 8, FileDes);
-  CreateArray( ENCODE_HEADER_4, 8, FileDes);
+  CreateArray( 0, ENCODE_HEADER_1, 8, FileDes);
+  CreateArray( 0, ENCODE_HEADER_2, 8, FileDes);
+  CreateArray( 0, ENCODE_HEADER_3, 8, FileDes);
+  CreateArray( 0, ENCODE_HEADER_4, 8, FileDes);
 }
 
 void Fooder(int FileDes)
 {
   // ETX - ETB - ETX - ETB
 
-  CreateArray( ENCODE_FOODER_1, 8, FileDes);
-  CreateArray( ENCODE_FOODER_2, 8, FileDes);
-  CreateArray( ENCODE_FOODER_3, 8, FileDes);
-  CreateArray( ENCODE_FOODER_4, 8, FileDes);
+  CreateArray( 0, ENCODE_FOODER_1, 8, FileDes);
+  CreateArray( 0, ENCODE_FOODER_2, 8, FileDes);
+  CreateArray( 0, ENCODE_FOODER_3, 8, FileDes);
+  CreateArray( 0, ENCODE_FOODER_4, 8, FileDes);
 }
 
 
-bool CreateArray( uint64_t EncData, int BitOfEnc, int FileDes) 
+/*
+  FIXME : Re-check the function 
+ */
+
+bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes) 
 {
+
   if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS )
   {
 #if DEBUG_ON_ENCODE_PRINT
     console_print("Enter into if \n\n");
-    console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+    console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -298,7 +336,7 @@ bool CreateArray( uint64_t EncData, int BitOfEnc, int FileDes)
 
     DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
 #if DEBUG_ON_ENCODE_PRINT
-    console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n",
+    console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -310,7 +348,7 @@ bool CreateArray( uint64_t EncData, int BitOfEnc, int FileDes)
       DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
       BitsOfIndex = BitOfEnc - CheckDiff();
 #if DEBUG_ON_ENCODE_PRINT
-      console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+      console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
 	  EncData, BitsOfIndex, 
 	  GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -329,7 +367,7 @@ bool CreateArray( uint64_t EncData, int BitOfEnc, int FileDes)
   }
 
 #if DEBUG_ON_ENCODE_PRINT
-  console_print( "BitOfEnc : %2x  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", 
+  console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
       EncData, BitsOfIndex, 
       GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -368,9 +406,11 @@ bool WriteInToFile(int FileDes)
 {
   uint8_t *uPtr8 ;
   int i;
+  console_print( "%s Called Bit %d\n", __func__, BitsOfIndex );
+
   uPtr8 = ( uint8_t *) &DataToSend + 7;
 
-  for( i=0 ;i<8;i++)
+  for( i=0 ;i<8;i++)	  // FIXME : Change it to -> based on BitIndex writing into file
   {
     if( *uPtr8 )
     {
