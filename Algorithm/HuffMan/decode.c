@@ -50,7 +50,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
   while( true )
   {
-    if( AppPtr->MainSt >= DEC_DS_COUNT )
+    if( AppPtr->MainSt >= DEC_FILE_SIZE )
     {
       ReadData( AppPtr ); 
 
@@ -103,13 +103,21 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    console_print("I/p FileName : %s\n", argv[1] );
 	    console_print("O/p FileName : %s\n", AppPtr->OutFileName);
 
+	    AppPtr->MainSt = DEC_FILE_SIZE;
+	  }
+	  break;
+
+	case DEC_FILE_SIZE :
+	  {
+	    AppPtr->InputSrcFileSize = GetSourceFileSize( AppPtr->IpData + i );
+	    i += 11;
 	    AppPtr->MainSt = DEC_DS_COUNT;
 	  }
 	  break;
 
 	case DEC_DS_COUNT :
 	  {
-	    AppPtr->CountIndex = GetCountDS( AppPtr );
+	    AppPtr->CountIndex = GetCountDS( AppPtr->IpData+i );
 	    if( AppPtr->CountIndex < 0 )
 	    {
 	      console_print("Error in Reading Binary Data\n");
@@ -306,6 +314,28 @@ bool PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
   }
   return true;
 }
+
+
+uint64_t GetSourceFileSize( uint8_t *DataRead )
+{
+  uint64_t FileSize = 0;
+  int Index;
+
+  for( Index = 0; Index < 12; Index++ )
+    console_print( "GET SOURCE DATA : %02X\n", DataRead[Index] );
+
+  if( ( ASCII_STX == DataRead[0] ) && ( ASCII_EOT == DataRead[1] ) &&
+      ( ASCII_STX == DataRead[10] ) && ( ASCII_EOT == DataRead[11] ) )
+  {
+    console_print("Getting File Size ENCRYPT PASSED\n");
+    for( Index = 2; Index < 10; Index++ )
+      FileSize = FileSize << 8 | DataRead[Index];
+  }
+  console_print( "SOURCE FILE SIZE HEX %lX  || DEC : %ld\n", FileSize, FileSize );
+
+  return FileSize;
+}
+
 
 
 
@@ -671,20 +701,20 @@ uint8_t ReadDS( Huff_Decode_DataStru_t *Ptr, int FileDes)
 }
 
 
-int GetCountDS( Huff_Decode_app_t * AppPtr )
+int GetCountDS( uint8_t *DataReadPtr )
 {
   console_print("Decode Get Count Data Structure Called\n");
 
-  if( START_INDEX_BYTE_0 != AppPtr->IpData[0] )
+  if( START_INDEX_BYTE_0 != DataReadPtr[0] )
     return -1;
-  if( START_INDEX_BYTE_1 != AppPtr->IpData[1] )
+  if( START_INDEX_BYTE_1 != DataReadPtr[1] )
     return -1; 
-  if( START_INDEX_BYTE_3 != AppPtr->IpData[3] )
+  if( START_INDEX_BYTE_3 != DataReadPtr[3] )
     return -1; 
-  if( START_INDEX_BYTE_4 != AppPtr->IpData[4] )
+  if( START_INDEX_BYTE_4 != DataReadPtr[4] )
     return -1; 
 
-  return AppPtr->IpData[2];
+  return DataReadPtr[2];
 }
 
 

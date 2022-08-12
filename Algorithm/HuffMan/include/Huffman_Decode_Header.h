@@ -32,6 +32,7 @@ typedef enum
   DEC_IN_FILE		    ,
   DEC_CREATE_OUT_FILENAME   ,
   DEC_OPEN_OUTFILE	    ,
+  DEC_FILE_SIZE		    ,
   DEC_DS_COUNT		    ,
   DEC_ALLOCATE		    ,
   DEC_GET_DS		    ,
@@ -77,6 +78,7 @@ typedef struct
   int			RdRtnBytes;
   int			WritePtr;
 
+  uint64_t		InputSrcFileSize;
 
   Huff_Decode_DataStru_t **DataPtr;
   int			  Indx;
@@ -95,7 +97,7 @@ typedef struct
 void CreateOutFileName( char *, char *);
 void CheckIpFile( char *);
 void CreateOutFileName ( char *, char *);     // TODO : Need to Change in encode.c and decode.c files
-int GetCountDS( Huff_Decode_app_t * );
+int GetCountDS( uint8_t * );
 bool MapData( Huff_Decode_app_t *, uint8_t, int);
 bool CheckEncode( bool , uint8_t *);
 bool AllocateMainMem( Huff_Decode_app_t *);
@@ -106,6 +108,7 @@ bool GetBitVal( uint64_t, uint8_t );
 bool AllocateSubMemory( Huff_Decode_app_t *);
 void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void WriteData( Huff_Decode_app_t *);
+uint64_t GetSourceFileSize( uint8_t *);
 
 
 

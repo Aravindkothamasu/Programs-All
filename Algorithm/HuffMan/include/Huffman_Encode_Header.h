@@ -4,7 +4,7 @@
 
 #include"Huffman_Header.h"
 
-
+#define DEBUG_ON_ENCODE_PRINT	    0
 
 
 typedef struct 
@@ -58,6 +58,8 @@ struct MinHeap {
 // bool ParseInputData (as_huff_t *);
 // void ArrangeAssendingOrder(as_huff_t*);
 
+
+
 void ReadInputFile(int );
 void RearrangeData();
 void swap(int i, int j);
@@ -74,6 +76,8 @@ void CreateOutFileName( char *, char *);
 void Fooder(int );
 void Header( int );
 void WriteMetadata ( as_huff_t *HuffPtr );
+int CalculateSourceFile( as_huff_t *);
+void WriteFileSize( as_huff_t *, uint64_t );
 
 
 

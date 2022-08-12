@@ -16,6 +16,23 @@
 
 
 
+////////////////////////     ENCRYPT .bin METADATA WRITE PROP	    /////////////////////////
+
+#define	    ENCRYPT_FILE_SIZE		1
+#define	    ENCRYPT_COUNT_DS		1
+#define	    ENCRYPT_CREATE_DS_FRAME	1
+#define	    ENCRYPT_LAST_BIT_INDEX	0
+
+#define	    ENCRYPT_HEADER		1
+#define	    ENCRYPT_FOOTER		0
+
+
+
+
+////////////////////////////////////////////////////////
+
+
+
 #define ASCII_DLE	 0X10
 #define ASCII_STX	 0X02
 #define ASCII_ETX	 0X03

@@ -1,10 +1,6 @@
 
 #include "include/Huffman_Encode_Header.h"
 
-#define DEBUG_ON_ENCODE_PRINT  1
-
-
-
 as_data_t CountData[TOT_CHARS+1]={0};
 uint64_t DataToSend = 0;
 int BitsOfIndex = 0;
@@ -99,8 +95,10 @@ int main(int argc, char **argv)
   ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
 
   WriteMetadata( &Huff );
-  Header( Huff.OutFileDes );	      // Writing Headers into OutFile
 
+#if ENCRYPT_HEADER
+  Header( Huff.OutFileDes );	      // Writing Headers into OutFile
+#endif
 
   console_print( " ============  COMPLETED WRITING DS INTO FILE =============\n");
 
@@ -142,7 +140,12 @@ int main(int argc, char **argv)
 
   console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
 
-  // Fooder( Huff.OutFileDes );
+#if ENCRYPT_FOOTER
+  Fooder( Huff.OutFileDes );
+  console_print( "-------- ENCRYPT Footer Writing Done\n\n");
+#else
+  console_print( "-------- ENCRYPT Footer DISABLED\n\n");
+#endif
 
   WriteRemaingData( Huff.OutFileDes);
 
@@ -160,28 +163,92 @@ int main(int argc, char **argv)
 
 void WriteMetadata ( as_huff_t *HuffPtr )
 {
+#if ENCRYPT_FILE_SIZE
+  uint64_t FileSizeInBytes = 0;
 
+  FileSizeInBytes = CalculateSourceFile( HuffPtr );
+  WriteFileSize( HuffPtr, FileSizeInBytes );
+  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", FileSizeInBytes, FileSizeInBytes );
+#else
+  console_print( "-------- ENCRYPT File Size DISABLED\n\n");
+#endif
+
+
+
+#if ENCRYPT_COUNT_DS
   WriteCountDS( HuffPtr );	      // Writing Total Count of Data Structure in File
-  console_print( "Writing Count DS Done\n" );
+  console_print( "-------- ENCRYPT Writing Count DS Done\n\n" );
+#else
+  console_print( "-------- ENCRYPT Count DS is DISABLED\n\n");
+#endif
 
+
+
+#if ENCRYPT_CREATE_DS_FRAME
   CreateDSFrame( HuffPtr );	      // Writing Data Structures Frames into Out File
-  console_print( "Writing Frame Format Writing Done\n");
+  console_print( "-------- ENCRYPT Writing Frame Format Writing Done\n\n");
+#else
+  console_print( "-------- ENCRYPT Writing Frame Format DISABLED\n\n");
+#endif
 }
 
 
 
-void WriteCountDS ( as_huff_t *Huff )
+
+int CalculateSourceFile( as_huff_t *HuffPtr )
+{
+  struct stat statbuf = {0};
+
+  if( -1 == fstat( HuffPtr->InFileDes, &statbuf ))
+  {
+    console_print( "Unable to get file Properties : %s\n", strerror(errno));
+    return 0;
+  }
+
+  return ( ( uint64_t ) statbuf.st_size );
+}
+
+void WriteFileSize( as_huff_t *HuffPtr, uint64_t FileLenInBytes )
+{
+  uint8_t     byte_data = 0, Data[12] = {0};
+  int	      i, Index	= 0;
+
+  
+  Data[Index++] = ASCII_STX;
+  Data[Index++] = ASCII_EOT;
+
+  for( i = 7; i >= 0; i-- )
+  {
+    byte_data	  =  (FileLenInBytes >> ( i * 8 ) ) & 0xFF;
+    Data[Index++] =  byte_data; 
+  }
+
+  Data[Index++] = ASCII_STX;
+  Data[Index++] = ASCII_EOT;
+
+
+  for( i = 0; i < 12; i++ )
+    console_print( "WRITE FILE SIZE %2d - %02X\n", i, Data[i] );
+
+  if( false == WriteDataIntoFile( HuffPtr, Data, 12) )
+    exit( 0 );
+}
+
+
+
+
+void WriteCountDS ( as_huff_t *HuffPtr )
 {
   uint8_t BufWrite[7] = {0};
 
   BufWrite[0] = START_INDEX_BYTE_0;
   BufWrite[1] = START_INDEX_BYTE_1;
-  BufWrite[2] = CAL_SIZE( Huff->StartIndex );
+  BufWrite[2] = CAL_SIZE( HuffPtr->StartIndex );
   BufWrite[3] = START_INDEX_BYTE_3;
   BufWrite[4] = START_INDEX_BYTE_4;
 
 
-  if( false == WriteDataIntoFile( Huff, BufWrite, 5) )
+  if( false == WriteDataIntoFile( HuffPtr, BufWrite, 5) )
     exit( 0 );
 }
 
@@ -406,7 +473,7 @@ bool WriteInToFile(int FileDes)
 {
   uint8_t *uPtr8 ;
   int i;
-  console_print( "%s Called Bit %d\n", __func__, BitsOfIndex );
+  // console_print( "%s Called Bit %d\n", __func__, BitsOfIndex );
 
   uPtr8 = ( uint8_t *) &DataToSend + 7;
 
