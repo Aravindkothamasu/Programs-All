@@ -62,7 +62,7 @@ void ReadInputFile(int );
 void RearrangeData();
 void swap(int i, int j);
 int GetStartingPoint();
-bool CreateArray( uint64_t , int, int);
+bool CreateArray( uint8_t, uint64_t , int, int);
 void CreateDSFrame( as_huff_t *);
 bool WriteInToFile(int );
 bool WriteDataIntoFile( as_huff_t *, uint8_t *, int );
@@ -73,6 +73,7 @@ void WriteRemaingData( int );
 void CreateOutFileName( char *, char *);
 void Fooder(int );
 void Header( int );
+void WriteMetadata ( as_huff_t *HuffPtr );
 
 
 

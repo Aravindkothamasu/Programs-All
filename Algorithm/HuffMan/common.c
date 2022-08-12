@@ -29,15 +29,16 @@ int FileOpening (char *Filename, short int Flags)
 
 
 
+char PrintBuffer[500]={0};
+
 void FramingData( int Line, const char *Func, const char *File, const char *format, ...)
 {								    
-  char Buffer[500]={0};
   va_list args;
   va_start( args, format);					    
-  sprintf( Buffer, "#%s#  %s() [%3d] : ", File, Func, Line);	    
-  vsprintf( &Buffer[strlen(Buffer)], format, args);		    
+  sprintf( PrintBuffer, "#%8s#  %18s() [%3d] : ", File, Func, Line);	    
+  vsprintf( &PrintBuffer[strlen( PrintBuffer)], format, args);		    
   va_end(args);	
-  printf("%s", Buffer);
+  printf("%s", PrintBuffer);
 }
 
 char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)	
@@ -56,3 +57,29 @@ char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)
   }
   return Buf;
 }
+
+
+
+float Percentage_FillUp( int SlaveId, int WritePtr, int ReadPtr )
+{
+  /*
+  int Diff=0;
+  float percent;
+
+  if ( WritePtr >= ReadPtr )
+  {
+    Diff = WritePtr - ReadPtr;
+  }
+  else
+  {
+    Diff = MAX_LEN_BUF_BITS - ( ReadPtr - WritePtr );
+  }
+
+  percent = ((Diff)/( MAX_LEN_BUF_BITS * 1.0)) * 100.0f;
+  return percent;
+  */
+
+  // TODO : Need to add
+  return 0;
+}
+

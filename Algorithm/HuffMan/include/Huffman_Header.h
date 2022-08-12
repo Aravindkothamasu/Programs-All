@@ -14,8 +14,6 @@
 #include<sys/stat.h>
 #include<stdint.h>
 
-// #include "Huffman_Decode_Header.h"
-
 
 
 #define ASCII_DLE	 0X10
@@ -54,9 +52,9 @@
 
 ////////////////////////////////////////////////////////
 
-#define MAX_LEN_BUF_BITS    63
+#define MAX_LEN_BUF_BITS      63
 
-#define SIZE_BUFFER 10
+#define SIZE_BUFFER	      10
 #define READ_MODE_FILE	      O_RDONLY
 #define WRITE_MODE_FILE	      O_RDWR|O_TRUNC|O_CREAT
 
@@ -71,6 +69,12 @@
 #define CAL_SIZE(a)   (0x7f - a +1 )
 
 
+#define INCCIRCULARINDEX(Index, Len)  { \
+  if(((Index) + 1) >= ((Len)))  \
+  (Index) = 0; \
+  else \
+  (Index)++; \
+}
 
 
 
@@ -83,5 +87,6 @@ void CmdLineCheck(int , int );
 int FileOpening (char *, short int );
 void FramingData( int , const char *, const char *, const char *, ...);
 char * GetBinary (uint64_t , int , char *);
+float Percentage_FillUp( int SlaveId, int WritePtr, int ReadPtr );
 
 #endif
