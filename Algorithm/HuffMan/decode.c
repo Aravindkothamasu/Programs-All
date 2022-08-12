@@ -1,7 +1,35 @@
 #include "include/Huffman_Decode_Header.h"
 
+#define SAMPLE_TEST	  0
 
 int EncDataByts = 0;
+char temp_print_buf[256]={0};
+
+
+#if SAMPLE_TEST
+int	 Counter=0;
+uint64_t SampleBinData =  0;
+int	 SampleWrIndex =  1;
+int	 SampleRdIndex =  0;
+
+#endif
+
+
+
+uint64_t BinDataBuf	= 0;
+int	 BinDataWrIndex = 0;
+int	 BinDataRdIndex = 0;
+
+
+// uint64_t SampleBinData = 0xF2AE535690194E;
+// uint64_t SampleBinData = 0xFCEDFCEDFCEDFC;	  // Wr Index 56
+
+
+
+
+void AppendData(Huff_Decode_app_t *AppPtr );
+void Decode_ParseData( Huff_Decode_app_t *, uint64_t *, int *, int *);
+
 
 int main (int argc, char **argv)
 {  
@@ -32,6 +60,10 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       }
       else if( 0 == AppPtr->RdRtnBytes )
       { // FIXME : Change
+	  	/*
+	Decode_ParseData( AppPtr, &BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+	console_print( "READ DONE\n" );
+		*/
 	exit(0);
       }
     }
@@ -125,7 +157,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	  {
 	    if( true == CheckEncode( true, AppPtr->IpData + i ) )
 	    {
-	      console_print("============  Decoding HEADER SUCCESS  ===========\n");
+	      console_print("============  Decoding HEADER SUCCESS  ===========\n\n");
 	      i += 3;
 	      AppPtr->MainSt = DEC_MAP_DATA;
 	    }
@@ -146,8 +178,8 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    }
 	    else
 	    {
-	      // Something nasty has happened, control should not come here
-	      console_print( "Something nasty has happened, control should not come here\n" );
+	      // Something nasty things has happened, control should not come here
+	      console_print( "Something nasty things has happened, control should not come here\n" );
 	      return;
 	    }
 	  }
@@ -287,7 +319,10 @@ void PrintDSdata(  Huff_Decode_app_t  * AppPtr )
   {
     GetBinary( AppPtr->DataPtr[i]->EncData, sizeof( uint64_t ), Temp );
     console_print("INDX[%3d] Data : %2X | BitEnc %2d | EncData : %6X | Bin : %s\n",
-	i+1, AppPtr->DataPtr[i]->Type, AppPtr->DataPtr[i]->BitOfEnc, AppPtr->DataPtr[i]->EncData, Temp );
+	i+1, 
+	AppPtr->DataPtr[i]->Type, 
+	AppPtr->DataPtr[i]->BitOfEnc, 
+	AppPtr->DataPtr[i]->EncData, Temp );
   }
 }
 
@@ -305,6 +340,7 @@ int ReadData( Huff_Decode_app_t *AppPtr )
   {
     console_print("Reading from input File DONE \n" );
   }
+  console_print( "%s Called Bytes Read : %d\n", __func__ , AppPtr->RdRtnBytes );
   return AppPtr->RdRtnBytes;
 }
 
@@ -338,29 +374,219 @@ bool AllocateMainMem( Huff_Decode_app_t *AppPtr)
   return false;
 }
 
-uint64_t DataRx = 0;
-int	 DataRxIndex = 0;
-
-
-void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *DataPtr, int *DataIndexPtr )
+void ProgramExit()
 {
-  console_print( "Data %llX Len %d\n", *DataPtr, *DataIndexPtr );
+  console_print( "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
+  exit(0);
 }
 
-bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
+
+bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint64_t EncData2, int BitOfEnc2 )
 {
-  console_print("****** MAP DATA CALLED : %02X : %llX ******\n", EncData, DataRx );
+  int Counter = 1, i;
+  bool Operator1 = false;
+  bool Operator2 = false;
 
-  if( DataRxIndex + BitOfEnc > MAX_LEN_BUF_BITS )
+  // console_print( "DataPtr Type : %X || Bit %2d || EncData %X\n", DataPtr->Type, DataPtr->BitOfEnc, DataPtr->EncData );
+
+  for( i = BitOfEnc1-1 ; i >= 0; Counter++, i-- )
   {
-    Decode_ParseData( AppPtr, &DataRx, &DataRxIndex );
-  }
+    Operator1 = GetBitVal( EncData1, i );
+    Operator2 = GetBitVal( EncData2, BitOfEnc2 - Counter );
+    // console_print( "Ope1 : %d || Ope2 : %d\n", Operator1, Operator2 );
 
-  DataRx = DataRx << BitOfEnc | EncData;
-  DataRxIndex += BitOfEnc;
+    if( Operator1 != Operator2 )
+    {
+      // console_print( "==== Un-Match ====\n" );
+      return false;
+    }
+  }
 
   return true;
 }
+
+
+
+void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *BinDataBufPtr, int *BinDataRdIndexPtr, int *BinDataWrIndexPtr )
+{
+  int i, ElementIndex = 0;
+  Huff_Decode_DataStru_t *DataPtr = NULL;
+
+  do{
+    DataPtr = AppPtr->DataPtr[ElementIndex];
+
+    if( *BinDataWrIndexPtr < DataPtr->BitOfEnc )
+    {
+      console_print( "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d\n", 
+	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr );
+      console_print( "WrIndex Buf is empty returning..\n" );
+      return;
+    }
+
+
+    // console_print( "=========	  ElementIndex	  : %2d || WrIndex : %2d || RdIndex : %2d ====\n", 
+	// ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr );
+
+    if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, *BinDataBufPtr, *BinDataWrIndexPtr )) 
+    {
+      GetBinary( *BinDataBufPtr, 8, temp_print_buf); 
+      // console_print( "BEF EleIndx %2d Data %lX WrIndx %2d RdIndx %2d - %s\n", 
+	  // ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, temp_print_buf );
+
+      console_print( "---> DATA READ O/p Index - %2d || Data - %X || EncData - %X || BitOfEnc : %d\n", 
+	  ElementIndex,
+	  DataPtr->Type,
+	  DataPtr->EncData,
+	  DataPtr->BitOfEnc );
+
+      ElementIndex = 0;
+      *BinDataWrIndexPtr -= DataPtr->BitOfEnc;
+
+      // AddToWriteBuf( ElementIndex );
+      for( i = 0; i < DataPtr->BitOfEnc; i++)
+      {
+	INCCIRCULARINDEX( *BinDataRdIndexPtr, MAX_LEN_BUF_BITS ); 
+      }
+
+      GetBinary( *BinDataBufPtr, 8, temp_print_buf); 
+      // console_print( "AFT EleIndx %2d Data %lX WrIndx %2d RdIndx %2d - %s\n", 
+	  // ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, temp_print_buf );
+      console_print("\n\n" );
+    }
+    else
+    {
+      INCCIRCULARINDEX( ElementIndex, AppPtr->CountIndex ); 
+      if( 0 == ElementIndex )
+      {
+	ProgramExit();
+      }
+    }
+
+    // sleep(1 );
+  }while( true );
+}
+
+
+
+bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
+{
+  int i;
+  //console_print("****** MAP DATA CALLED : %02X : %llX ******\n", EncData, DataBuf );
+
+
+
+  // if( Check For Rd and Wr Diff )
+
+  if( BinDataWrIndex + BitOfEnc > MAX_LEN_BUF_BITS )
+  {
+
+#if SAMPLE_TEST
+    AppendData(AppPtr);
+    Counter++;
+    Decode_ParseData( AppPtr, &SampleBinData, &SampleRdIndex, &SampleWrIndex );
+#else
+    Decode_ParseData( AppPtr, &BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+#endif
+
+  }
+
+  BinDataBuf = BinDataBuf << BitOfEnc | EncData;
+  // BinDataWrIndex += BitOfEnc;
+  for( i = 0; i < BitOfEnc; i++ )
+  {
+    INCCIRCULARINDEX( BinDataWrIndex, MAX_LEN_BUF_BITS );
+  }
+
+
+  GetBinary( BinDataBuf, 8, temp_print_buf); 
+  strcat( temp_print_buf, "\n" ); 
+  console_print( temp_print_buf );
+  return true;
+}
+
+#if SAMPLE_TEST
+void AppendData(Huff_Decode_app_t *AppPtr )
+{
+  int i;
+
+  console_print( "****** Append Data *******\n" );
+#if 0
+  if( Counter > 5 )
+    return;
+
+  if( Counter == 5 )
+  {
+    for( i = 25 ; i < 27; i++ )
+    {
+      SampleBinData = SampleBinData << AppPtr->DataPtr[i]->BitOfEnc | AppPtr->DataPtr[i]->EncData;
+      SampleWrIndex += AppPtr->DataPtr[i]->BitOfEnc;
+    }
+    return;
+  }
+
+  for( i = Counter*5 ; i < Counter*5+5; i++ )
+  {
+    GetBinary( SampleBinData, 8, temp_print_buf); 
+    // console_print( "Before Ind : %d | WrIn %d | %s\n", temp_print_buf );
+
+    SampleBinData = SampleBinData << AppPtr->DataPtr[i]->BitOfEnc | AppPtr->DataPtr[i]->EncData;
+    SampleWrIndex += AppPtr->DataPtr[i]->BitOfEnc;
+
+    GetBinary( BinDataBuf, 8, temp_print_buf); 
+    // console_print( "After Ind : %d | WrIn %d | %s\n", temp_print_buf );
+  }
+#else
+
+  if( Counter == 0 )
+    SampleBinData = 0xf2ae535690194e40;
+  else if( Counter == 1 )
+  {
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "BEF : %s\n", temp_print_buf );
+
+    SampleBinData = SampleBinData << 61 | 0xc5185d5cc304e96b >> 3;
+
+
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "AFT : %s\n", temp_print_buf );
+  }
+  else if( Counter == 2 )
+  {
+
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "CNT 2 BEF : %s\n", temp_print_buf );
+
+    SampleBinData = 0x6670;
+    SampleWrIndex = 11;
+    SampleRdIndex = 0;
+
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "CNT 2 AFT : %s\n", temp_print_buf );
+    return;
+  }
+  else
+  {
+    SampleBinData = 0;
+    SampleWrIndex = 0;
+    return;
+
+  }
+
+  /*
+  else if( Counter == 1 )
+    SampleBinData = 0xc5185d5cc304e96b;
+  */
+
+
+  SampleWrIndex = 64;
+
+
+
+
+#endif
+}
+#endif
+
 
 void WriteData( Huff_Decode_app_t *AppPtr )
 {
@@ -373,12 +599,9 @@ void WriteData( Huff_Decode_app_t *AppPtr )
     console_print("Writing Data SUCCESS : %d", AppPtr->WritePtr );
 }
 
-bool GetBitVal( uint64_t Data, uint8_t BitIndx )
+bool GetBitVal( uint64_t Data, uint8_t BitIndex )
 {
-
-
-
-  return false;
+  return ( (Data >> BitIndex ) & 1 );
 }
 
 bool CheckEncode( bool isHeader, uint8_t *DataRead )
