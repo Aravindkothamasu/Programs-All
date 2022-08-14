@@ -25,12 +25,6 @@ int	 BinDataRdIndex = 0;
 // uint64_t SampleBinData = 0xFCEDFCEDFCEDFC;	  // Wr Index 56
 
 
-
-
-void AppendData(Huff_Decode_app_t *AppPtr );
-void Decode_ParseData( Huff_Decode_app_t *, uint64_t *, int *, int *);
-
-
 int main (int argc, char **argv)
 {  
   Huff_Decode_app_t App={0};
@@ -50,7 +44,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
   while( true )
   {
-    if( AppPtr->MainSt >= DEC_FILE_SIZE )
+    if( AppPtr->MainSt >= DEC_ENCRYPT_METADATA )
     {
       ReadData( AppPtr ); 
 
@@ -60,10 +54,10 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       }
       else if( 0 == AppPtr->RdRtnBytes )
       { // FIXME : Change
-	  	/*
-	Decode_ParseData( AppPtr, &BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
-	console_print( "READ DONE\n" );
-		*/
+	/*
+	   Decode_ParseData( AppPtr, &BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+	   console_print( "READ DONE\n" );
+	 */
 	exit(0);
       }
     }
@@ -103,60 +97,16 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    console_print("I/p FileName : %s\n", argv[1] );
 	    console_print("O/p FileName : %s\n", AppPtr->OutFileName);
 
-	    AppPtr->MainSt = DEC_FILE_SIZE;
+	    AppPtr->MainSt = DEC_ENCRYPT_METADATA;
 	  }
 	  break;
 
-	case DEC_FILE_SIZE :
+	case DEC_ENCRYPT_METADATA :
 	  {
-	    AppPtr->InputSrcFileSize = GetSourceFileSize( AppPtr->IpData + i );
-	    i += 11;
-	    AppPtr->MainSt = DEC_DS_COUNT;
-	  }
-	  break;
-
-	case DEC_DS_COUNT :
-	  {
-	    AppPtr->CountIndex = GetCountDS( AppPtr->IpData+i );
-	    if( AppPtr->CountIndex < 0 )
+	    if( true == ReadMetaData( AppPtr, AppPtr->IpData[i] ))
 	    {
-	      console_print("Error in Reading Binary Data\n");
-	      return;
-	    }
-	    else
-	    {
-	      i += 4;
-	      console_print("============   CountIndex : Hex : %2X || Dec %d   ===========\n",
-		  AppPtr->CountIndex, AppPtr->CountIndex);
-	      AppPtr->MainSt = DEC_ALLOCATE;
-	    }
-	  }
-	  break;
-
-	case DEC_ALLOCATE :
-	  {
-	    if( true == AllocateMainMem( AppPtr ) )
-	      if( true == AllocateSubMemory( AppPtr ) )
-	      {
-		console_print("============  Allocating Memory Success  ===========\n");
-		i--;
-		AppPtr->MainSt = DEC_GET_DS; 
-		break;
-	      }
-
-	    console_print("Unable to Allocate memory in Main Strcuture \n");
-	    exit( 0 );
-	  }
-	  break;
-
-	case DEC_GET_DS :
-	  {
-	    if( true != PrcsIpData ( AppPtr, AppPtr->IpData[i] ) )
-	    {
-	      console_print("============  Reading the Frame Format Completed ===========\n");
-	      i--;
-	      PrintDSdata( AppPtr );
 	      AppPtr->MainSt = DEC_HEADER;
+	      i--;
 	    }
 	  }
 	  break;
@@ -216,8 +166,13 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
   }
 }
 
-bool PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
+
+
+
+void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
+  // console_print( "%s HDDR Called || ST %d || DATA : %2X \n", __func__, AppPtr->DataFlowSt, Data );
+
   switch( AppPtr->DataFlowSt )
   {
     case DS_HDDR_STR_1 :
@@ -225,7 +180,7 @@ bool PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	if( DATA_ST_BYTE_0 != Data )
 	{
 	  if( ENCODE_HEADER_1 == Data ) 
-	    return false;
+	    return;
 	  else
 	  {
 	    console_print("Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
@@ -303,6 +258,7 @@ bool PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	{
 	  AppPtr->Indx++;
 	  AppPtr->DataFlowSt = DS_HDDR_STR_1;
+	  // console_print( "INDEX : %d\n", AppPtr->Indx );
 	}
       }
       break;
@@ -312,30 +268,105 @@ bool PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
       console_print( " Error in Getting State");
       exit( 0 );
   }
-  return true;
+
+  return;
 }
 
 
-uint64_t GetSourceFileSize( uint8_t *DataRead )
+bool ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
-  uint64_t FileSize = 0;
-  int Index;
+  // console_print( "%s   Data : %2X : ST : %d\n", __func__, Data, AppPtr->MetadataSt );
 
-  for( Index = 0; Index < 12; Index++ )
-    console_print( "GET SOURCE DATA : %02X\n", DataRead[Index] );
-
-  if( ( ASCII_STX == DataRead[0] ) && ( ASCII_EOT == DataRead[1] ) &&
-      ( ASCII_STX == DataRead[10] ) && ( ASCII_EOT == DataRead[11] ) )
+  switch( AppPtr->MetadataSt )
   {
-    console_print("Getting File Size ENCRYPT PASSED\n");
-    for( Index = 2; Index < 10; Index++ )
-      FileSize = FileSize << 8 | DataRead[Index];
+
+    case METADATA_FILE_SIZE:
+      {
+
+#if  ENCRYPT_FILE_SIZE
+
+	if( true == GetSourceFileSize( Data, &AppPtr->SrcFileSizeInBytes ))
+	{
+	  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
+	      AppPtr->SrcFileSizeInBytes, AppPtr->SrcFileSizeInBytes );
+
+	  AppPtr->MetadataSt = METADATA_COUNT_DS;
+	}
+#else
+	console_print( "-------- ENCRYPT File Size DISABLED\n\n");
+
+	// FIXME: Do something
+	AppPtr->MetadataSt = 
+#endif
+
+      }
+      break;
+
+    case METADATA_COUNT_DS:
+      {
+
+#if ENCRYPT_COUNT_DS
+	if( true == GetCountDS( Data, &AppPtr->CountIndex ))
+	{
+	  if( AppPtr->CountIndex < 0 )
+	  {
+	    console_print("Error in Reading Binary Data\n");
+	    // TODO : ProgramExit()
+	  }
+	  console_print("============   CountIndex : Hex : %2X || Dec %d   ===========\n",
+	      AppPtr->CountIndex, AppPtr->CountIndex);
+
+	  AppPtr->MetadataSt = METADATA_READ_DS;
+
+	  // TODO : Add Proper Function.
+
+	  if( true == AllocateMainMem( AppPtr ) )
+	    if( true == AllocateSubMemory( AppPtr ) )
+	      console_print("============  Allocating Memory Success  ===========\n");
+	}
+
+#else
+	console_print( "-------- ENCRYPT Count DS is DISABLED\n\n");
+
+	// FIXME: Do something
+	AppPtr->MetadataSt = 
+#endif
+      }
+      break;
+
+
+    case METADATA_READ_DS:
+      {
+	PrcsIpData ( AppPtr, Data );
+
+	if( AppPtr->Indx == AppPtr->CountIndex )
+	{
+	  console_print("============  Reading the Frame Format Completed ===========\n");
+	  PrintDSdata( AppPtr );
+	  AppPtr->MetadataSt = METADATA_LAST_BIT;
+	}
+      }
+      break;
+
+
+    case METADATA_LAST_BIT:
+      {
+
+#if ENCRYPT_LAST_BIT_INDEX
+	{
+
+	return true;
+	}
+#else
+	console_print( "-------- ENCRYPT LAST BIT INDEX DISABLED\n\n");
+	return true;
+#endif
+      }
+      break;
   }
-  console_print( "SOURCE FILE SIZE HEX %lX  || DEC : %ld\n", FileSize, FileSize );
 
-  return FileSize;
+  return false;
 }
-
 
 
 
@@ -397,7 +428,10 @@ bool AllocateMainMem( Huff_Decode_app_t *AppPtr)
   AppPtr->DataPtr = calloc( sizeof( Huff_Decode_DataStru_t ), AppPtr->CountIndex);
 
   if( NULL != AppPtr->DataPtr )
+  {
+    console_print( "Allocated Main Memory ---- %d\n", AppPtr->CountIndex );
     return true;
+  }
   else
     console_print( "malloc failure : %s", strerror(errno ));
 
@@ -641,7 +675,7 @@ bool CheckEncode( bool isHeader, uint8_t *DataRead )
     if( ( ENCODE_HEADER_1 == DataRead[0] ) && ( ENCODE_HEADER_2 == DataRead[1] ) &&
 	( ENCODE_HEADER_3 == DataRead[2] ) && ( ENCODE_HEADER_4 == DataRead[3] ) )
     {
-      console_print("Encoding FOOTER PASSED\n");
+      console_print("Encoding HEADER PASSED\n");
       return true;
     }
   }
@@ -701,21 +735,75 @@ uint8_t ReadDS( Huff_Decode_DataStru_t *Ptr, int FileDes)
 }
 
 
-int GetCountDS( uint8_t *DataReadPtr )
+
+
+
+uint8_t	  DSCountBuf[5] = {0};
+int	  DSCountIndex   = 0;
+
+int GetCountDS( uint8_t Data, int *CountIndexPtr )
 {
-  console_print("Decode Get Count Data Structure Called\n");
+  // console_print("Decode Get Count Data Structure Called INDX : %d, Data : %2X\n", DSCountIndex, Data );
 
-  if( START_INDEX_BYTE_0 != DataReadPtr[0] )
-    return -1;
-  if( START_INDEX_BYTE_1 != DataReadPtr[1] )
-    return -1; 
-  if( START_INDEX_BYTE_3 != DataReadPtr[3] )
-    return -1; 
-  if( START_INDEX_BYTE_4 != DataReadPtr[4] )
-    return -1; 
+  DSCountBuf[DSCountIndex++] = Data;
 
-  return DataReadPtr[2];
+  if( DSCountIndex < 5 )
+  {
+    return false;
+  }
+
+  if (
+      ( START_INDEX_BYTE_0 == DSCountBuf[0] ) &&
+      ( START_INDEX_BYTE_1 == DSCountBuf[1] ) &&
+      ( START_INDEX_BYTE_3 == DSCountBuf[3] ) &&
+      ( START_INDEX_BYTE_4 == DSCountBuf[4] ) )
+  {
+    *CountIndexPtr = DSCountBuf[2];
+    return true;
+  }
+
+#if 1
+  int Index;
+  for( Index = 0; Index < 5; Index++ )
+    console_print( "---- GetCountDS[%2d] -- %2X\n", Index, DSCountBuf[Index] );
+#endif
+
+  return true;
 }
+
+
+
+
+
+uint8_t FileSizeBuf[12] = {0};
+int	FileSizeBufIndex = 0;
+
+bool GetSourceFileSize( uint8_t Data, uint64_t *FileSizePtr )
+{
+  int Index;
+
+  FileSizeBuf[FileSizeBufIndex++] = Data;
+
+  if( FileSizeBufIndex < 12 )
+  {
+    return false;
+  }
+
+  for( Index = 0; Index < 12; Index++ )
+    console_print( "GET SOURCE DATA : %02X\n", FileSizeBuf[Index] );
+
+  if( ( ASCII_STX == FileSizeBuf[0] ) && ( ASCII_EOT == FileSizeBuf[1] ) &&
+      ( ASCII_STX == FileSizeBuf[10] ) && ( ASCII_EOT == FileSizeBuf[11] ) )
+  {
+    console_print("Getting File Size ENCRYPT PASSED\n");
+    for( Index = 2; Index < 10; Index++ )
+      *FileSizePtr = *FileSizePtr << 8 | FileSizeBuf[Index];
+  }
+  console_print( "SOURCE FILE SIZE HEX %lX  || DEC : %ld\n", *FileSizePtr, *FileSizePtr );
+
+  return true;
+}
+
 
 
 void CreateOutFileName ( char *OutFileName, char *InFileName)
@@ -749,4 +837,5 @@ void CheckIpFile( char *FileName)
       exit(0);
     }
 }
+
 

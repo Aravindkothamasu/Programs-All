@@ -164,11 +164,12 @@ int main(int argc, char **argv)
 void WriteMetadata ( as_huff_t *HuffPtr )
 {
 #if ENCRYPT_FILE_SIZE
-  uint64_t FileSizeInBytes = 0;
+  uint64_t SrcFileSizeInBytes = 0;
 
-  FileSizeInBytes = CalculateSourceFile( HuffPtr );
-  WriteFileSize( HuffPtr, FileSizeInBytes );
-  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", FileSizeInBytes, FileSizeInBytes );
+  SrcFileSizeInBytes = CalculateSourceFile( HuffPtr );
+  WriteFileSize( HuffPtr, SrcFileSizeInBytes );
+  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
+      SrcFileSizeInBytes, SrcFileSizeInBytes );
 #else
   console_print( "-------- ENCRYPT File Size DISABLED\n\n");
 #endif
@@ -189,6 +190,16 @@ void WriteMetadata ( as_huff_t *HuffPtr )
   console_print( "-------- ENCRYPT Writing Frame Format Writing Done\n\n");
 #else
   console_print( "-------- ENCRYPT Writing Frame Format DISABLED\n\n");
+#endif
+
+
+
+#if ENCRYPT_LAST_BIT_INDEX
+
+
+  console_print( "-------- ENCRYPT Writing LAST BIT INDEX Done\n\n");
+#else
+  console_print( "-------- ENCRYPT Writing LAST BIT INDEX DISABLED\n\n");
 #endif
 }
 
