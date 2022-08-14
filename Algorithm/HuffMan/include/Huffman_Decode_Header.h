@@ -131,16 +131,17 @@ void CreateOutFileName ( char *, char *);     // TODO : Need to Change in encode
 int GetCountDS( uint8_t , int * );
 bool MapData( Huff_Decode_app_t *, uint8_t, int);
 bool CheckEncode( bool , uint8_t *);
-bool AllocateMainMem( Huff_Decode_app_t *);
+bool AllocateMainMem( Huff_Decode_DataStru_t ***, int );
 int ReadData( Huff_Decode_app_t *);
 void PrcsIpData( Huff_Decode_app_t *, uint8_t );
 void PrintDSdata(  Huff_Decode_app_t  * );
 bool GetBitVal( uint64_t, uint8_t );
-bool AllocateSubMemory( Huff_Decode_app_t *);
+bool AllocateSubMemory( Huff_Decode_DataStru_t ***, int );
 void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void WriteData( Huff_Decode_app_t *);
 bool GetSourceFileSize( uint8_t , uint64_t * );
-bool ReadMetaData( Huff_Decode_app_t *, uint8_t );
+int ReadMetaData( Huff_Decode_app_t *, uint8_t );
+void MemoryAllocation( Huff_Decode_DataStru_t ***, int );
 
 
 void AppendData(Huff_Decode_app_t *AppPtr );

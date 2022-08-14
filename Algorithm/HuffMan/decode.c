@@ -40,6 +40,7 @@ int main (int argc, char **argv)
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 {
   uint32_t i = 0;
+  int Rtn;
 
 
   while( true )
@@ -103,11 +104,23 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	case DEC_ENCRYPT_METADATA :
 	  {
-	    if( true == ReadMetaData( AppPtr, AppPtr->IpData[i] ))
+	    Rtn = ReadMetaData( AppPtr, AppPtr->IpData[i] );
+
+	    if( -1 == Rtn )
+	    {
+	      i--;
+	      if( AppPtr->MetadataSt == METADATA_LAST_BIT ) 
+		AppPtr->MainSt = DEC_HEADER;
+	    }
+	    else if( 1 == Rtn )
 	    {
 	      AppPtr->MainSt = DEC_HEADER;
-	      i--;
 	    }
+	    else if( 0 == Rtn )
+	    {
+		// read metadata is incomplete
+	    }
+
 	  }
 	  break;
 
@@ -272,8 +285,14 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
   return;
 }
 
+/*
+   Return
+   -1 -> Current State is disabled
+    0 -> Metadata read incomplete.
+    1 -> Metadata read complete.
+ */
 
-bool ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
+int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
   // console_print( "%s   Data : %2X : ST : %d\n", __func__, Data, AppPtr->MetadataSt );
 
@@ -284,19 +303,17 @@ bool ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
       {
 
 #if  ENCRYPT_FILE_SIZE
-
 	if( true == GetSourceFileSize( Data, &AppPtr->SrcFileSizeInBytes ))
 	{
 	  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
 	      AppPtr->SrcFileSizeInBytes, AppPtr->SrcFileSizeInBytes );
-
 	  AppPtr->MetadataSt = METADATA_COUNT_DS;
+
 	}
 #else
 	console_print( "-------- ENCRYPT File Size DISABLED\n\n");
-
-	// FIXME: Do something
-	AppPtr->MetadataSt = 
+	AppPtr->MetadataSt = METADATA_COUNT_DS;
+	return -1;
 #endif
 
       }
@@ -306,6 +323,7 @@ bool ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
       {
 
 #if ENCRYPT_COUNT_DS
+
 	if( true == GetCountDS( Data, &AppPtr->CountIndex ))
 	{
 	  if( AppPtr->CountIndex < 0 )
@@ -318,18 +336,13 @@ bool ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
 	  AppPtr->MetadataSt = METADATA_READ_DS;
 
-	  // TODO : Add Proper Function.
-
-	  if( true == AllocateMainMem( AppPtr ) )
-	    if( true == AllocateSubMemory( AppPtr ) )
-	      console_print("============  Allocating Memory Success  ===========\n");
+	  MemoryAllocation( &AppPtr->DataPtr, AppPtr->CountIndex );
 	}
 
 #else
 	console_print( "-------- ENCRYPT Count DS is DISABLED\n\n");
-
-	// FIXME: Do something
-	AppPtr->MetadataSt = 
+	AppPtr->MetadataSt = METADATA_READ_DS;
+	return -1;
 #endif
       }
       break;
@@ -355,17 +368,17 @@ bool ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 #if ENCRYPT_LAST_BIT_INDEX
 	{
 
-	return true;
+	  return 1;  // TODO ; Change
 	}
 #else
 	console_print( "-------- ENCRYPT LAST BIT INDEX DISABLED\n\n");
-	return true;
+	return -1;
 #endif
       }
       break;
   }
 
-  return false;
+  return 0;
 }
 
 
@@ -406,14 +419,15 @@ int ReadData( Huff_Decode_app_t *AppPtr )
 }
 
 
-bool AllocateSubMemory( Huff_Decode_app_t *AppPtr )
+bool AllocateSubMemory( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 {
   int i;
-  for( i = 0; i < AppPtr->CountIndex ; i++ )
-  {
-    AppPtr->DataPtr[i] =  calloc( 1, sizeof( Huff_Decode_DataStru_t ) );
 
-    if( NULL == AppPtr->DataPtr[i] )
+  for( i = 0; i < CountIndex ; i++ )
+  {
+    (*DataPtr)[i] =  calloc( 1, sizeof( Huff_Decode_DataStru_t ) );
+
+    if( NULL == (*DataPtr)[i] )
     {
       console_print("Unable to Allocate Memory for Sub Arrays Reason : %s", strerror( errno ));
       return false;
@@ -423,13 +437,13 @@ bool AllocateSubMemory( Huff_Decode_app_t *AppPtr )
 }
 
 
-bool AllocateMainMem( Huff_Decode_app_t *AppPtr)
+bool AllocateMainMem( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 {
-  AppPtr->DataPtr = calloc( sizeof( Huff_Decode_DataStru_t ), AppPtr->CountIndex);
+  *DataPtr = calloc( sizeof( Huff_Decode_DataStru_t ), CountIndex);
 
-  if( NULL != AppPtr->DataPtr )
+  if( NULL != *DataPtr )
   {
-    console_print( "Allocated Main Memory ---- %d\n", AppPtr->CountIndex );
+    console_print( "Allocated Main Memory ---- %d\n", CountIndex );
     return true;
   }
   else
@@ -839,3 +853,9 @@ void CheckIpFile( char *FileName)
 }
 
 
+void MemoryAllocation( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
+{
+  if( true == AllocateMainMem( DataPtr, CountIndex ) )
+    if( true == AllocateSubMemory( DataPtr, CountIndex ) )
+      console_print("============  Allocating Memory Success  ===========\n");
+}
