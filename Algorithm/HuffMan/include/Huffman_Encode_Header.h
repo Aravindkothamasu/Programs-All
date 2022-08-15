@@ -27,14 +27,16 @@ typedef struct myBst
 
 typedef struct 
 {
-  char *characters;
-  char *Backup;
-  int *CountOfEachChar;
-  int TotChar;
-  int InFileDes;
-  int OutFileDes;
-  int StartIndex;
-  as_bst_t *root;
+  char	    *characters;
+  char	    *Backup;
+  int	    *CountOfEachChar;
+  int	    TotChar;
+  int	    InFileDes;
+  int	    OutFileDes;
+  int	    StartIndex;
+  as_bst_t  *root;
+
+  off_t	    OutFdLastBitPostion;
 }as_huff_t;
 
 struct MinHeapNode {
@@ -78,6 +80,7 @@ void Header( int );
 void WriteMetadata ( as_huff_t *HuffPtr );
 int CalculateSourceFile( as_huff_t *);
 void WriteFileSize( as_huff_t *, uint64_t );
+void WriteLastBitIndex( as_huff_t *, uint8_t );
 
 
 

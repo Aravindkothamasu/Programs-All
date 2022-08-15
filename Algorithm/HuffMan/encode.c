@@ -147,6 +147,13 @@ int main(int argc, char **argv)
   console_print( "-------- ENCRYPT Footer DISABLED\n\n");
 #endif
 
+
+  ////////// FIXME : Rearrange in a proper manner 
+  lseek( Huff.OutFileDes, Huff.OutFdLastBitPostion, SEEK_SET );
+  WriteLastBitIndex( &Huff, 5 );
+  lseek( Huff.OutFileDes, 0, SEEK_END );
+  /////////  
+
   WriteRemaingData( Huff.OutFileDes);
 
   close( Huff.OutFileDes );
@@ -163,6 +170,7 @@ int main(int argc, char **argv)
 
 void WriteMetadata ( as_huff_t *HuffPtr )
 {
+
 #if ENCRYPT_FILE_SIZE
   uint64_t SrcFileSizeInBytes = 0;
 
@@ -193,10 +201,11 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 #endif
 
 
+  HuffPtr->OutFdLastBitPostion = lseek( HuffPtr->OutFileDes, 0, SEEK_CUR );
+  console_print( "LSEEK POSITION : %d\n", (int ) HuffPtr->OutFdLastBitPostion );
 
 #if ENCRYPT_LAST_BIT_INDEX
-
-
+  WriteLastBitIndex( HuffPtr, 1 );
   console_print( "-------- ENCRYPT Writing LAST BIT INDEX Done\n\n");
 #else
   console_print( "-------- ENCRYPT Writing LAST BIT INDEX DISABLED\n\n");
@@ -204,6 +213,19 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 }
 
 
+void WriteLastBitIndex( as_huff_t *HuffPtr, uint8_t Data )
+{
+  uint8_t BufWrite[5] = {0};
+
+  BufWrite[0] = ASCII_DLE;
+  BufWrite[1] = ASCII_STX;
+  BufWrite[2] = Data;
+  BufWrite[3] = ASCII_DLE;
+  BufWrite[4] = ASCII_STX;
+
+  if( false == WriteDataIntoFile( HuffPtr, BufWrite, 5) )
+    exit( 0 );
+}
 
 
 int CalculateSourceFile( as_huff_t *HuffPtr )

@@ -285,12 +285,23 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
   return;
 }
 
+
+
+
+
+
+uint8_t LastBitPosBuf[5] = {0};
+int	LastBitPosIndex  = 0;
+
+
+
 /*
    Return
    -1 -> Current State is disabled
     0 -> Metadata read incomplete.
     1 -> Metadata read complete.
  */
+
 
 int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
@@ -367,8 +378,15 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
 #if ENCRYPT_LAST_BIT_INDEX
 	{
+	  LastBitPosBuf[LastBitPosIndex++] = Data;
+	  // console_print( "---LAST BIT POS DATA FEED : %d -- %2X\n", LastBitPosIndex, Data );
+	  if( LastBitPosIndex < 5 )
+	    break;
 
-	  return 1;  // TODO ; Change
+	  ReadLastBitPostion( &AppPtr->LastBitPos );
+	  console_print( "LastBit Position --> %ld\n", AppPtr->LastBitPos );
+
+	  return  1;
 	}
 #else
 	console_print( "-------- ENCRYPT LAST BIT INDEX DISABLED\n\n");
@@ -381,6 +399,22 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
   return 0;
 }
 
+
+
+void ReadLastBitPostion( uint8_t *LastBitPosPtr )
+{
+  if (
+      ( ASCII_DLE == LastBitPosBuf[0] ) &&
+      ( ASCII_STX == LastBitPosBuf[1] ) &&
+      ( ASCII_DLE == LastBitPosBuf[3] ) &&
+      ( ASCII_STX == LastBitPosBuf[4] ) )
+  {
+    *LastBitPosPtr = LastBitPosBuf[2];
+  }
+  else
+    console_print( "---- Error in Reading LastBitPosBuf \n" );
+
+}
 
 
 

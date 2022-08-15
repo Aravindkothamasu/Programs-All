@@ -106,7 +106,7 @@ typedef struct
   uint8_t		OpData[ MAX_DATA_CAN_READ];
   int			RdRtnBytes;
   int			WritePtr;
-
+  uint8_t	        LastBitPos;
 
   Huff_Decode_DataStru_t **DataPtr;
   int			  Indx;
@@ -142,6 +142,7 @@ void WriteData( Huff_Decode_app_t *);
 bool GetSourceFileSize( uint8_t , uint64_t * );
 int ReadMetaData( Huff_Decode_app_t *, uint8_t );
 void MemoryAllocation( Huff_Decode_DataStru_t ***, int );
+void ReadLastBitPostion( uint8_t *);
 
 
 void AppendData(Huff_Decode_app_t *AppPtr );
