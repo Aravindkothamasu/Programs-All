@@ -216,6 +216,7 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 void WriteLastBitIndex( as_huff_t *HuffPtr, uint8_t Data )
 {
   uint8_t BufWrite[5] = {0};
+  console_print( "Writing Last Bit Index : %d\n", Data );
 
   BufWrite[0] = ASCII_DLE;
   BufWrite[1] = ASCII_STX;
