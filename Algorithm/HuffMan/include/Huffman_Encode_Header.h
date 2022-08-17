@@ -6,6 +6,20 @@
 
 #define DEBUG_ON_ENCODE_PRINT	    1
 
+#define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BitsOfIndex, DataToSend)   \
+    console_print( "%sASCII: %2X EncD: %2X BitEnc %2d || BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Text, Data,\
+	EncData, BitOfEnc, BitsOfIndex, \
+	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+
+
+#define APPEND_BIT( IndexVar, MaxLen, DataBuf, Bit )	\
+{ \
+  INCCIRCULARINDEX( IndexVar, MaxLen);  \
+  DataBuf = DataBuf << 1 | Bit;  \
+}
+
+
+
 
 typedef struct 
 {
@@ -68,7 +82,7 @@ void swap(int i, int j);
 int GetStartingPoint();
 bool CreateArray( uint8_t, uint64_t , int, int);
 void CreateDSFrame( as_huff_t *);
-bool WriteInToFile(int );
+bool WriteInToFile(int , int );
 void WriteCountDS ( as_huff_t *);
 uint8_t MaskData(uint8_t );
 int CheckDiff();

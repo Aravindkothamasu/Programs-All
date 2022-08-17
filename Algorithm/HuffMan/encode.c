@@ -384,7 +384,7 @@ void WriteRemaingData( int FileDes)
   GetBinary( DataToSend, 8, Buffer ); 
   console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
 
-  WriteInToFile( FileDes);
+  WriteInToFile( FileDes, 8 );
 
 }
 
@@ -410,42 +410,73 @@ void Fooder(int FileDes)
 }
 
 
-/*
-  FIXME : Re-check the function 
- */
-
 bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes) 
 {
+  int i, temp;
 
-  if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS )
+  if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS-1 )
   {
 #if DEBUG_ON_ENCODE_PRINT
     console_print("Enter into if \n\n");
-    console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
-	EncData, BitsOfIndex, 
-	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+    PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
 
-    DataToSend = DataToSend << CheckDiff( );
-
-    DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
+    temp = CheckDiff();
 #if DEBUG_ON_ENCODE_PRINT
-    console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
-	EncData, BitsOfIndex, 
-	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+    console_print( "CHECK DIFF : %d\n", temp );
 #endif
 
-    if( true ==  WriteInToFile( FileDes) )
+    for( i = 0; i < temp; i++ )
     {
-      //GET REMAINING DATA
-      DataToSend = 0;  
-      DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
-      BitsOfIndex = BitOfEnc - CheckDiff();
 #if DEBUG_ON_ENCODE_PRINT
-      console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
-	  EncData, BitsOfIndex, 
-	  GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+      console_print( "\n\n" );
+      PRINT_CURRENT_BUF_POSITION( "BEF ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
+      APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS +1, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
+
+#if DEBUG_ON_ENCODE_PRINT
+      console_print( "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
+	  EncData, BitOfEnc, BitOfEnc -i -1,
+	  GetBitVal( (uint64_t) EncData, BitOfEnc -i -1));
+
+      PRINT_CURRENT_BUF_POSITION( "AFT ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
+      console_print( "\n\n" );
+#endif
+    }
+
+#if DEBUG_ON_ENCODE_PRINT
+    PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
+#endif
+
+    if( true ==  WriteInToFile(FileDes, 8))
+    {
+      BitsOfIndex = DataToSend  = 0;  
+
+      if( BitOfEnc - temp )
+      {
+	//GET REMAINING DATA
+	console_print( "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
+	for( i = BitOfEnc-temp; i > 0; i-- )
+	{
+#if DEBUG_ON_ENCODE_PRINT
+	  console_print("\n\n" );
+	  PRINT_CURRENT_BUF_POSITION( "BWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
+#endif
+
+	  APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, i-1 ));
+
+#if DEBUG_ON_ENCODE_PRINT
+	  console_print( "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
+	      EncData, BitOfEnc, BitOfEnc -i -1,
+	      GetBitVal( (uint64_t) EncData, i -1));
+
+	  PRINT_CURRENT_BUF_POSITION( "AWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
+	  console_print( "\n\n" );
+#endif
+	}
+      }
+      else
+	console_print( "No Data is Pending to be Written\n" );
     }
     else
     {
@@ -456,17 +487,17 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
   }
   else
   {
-    DataToSend = DataToSend << BitOfEnc | EncData;
-    BitsOfIndex += BitOfEnc;
+    for( i = 0; i < BitOfEnc; i++ )
+    {
+      // console_print( "BIT %d EncData : %X BitOfEnc : %d ADDING : %d\n", BitOfEnc -i-1,
+      // EncData, BitOfEnc, GetBitVal( ( uint64_t ) EncData, BitOfEnc - i -1 ));
+      APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
+    }
   }
 
 #if DEBUG_ON_ENCODE_PRINT
-  console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
-      EncData, BitsOfIndex, 
-      GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+  PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
-
-
   return true;
 }
 
@@ -478,25 +509,11 @@ int CheckDiff ()
 }
 
 
+/*
+ * FIXME : Need to Re-check
+ */
 
-uint8_t MaskData(uint8_t a)
-{
-  uint8_t RtnVal;
-  switch( a)
-  {
-    case 1: RtnVal = 1; break;
-    case 2: RtnVal = 3; break;
-    case 3: RtnVal = 7; break;
-    case 4: RtnVal = 15; break;
-    case 5: RtnVal = 31; break;
-    case 6: RtnVal = 63; break;
-    case 7: RtnVal = 127; break;
-  }	
-  return RtnVal;
-}
-
-
-bool WriteInToFile(int FileDes)
+bool WriteInToFile(int FileDes, int Bytes )
 {
   uint8_t *uPtr8 ;
   int i;
@@ -506,19 +523,16 @@ bool WriteInToFile(int FileDes)
 
   for( i=0 ;i<8;i++)	  // FIXME : Change it to -> based on BitIndex writing into file
   {
-    if( *uPtr8 )
+    if( write( FileDes, uPtr8, 1) < 0 )
     {
-      if( write( FileDes, uPtr8, 1) < 0 )
-      {
-	console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
-	return false;
-      }
-      else
-      {
+      console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
+      return false;
+    }
+    else
+    {
 #if 0
-	console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
+      console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
 #endif
-      }
     }
     uPtr8--;
   }
