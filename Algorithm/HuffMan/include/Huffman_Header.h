@@ -69,7 +69,7 @@
 
 ////////////////////////////////////////////////////////
 
-#define MAX_LEN_BUF_BITS      63
+#define MAX_LEN_BUF_BITS      64
 
 #define SIZE_BUFFER	      10
 #define READ_MODE_FILE	      O_RDONLY
@@ -94,6 +94,14 @@
 }
 
 
+#define DECCIRCULARINDEX(Index, Len)  { \
+  if(!Index)  \
+  (Index) = Len-1; \
+  else \
+  (Index)--; \
+}
+
+
 
 
 
@@ -104,6 +112,11 @@ void CmdLineCheck(int , int );
 int FileOpening (char *, short int );
 void FramingData( int , const char *, const char *, const char *, ...);
 char * GetBinary (uint64_t , int , char *);
-float Percentage_FillUp( int SlaveId, int WritePtr, int ReadPtr );
+int Percentage_FillUp( int , int );
+bool WriteDataIntoFile( int, uint8_t *, int );
+bool GetBitVal( uint64_t, uint8_t );
+
+
+
 
 #endif

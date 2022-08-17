@@ -4,7 +4,7 @@
 
 #include"Huffman_Header.h"
 
-#define DEBUG_ON_ENCODE_PRINT	    0
+#define DEBUG_ON_ENCODE_PRINT	    1
 
 
 typedef struct 
@@ -69,7 +69,6 @@ int GetStartingPoint();
 bool CreateArray( uint8_t, uint64_t , int, int);
 void CreateDSFrame( as_huff_t *);
 bool WriteInToFile(int );
-bool WriteDataIntoFile( as_huff_t *, uint8_t *, int );
 void WriteCountDS ( as_huff_t *);
 uint8_t MaskData(uint8_t );
 int CheckDiff();

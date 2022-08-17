@@ -59,12 +59,22 @@ char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)
 }
 
 
-
-float Percentage_FillUp( int SlaveId, int WritePtr, int ReadPtr )
+bool WriteDataIntoFile( int OutFileDes, uint8_t *DataPtr, int DataLen )
 {
-  /*
+  if( -1 == write( OutFileDes, DataPtr, DataLen ) )
+  {
+    console_print(" Write SYSTEM call fails : %s", strerror(errno));
+    return false;
+  }
+  else 
+    return true;
+}
+
+
+int Percentage_FillUp( int WritePtr, int ReadPtr )
+{
   int Diff=0;
-  float percent;
+  // float percent;
 
   if ( WritePtr >= ReadPtr )
   {
@@ -75,11 +85,22 @@ float Percentage_FillUp( int SlaveId, int WritePtr, int ReadPtr )
     Diff = MAX_LEN_BUF_BITS - ( ReadPtr - WritePtr );
   }
 
-  percent = ((Diff)/( MAX_LEN_BUF_BITS * 1.0)) * 100.0f;
+  // percent = ((Diff)/( MAX_LEN_BUF_BITS * 1.0)) * 100.0f;
+
+  // console_print( "FILLUP PERCENTAGE : %f\n", percent );
+
+  return Diff;
+
+  /*
   return percent;
-  */
 
   // TODO : Need to add
   return 0;
+  */
 }
 
+
+bool GetBitVal( uint64_t Data, uint8_t BitIndex )
+{
+  return ( (Data >> BitIndex ) & 1 );
+}

@@ -216,6 +216,8 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 void WriteLastBitIndex( as_huff_t *HuffPtr, uint8_t Data )
 {
   uint8_t BufWrite[5] = {0};
+
+#if ENCRYPT_LAST_BIT_INDEX
   console_print( "Writing Last Bit Index : %d\n", Data );
 
   BufWrite[0] = ASCII_DLE;
@@ -224,8 +226,10 @@ void WriteLastBitIndex( as_huff_t *HuffPtr, uint8_t Data )
   BufWrite[3] = ASCII_DLE;
   BufWrite[4] = ASCII_STX;
 
-  if( false == WriteDataIntoFile( HuffPtr, BufWrite, 5) )
+  if( false == WriteDataIntoFile( HuffPtr->OutFileDes, BufWrite, 5) )
     exit( 0 );
+#endif
+
 }
 
 
@@ -264,7 +268,7 @@ void WriteFileSize( as_huff_t *HuffPtr, uint64_t FileLenInBytes )
   for( i = 0; i < 12; i++ )
     console_print( "WRITE FILE SIZE %2d - %02X\n", i, Data[i] );
 
-  if( false == WriteDataIntoFile( HuffPtr, Data, 12) )
+  if( false == WriteDataIntoFile( HuffPtr->OutFileDes, Data, 12) )
     exit( 0 );
 }
 
@@ -282,7 +286,7 @@ void WriteCountDS ( as_huff_t *HuffPtr )
   BufWrite[4] = START_INDEX_BYTE_4;
 
 
-  if( false == WriteDataIntoFile( HuffPtr, BufWrite, 5) )
+  if( false == WriteDataIntoFile( HuffPtr->OutFileDes, BufWrite, 5) )
     exit( 0 );
 }
 
@@ -318,20 +322,9 @@ void CreateDSFrame( as_huff_t *Huff )
     BufWrite[j++] = DATA_ST_BYTE_6;
 
 
-    if( false == WriteDataIntoFile( Huff, BufWrite, j) )
+    if( false == WriteDataIntoFile( Huff->OutFileDes, BufWrite, j) )
       exit( 0 );
   }
-}
-
-bool WriteDataIntoFile( as_huff_t *Huff, uint8_t *DataPtr, int DataLen )
-{
-  if( -1 == write( Huff->OutFileDes, DataPtr, DataLen ) )
-  {
-    console_print(" Write SYSTEM call fails : %s", strerror(errno));
-    return false;
-  }
-  else 
-    return true;
 }
 
 
@@ -428,7 +421,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
   {
 #if DEBUG_ON_ENCODE_PRINT
     console_print("Enter into if \n\n");
-    console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
+    console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -437,7 +430,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
 
     DataToSend |= EncData >> ( BitOfEnc - CheckDiff() );
 #if DEBUG_ON_ENCODE_PRINT
-    console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
+    console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
 	EncData, BitsOfIndex, 
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -449,7 +442,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
       DataToSend = EncData & MaskData( BitOfEnc - CheckDiff() );
       BitsOfIndex = BitOfEnc - CheckDiff();
 #if DEBUG_ON_ENCODE_PRINT
-      console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
+      console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
 	  EncData, BitsOfIndex, 
 	  GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -468,7 +461,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
   }
 
 #if DEBUG_ON_ENCODE_PRINT
-  console_print( "Data : %2X BitOfEnc : %2X  BitOInd : %02d Bin : %s  DtToSnd : %llX\n", Data,
+  console_print( "ASCII: %2X EncData : %2X  BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Data,
       EncData, BitsOfIndex, 
       GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 #endif
@@ -481,7 +474,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
 
 int CheckDiff ()	
 {			
-  return MAX_LEN_BUF_BITS - BitsOfIndex + 1;
+  return MAX_LEN_BUF_BITS - BitsOfIndex;
 }
 
 
