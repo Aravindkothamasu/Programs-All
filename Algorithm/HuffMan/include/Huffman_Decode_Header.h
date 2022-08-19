@@ -11,7 +11,8 @@
 
 
 
-#define MAX_DATA_CAN_READ   100
+#define	      MAX_DATA_CAN_READ		100
+#define	      DECODE_MAX_LEN_BUF_LEN	10
 
 
 /*	  DECODE  STATEFLOW DECLERATION	  */
@@ -119,6 +120,10 @@ typedef struct
 
   uint64_t		SrcFileSizeInBytes;
 
+
+  uint8_t		  OutFileBuf[DECODE_MAX_LEN_BUF_LEN];
+  int			  OutFileBufIndex;
+
 }Huff_Decode_app_t;
 
 
@@ -135,7 +140,6 @@ bool AllocateMainMem( Huff_Decode_DataStru_t ***, int );
 int ReadData( Huff_Decode_app_t *);
 void PrcsIpData( Huff_Decode_app_t *, uint8_t );
 void PrintDSdata(  Huff_Decode_app_t  * );
-bool GetBitVal( uint64_t, uint8_t );
 bool AllocateSubMemory( Huff_Decode_DataStru_t ***, int );
 void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void WriteData( Huff_Decode_app_t *);
