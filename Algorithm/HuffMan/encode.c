@@ -384,7 +384,7 @@ void WriteRemaingData( int FileDes)
   GetBinary( DataToSend, 8, Buffer ); 
   console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
 
-  WriteInToFile( FileDes, 8 );
+  WriteInToFile( FileDes, BitsOfIndex/8 );
 
 }
 
@@ -519,9 +519,9 @@ bool WriteInToFile(int FileDes, int Bytes )
   int i;
   // console_print( "%s Called Bit %d\n", __func__, BitsOfIndex );
 
-  uPtr8 = ( uint8_t *) &DataToSend + 7;
+  uPtr8 = ( uint8_t *) &DataToSend + Bytes-1;
 
-  for( i=0 ;i<8;i++)	  // FIXME : Change it to -> based on BitIndex writing into file
+  for( i=0 ;i < Bytes; i++)	  // FIXME : Change it to -> based on BitIndex writing into file
   {
     if( write( FileDes, uPtr8, 1) < 0 )
     {
