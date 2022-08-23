@@ -112,9 +112,16 @@ void CmdLineCheck(int , int );
 int FileOpening (char *, short int );
 void FramingData( int , const char *, const char *, const char *, ...);
 char * GetBinary (uint64_t , int , char *);
-int Percentage_FillUp( int , int );
+int Percentage_FillUp( int, int , int );
 bool WriteDataIntoFile( int, uint8_t *, int );
 bool GetBitVal( uint64_t, uint8_t );
+
+void BitFeed( uint8_t *, int , bool );
+void BitClear( uint8_t *, int, int );
+void BitSet( uint8_t *, int, int );
+
+char * GetBinaryInArray (uint8_t *,int , char *);
+bool GetBitValInArray( uint8_t *, int );
 
 
 

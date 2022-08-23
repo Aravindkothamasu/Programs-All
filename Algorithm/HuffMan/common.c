@@ -1,6 +1,7 @@
 #include "include/Huffman_Header.h"
 
 
+char PrintBuffer[500]={0};
 
 void CmdLineCheck(int argc, int MaxCount)
 {
@@ -24,12 +25,11 @@ int FileOpening (char *Filename, short int Flags)
     console_print("ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
     exit(0);
   }
+
   return FileDes;
 }
 
 
-
-char PrintBuffer[500]={0};
 
 void FramingData( int Line, const char *Func, const char *File, const char *format, ...)
 {								    
@@ -40,6 +40,39 @@ void FramingData( int Line, const char *Func, const char *File, const char *form
   va_end(args);	
   printf("%s", PrintBuffer);
 }
+
+
+bool WriteDataIntoFile( int OutFileDes, uint8_t *DataPtr, int DataLen )
+{
+  if( -1 == write( OutFileDes, DataPtr, DataLen ) )
+  {
+    console_print(" Write SYSTEM call fails : %s", strerror(errno));
+    return false;
+  }
+  else 
+    return true;
+}
+
+
+int Percentage_FillUp( int MaxLen, int WritePtr, int ReadPtr )
+{
+  int Diff=0;
+
+  if ( WritePtr >= ReadPtr )
+  {
+    Diff = WritePtr - ReadPtr;
+  }
+  else
+  {
+    Diff = MaxLen- ( ReadPtr - WritePtr );
+  }
+  return Diff;
+}
+
+
+
+////////////////////////////////////////////	    CREATING BINARY TO ARRAY	  /////////////////////////////////////
+
 
 char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)	
 {
@@ -59,44 +92,87 @@ char * GetBinary (uint64_t  a,int size_in_bytes, char *Buf)
 }
 
 
-bool WriteDataIntoFile( int OutFileDes, uint8_t *DataPtr, int DataLen )
+char * GetBinaryInArray (uint8_t *a,int size_in_bytes, char *Buf)	
 {
-  if( -1 == write( OutFileDes, DataPtr, DataLen ) )
+  int ByteIndex = size_in_bytes-1;
+  int BitIndex  = 7;
+  int StrLen = 0;
+  int Index = ( size_in_bytes * 8 ) -1;
+
+  bzero( Buf, ( size_in_bytes * 8 ) + ( size_in_bytes * 2 ) );
+
+  for( ; ; )
   {
-    console_print(" Write SYSTEM call fails : %s", strerror(errno));
-    return false;
+    // console_print( "BYTEINDEX %d || BITINDEX %d\n", ByteIndex, BitIndex );
+
+    if( true == GetBitValInArray( a, Index-- ))
+      Buf[ StrLen++ ] = '1';
+    else
+      Buf[ StrLen++ ] = '0';
+
+
+    if( 0 == ByteIndex && BitIndex == 0 )
+    {
+      // console_print( "%s\n", Buf );
+      break;
+    }
+
+    if( BitIndex == 4 || BitIndex == 0 )
+      Buf[ StrLen++ ] = '|';
+
+    if( BitIndex == 0 )
+      Buf[ StrLen++ ] = '|';
+
+    if( BitIndex == 0 )
+    {
+      // console_print( "\n" );
+      DECCIRCULARINDEX( ByteIndex, size_in_bytes );
+    }
+    DECCIRCULARINDEX( BitIndex, 8 );
   }
-  else 
-    return true;
+
+  return Buf;
 }
 
 
-int Percentage_FillUp( int WritePtr, int ReadPtr )
+//////////////////////////////////////	      BIT MANIPULATION OPERATIONS     ///////////////////////
+
+
+
+void BitSet( uint8_t *DataPtr, int ByteIndex, int BitIndex )
 {
-  int Diff=0;
-  // float percent;
+  DataPtr[ByteIndex] |= 1 << BitIndex;
+}
 
-  if ( WritePtr >= ReadPtr )
-  {
-    Diff = WritePtr - ReadPtr;
-  }
+void BitClear( uint8_t *DataPtr, int ByteIndex, int BitIndex )
+{
+  DataPtr[ByteIndex] &= ~( 1 << BitIndex );
+}
+
+void BitFeed( uint8_t *ArrayPtr, int Index, bool BitValue )
+{
+  int ByteIndex = 0;
+  int BitIndex	= 0;
+
+  ByteIndex = Index/8;
+  BitIndex  = Index - ( ByteIndex * 8 );
+
+  // console_print( "BYTE INDX %d BIT %d\n", ByteIndex, BitIndex );
+
+  if( true == BitValue )
+    BitSet( ArrayPtr, ByteIndex, BitIndex );
   else
-  {
-    Diff = MAX_LEN_BUF_BITS - ( ReadPtr - WritePtr );
-  }
+    BitClear( ArrayPtr, ByteIndex, BitIndex );
+}
 
-  // percent = ((Diff)/( MAX_LEN_BUF_BITS * 1.0)) * 100.0f;
 
-  // console_print( "FILLUP PERCENTAGE : %f\n", percent );
 
-  return Diff;
+bool GetBitValInArray( uint8_t *arr, int Index )
+{ 
+  int ByteIndex = Index / 8;
+  int BitIndex  = Index - ( ByteIndex * 8 );
 
-  /*
-  return percent;
-
-  // TODO : Need to add
-  return 0;
-  */
+  return (( arr[ByteIndex] >> BitIndex ) & 1);
 }
 
 
@@ -104,3 +180,5 @@ bool GetBitVal( uint64_t Data, uint8_t BitIndex )
 {
   return ( (Data >> BitIndex ) & 1 );
 }
+
+
