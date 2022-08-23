@@ -72,10 +72,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       else if( 0 == AppPtr->RdRtnBytes )
       { // FIXME : Change
 
-	Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
-	console_print( "READ DONE\n" );
-	WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
-	close( AppPtr->OutFileDes );
+	ClosingCeremony( AppPtr );
 
 	exit(0);
       }
@@ -416,6 +413,24 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 }
 
 
+void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
+{
+  Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+  console_print( "READ DONE\n" );
+
+  AppPtr->OutFileWrittenBytes += AppPtr->OutFileBufIndex;
+  WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
+  close( AppPtr->OutFileDes );
+  close( AppPtr->InFileDes );
+
+  console_print( "\n" );
+  console_print( "================================================================\n" );
+  console_print( "====== BYTES ORIGINAL FILE : %12d Bytes \n", AppPtr->SrcFileSizeInBytes );
+  console_print( "====== BYTES WRIITEN  FILE : %12d Bytes \n", AppPtr->OutFileWrittenBytes );
+  console_print( "================================================================\n" );
+  console_print( "\n" );
+}
+
 void AddDataWriteBuf( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
   AppPtr->OutFileBuf[ AppPtr->OutFileBufIndex++ ] = Data;
@@ -424,6 +439,7 @@ void AddDataWriteBuf( Huff_Decode_app_t *AppPtr, uint8_t Data )
   {
     WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
 
+    AppPtr->OutFileWrittenBytes += AppPtr->OutFileBufIndex;
     memset( &AppPtr->OutFileBuf, 0, DECODE_OUT_BUF_MAX_LEN );
     AppPtr->OutFileBufIndex = 0;
   }

@@ -99,7 +99,8 @@ typedef struct
   Huff_Decode_State_t	  MainSt;
   Huff_Decode_Metadata_t  MetadataSt;
 
-  uint64_t		SrcFileSizeInBytes;
+  uint64_t		  SrcFileSizeInBytes;
+  uint64_t		  OutFileWrittenBytes;
 
   uint8_t		  OutFileBuf[ DECODE_OUT_BUF_MAX_LEN ];
   int			  OutFileBufIndex;
@@ -126,6 +127,7 @@ bool GetSourceFileSize( uint8_t , uint64_t * );
 int ReadMetaData( Huff_Decode_app_t *, uint8_t );
 void MemoryAllocation( Huff_Decode_DataStru_t ***, int );
 void ReadLastBitPostion( uint8_t *);
+void ClosingCeremony(  Huff_Decode_app_t *);
 
 
 void AppendData(Huff_Decode_app_t *AppPtr );
