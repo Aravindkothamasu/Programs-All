@@ -8,7 +8,7 @@ OBJDIR_ENCODE = $(OBJDIR)/Encode
 OBJDIR_DECODE = $(OBJDIR)/Decode
 EXE_ENCODE=encHuff
 EXE_DECODE=decHuff
-DEL_TMP_FILE=*.bin *_Tmp
+DEL_TMP_FILE=*.bin *_cpy
 
 
 .PHONY: all clean cleanall
