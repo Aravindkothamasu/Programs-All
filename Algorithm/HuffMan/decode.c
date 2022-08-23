@@ -1,6 +1,6 @@
 #include "include/Huffman_Decode_Header.h"
 
-#define SAMPLE_TEST	  0
+#define	    SAMPLE_TEST		  0
 
 int EncDataByts = 0;
 char temp_print_buf[256]={0};
@@ -16,14 +16,28 @@ int	 SampleRdIndex =  0;
 
 
 
-uint64_t BinDataBuf	= 0;
-int	 BinDataWrIndex = 0;
-int	 BinDataRdIndex = 0;
+uint8_t  BinDataBuf[DECODE_BUF_BYTES]	= {0};
+int	 BinDataWrIndex			=  0;
+int	 BinDataRdIndex			=  0;
 
 
-// uint64_t SampleBinData = 0xF2AE535690194E;
-// uint64_t SampleBinData = 0xFCEDFCEDFCEDFC;	  // Wr Index 56
+uint8_t  LastBitPosBuf[5]		= {0};
+int	 LastBitPosIndex		=  0;
 
+
+
+uint8_t	 DSCountBuf[5]			= {0};
+int	 DSCountIndex			=  0;
+
+
+uint8_t  FileSizeBuf[12]	        = {0};
+int	 FileSizeBufIndex		=  0;
+
+
+
+/*
+ *  main() -> Main Function Starts here.
+ */
 
 int main (int argc, char **argv)
 {  
@@ -37,6 +51,8 @@ int main (int argc, char **argv)
   return 0;
 }
 
+
+
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 {
   uint32_t i = 0;
@@ -47,7 +63,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
   {
     if( AppPtr->MainSt >= DEC_ENCRYPT_METADATA )
     {
-      ReadData( AppPtr ); 
+      ReadDataIpSrcFile( AppPtr ); 
 
       if( -1 == AppPtr->RdRtnBytes )
       {
@@ -55,12 +71,12 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       }
       else if( 0 == AppPtr->RdRtnBytes )
       { // FIXME : Change
-	/*
-	   Decode_ParseData( AppPtr, &BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
-	   console_print( "READ DONE\n" );
-	   WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
-	   close( AppPtr->OutFileDes );
-	 */
+
+	Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+	console_print( "READ DONE\n" );
+	WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
+	close( AppPtr->OutFileDes );
+
 	exit(0);
       }
     }
@@ -128,6 +144,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	case DEC_HEADER :
 	  {
+#if ENCRYPT_HEADER
 	    if( true == CheckEncode( true, AppPtr->IpData + i ) )
 	    {
 	      console_print("============  Decoding HEADER SUCCESS  ===========\n\n");
@@ -139,6 +156,10 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	      console_print( "**** DEC Header Else Executed \n" );
 	      return;
 	    }
+#else
+	    i--;    // In Case Header is not enabled, skip the state and decrement index value
+	    AppPtr->MainSt = DEC_MAP_DATA;
+#endif
 	  }
 	  break;
 
@@ -152,7 +173,6 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    }
 	    else
 	    {
-	      // Something nasty things has happened, control should not come here
 	      console_print( "Something nasty things has happened, control should not come here\n" );
 	      return;
 	    }
@@ -291,13 +311,6 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
 
 
-
-
-uint8_t LastBitPosBuf[5] = {0};
-int	LastBitPosIndex  = 0;
-
-
-
 /*
    Return
    -1 -> Current State is disabled
@@ -407,11 +420,11 @@ void AddDataWriteBuf( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
   AppPtr->OutFileBuf[ AppPtr->OutFileBufIndex++ ] = Data;
 
-  if( AppPtr->OutFileBufIndex >= DECODE_MAX_LEN_BUF_LEN )
+  if( AppPtr->OutFileBufIndex >= DECODE_OUT_BUF_MAX_LEN )
   {
     WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
 
-    memset( &AppPtr->OutFileBuf, 0, DECODE_MAX_LEN_BUF_LEN );
+    memset( &AppPtr->OutFileBuf, 0, DECODE_OUT_BUF_MAX_LEN );
     AppPtr->OutFileBufIndex = 0;
   }
 }
@@ -450,11 +463,11 @@ void PrintDSdata(  Huff_Decode_app_t  * AppPtr )
   }
 }
 
-int ReadData( Huff_Decode_app_t *AppPtr )
+int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
 {
   memset( AppPtr->IpData, 0, sizeof( AppPtr->IpData ) );
 
-  AppPtr->RdRtnBytes = read( AppPtr->InFileDes, AppPtr->IpData, MAX_DATA_CAN_READ );
+  AppPtr->RdRtnBytes = read( AppPtr->InFileDes, AppPtr->IpData, DECODE_IN_BUF_MAX_LEN );
 
   if( -1 == AppPtr->RdRtnBytes )
   {
@@ -469,39 +482,6 @@ int ReadData( Huff_Decode_app_t *AppPtr )
 }
 
 
-bool AllocateSubMemory( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
-{
-  int i;
-
-  for( i = 0; i < CountIndex ; i++ )
-  {
-    (*DataPtr)[i] =  calloc( 1, sizeof( Huff_Decode_DataStru_t ) );
-
-    if( NULL == (*DataPtr)[i] )
-    {
-      console_print("Unable to Allocate Memory for Sub Arrays Reason : %s", strerror( errno ));
-      return false;
-    }
-  }
-  return true;
-}
-
-
-bool AllocateMainMem( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
-{
-  *DataPtr = calloc( sizeof( Huff_Decode_DataStru_t ), CountIndex);
-
-  if( NULL != *DataPtr )
-  {
-    console_print( "Allocated Main Memory ---- %d\n", CountIndex );
-    return true;
-  }
-  else
-    console_print( "malloc failure : %s", strerror(errno ));
-
-  return false;
-}
-
 void ProgramExit()
 {
   console_print( "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
@@ -509,20 +489,22 @@ void ProgramExit()
 }
 
 
-bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint64_t EncData2, int BitOfEnc2 )
+bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint8_t *EncData2, int BitOfEnc2 )
 {
-  int Counter = 1, i;
   bool Operator1 = false;
   bool Operator2 = false;
+  int  i, lBinDataRdIndx = 0;
 
   // console_print( "DataPtr Type : %X || Bit %2d || EncData %X\n", DataPtr->Type, DataPtr->BitOfEnc, DataPtr->EncData );
+  lBinDataRdIndx = BitOfEnc2;
 
-  for( i = BitOfEnc1-1 ; i >= 0; Counter++, i-- )
+  for( i = BitOfEnc1-1; i >= 0; i-- )
   {
     Operator1 = GetBitVal( EncData1, i );
-    Operator2 = GetBitVal( EncData2, BitOfEnc2 - Counter );
-    // console_print( "Ope1 : %d || Ope2 : %d\n", Operator1, Operator2 );
+    Operator2 = GetBitValInArray( EncData2, lBinDataRdIndx );
+    INCCIRCULARINDEX( lBinDataRdIndx, DECODE_BUF_BYTES * 8);
 
+    // console_print( "INDEX : %d || Ope1 : %d || Ope2 : %d\n", i, Operator1, Operator2 );
     if( Operator1 != Operator2 )
     {
       // console_print( "==== Un-Match ====\n" );
@@ -535,7 +517,7 @@ bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint64_t EncData2, int Bit
 
 
 
-void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *BinDataBufPtr, int *BinDataRdIndexPtr, int *BinDataWrIndexPtr )
+void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *BinDataRdIndexPtr, int *BinDataWrIndexPtr )
 {
   int i, ElementIndex = 0;
   Huff_Decode_DataStru_t *DataPtr = NULL;
@@ -543,28 +525,26 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *BinDataBufPtr, int *
   do{
     DataPtr = AppPtr->DataPtr[ElementIndex];
 
-    if( *BinDataWrIndexPtr < DataPtr->BitOfEnc )
+    if( Percentage_FillUp( DECODE_BUF_BYTES *8, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) <= DataPtr->BitOfEnc ) 
+      // FIXME : Re-check the condition
     {
       console_print( "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
-	  Percentage_FillUp( *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
+	  Percentage_FillUp( DECODE_BUF_BYTES*8, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
 
       console_print( "WrIndex Buf is empty returning..\n" );
+
       return;
     }
+    // console_print( "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
+    // ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr, DataPtr->BitOfEnc );
 
-
-    // console_print( "=========	  ElementIndex	  : %2d || WrIndex : %2d || RdIndex : %2d ====\n", 
-	// ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr );
-
-    if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, *BinDataBufPtr, *BinDataWrIndexPtr )) 
+    if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, BinDataBufPtr, *BinDataRdIndexPtr )) 
     {
-      GetBinary( *BinDataBufPtr, 8, temp_print_buf); 
-
       console_print( "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
-	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
-	  Percentage_FillUp( *BinDataWrIndexPtr, *BinDataRdIndexPtr),
-	  temp_print_buf );
+	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
+	  Percentage_FillUp( DECODE_BUF_BYTES * 8, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
+	  GetBinaryInArray( BinDataBufPtr, DECODE_BUF_BYTES, temp_print_buf) );
 
       console_print( "DATA READ Indx %2d Data %X EncData %2X BitOfEnc %2d ----  WRINDX %2d RDINDX %2d\n", 
 	  ElementIndex,
@@ -580,14 +560,13 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *BinDataBufPtr, int *
 
       for( i = 0; i < DataPtr->BitOfEnc; i++)
       {
-	INCCIRCULARINDEX( *BinDataRdIndexPtr, MAX_LEN_BUF_BITS ); 
+	INCCIRCULARINDEX( *BinDataRdIndexPtr, DECODE_BUF_BYTES * 8 ); 
       }
 
-      GetBinary( *BinDataBufPtr, 8, temp_print_buf); 
       console_print( "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
-	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
-	  Percentage_FillUp( *BinDataWrIndexPtr, *BinDataRdIndexPtr),
-	  temp_print_buf );
+	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES ), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
+	  Percentage_FillUp( DECODE_BUF_BYTES*8, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
+	  GetBinaryInArray( BinDataBufPtr, 8, temp_print_buf));
       console_print("\n\n" );
     }
     else
@@ -599,7 +578,6 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint64_t *BinDataBufPtr, int *
       }
     }
 
-    // sleep(1 );
   }while( true );
 }
 
@@ -609,134 +587,37 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 {
   int i;
 
-  console_print( "ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
+  console_print( "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
       EncData, BitOfEnc, BinDataWrIndex, BinDataRdIndex, 
-      Percentage_FillUp( BinDataWrIndex, BinDataRdIndex), BinDataBuf );
+      Percentage_FillUp( DECODE_BUF_BYTES*8, BinDataWrIndex, BinDataRdIndex), DATA_BUF( BinDataBuf, DECODE_BUF_BYTES ) );
 
 
-  if( Percentage_FillUp( BinDataWrIndex, BinDataRdIndex) > 54 )
+  if( Percentage_FillUp( DECODE_BUF_BYTES*8, BinDataWrIndex, BinDataRdIndex) > 54 )
   {
     console_print( "PERCENTAGE FILLUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
 #if SAMPLE_TEST
     AppendData(AppPtr);
     Counter++;
-    Decode_ParseData( AppPtr, &SampleBinData, &SampleRdIndex, &SampleWrIndex );
+    Decode_ParseData( AppPtr, SampleBinData, &SampleRdIndex, &SampleWrIndex );
 #else
-    Decode_ParseData( AppPtr, &BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+    Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
 #endif
 
   }
 
-  BinDataBuf = BinDataBuf << BitOfEnc | EncData;
-  // BinDataWrIndex += BitOfEnc;
-  for( i = 0; i < BitOfEnc; i++ )
+  for( i = BitOfEnc -1 ; i >= 0; i-- )
   {
-    INCCIRCULARINDEX( BinDataWrIndex, MAX_LEN_BUF_BITS );
+    BitFeed( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, i ) );
+    // console_print( "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
+    INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BYTES * 8 );
   }
-
-
-  GetBinary( BinDataBuf, 8, temp_print_buf); 
-  strcat( temp_print_buf, "\n" ); 
-  console_print( temp_print_buf );
+  console_print( "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
   // sleep(1);
   return true;
 }
 
-#if SAMPLE_TEST
-void AppendData(Huff_Decode_app_t *AppPtr )
-{
-  int i;
 
-  console_print( "****** Append Data *******\n" );
-#if 0
-  if( Counter > 5 )
-    return;
-
-  if( Counter == 5 )
-  {
-    for( i = 25 ; i < 27; i++ )
-    {
-      SampleBinData = SampleBinData << AppPtr->DataPtr[i]->BitOfEnc | AppPtr->DataPtr[i]->EncData;
-      SampleWrIndex += AppPtr->DataPtr[i]->BitOfEnc;
-    }
-    return;
-  }
-
-  for( i = Counter*5 ; i < Counter*5+5; i++ )
-  {
-    GetBinary( SampleBinData, 8, temp_print_buf); 
-    // console_print( "Before Ind : %d | WrIn %d | %s\n", temp_print_buf );
-
-    SampleBinData = SampleBinData << AppPtr->DataPtr[i]->BitOfEnc | AppPtr->DataPtr[i]->EncData;
-    SampleWrIndex += AppPtr->DataPtr[i]->BitOfEnc;
-
-    GetBinary( BinDataBuf, 8, temp_print_buf); 
-    // console_print( "After Ind : %d | WrIn %d | %s\n", temp_print_buf );
-  }
-#else
-
-  if( Counter == 0 )
-    SampleBinData = 0xf2ae535690194e40;
-  else if( Counter == 1 )
-  {
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "BEF : %s\n", temp_print_buf );
-
-    SampleBinData = SampleBinData << 61 | 0xc5185d5cc304e96b >> 3;
-
-
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "AFT : %s\n", temp_print_buf );
-  }
-  else if( Counter == 2 )
-  {
-
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "CNT 2 BEF : %s\n", temp_print_buf );
-
-    SampleBinData = 0x6670;
-    SampleWrIndex = 11;
-    SampleRdIndex = 0;
-
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "CNT 2 AFT : %s\n", temp_print_buf );
-    return;
-  }
-  else
-  {
-    SampleBinData = 0;
-    SampleWrIndex = 0;
-    return;
-
-  }
-
-  /*
-  else if( Counter == 1 )
-    SampleBinData = 0xc5185d5cc304e96b;
-  */
-
-
-  SampleWrIndex = 64;
-
-
-
-
-#endif
-}
-#endif
-
-
-void WriteData( Huff_Decode_app_t *AppPtr )
-{
-  if( -1 == write( AppPtr->OutFileDes, AppPtr->OpData, AppPtr->WritePtr ) )
-  {
-    console_print("-----> Write Data into FILE : %s Failure : %s\n", strerror(errno) );
-    exit( 0 );
-  }
-  else
-    console_print("Writing Data SUCCESS : %d", AppPtr->WritePtr );
-}
 
 bool CheckEncode( bool isHeader, uint8_t *DataRead )
 {
@@ -764,52 +645,6 @@ bool CheckEncode( bool isHeader, uint8_t *DataRead )
 }
 
 
-
-
-uint8_t ReadDS( Huff_Decode_DataStru_t *Ptr, int FileDes)
-{
-  uint8_t Data[7]={0};
-
-  if( -1 == read( FileDes, Data, sizeof(Data)) )
-  {
-    console_print("Unable to Read the file : %s\n", strerror(errno));
-    return 2;
-  }
-  else
-  {
-    /*
-       console_print("Data Read Ds : %X %x %x %x %x %x %x\n",
-       Data[0],
-       Data[1],
-       Data[2],
-       Data[3],
-       Data[4],
-       Data[5],
-       Data[6]);
-     */
-    if( Data[0] != DATA_ST_BYTE_0 )
-      return 0;
-    if( Data[1] != DATA_ST_BYTE_1 )
-      return 0;
-    if( Data[5] != DATA_ST_BYTE_5 )
-      return 0;
-    if( Data[6] != DATA_ST_BYTE_6 )
-      return 0;
-
-    Ptr->Type     = Data[2];
-    Ptr->EncData  = Data[3];
-    Ptr->BitOfEnc = Data[4];
-
-  }
-  return 1;
-}
-
-
-
-
-
-uint8_t	  DSCountBuf[5] = {0};
-int	  DSCountIndex   = 0;
 
 int GetCountDS( uint8_t Data, int *CountIndexPtr )
 {
@@ -843,10 +678,6 @@ int GetCountDS( uint8_t Data, int *CountIndexPtr )
 
 
 
-
-
-uint8_t FileSizeBuf[12] = {0};
-int	FileSizeBufIndex = 0;
 
 bool GetSourceFileSize( uint8_t Data, uint64_t *FileSizePtr )
 {
@@ -883,7 +714,7 @@ void CreateOutFileName ( char *OutFileName, char *InFileName)
   int Len = strlen( InFileName );
 
   strncpy( OutFileName, InFileName, Len - 4);
-  strcat( OutFileName, "_Tmp");             //TODO : Remove after testing
+  strcat( OutFileName, "_cpy" );             //TODO : Remove after testing
 
   console_print("Out FileName : %s\n", OutFileName);
 
@@ -909,9 +740,115 @@ void CheckIpFile( char *FileName)
 }
 
 
+//////////////////////////////////////////     MEMORY ALLOCATION FUNCTIONS	///////////////////////////////////////////////////
+
+
 void MemoryAllocation( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 {
   if( true == AllocateMainMem( DataPtr, CountIndex ) )
     if( true == AllocateSubMemory( DataPtr, CountIndex ) )
       console_print("============  Allocating Memory Success  ===========\n");
 }
+
+
+bool AllocateSubMemory( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
+{
+  int i;
+
+  for( i = 0; i < CountIndex ; i++ )
+  {
+    (*DataPtr)[i] =  calloc( 1, sizeof( Huff_Decode_DataStru_t ) );
+
+    if( NULL == (*DataPtr)[i] )
+    {
+      console_print("Unable to Allocate Memory for Sub Arrays Reason : %s", strerror( errno ));
+      return false;
+    }
+  }
+  return true;
+}
+
+
+bool AllocateMainMem( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
+{
+  *DataPtr = calloc( sizeof( Huff_Decode_DataStru_t ), CountIndex);
+
+  if( NULL != *DataPtr )
+  {
+    console_print( "Allocated Main Memory ---- %d\n", CountIndex );
+    return true;
+  }
+  else
+    console_print( "malloc failure : %s", strerror(errno ));
+
+  return false;
+}
+
+
+uint64_t DATA_BUF( uint8_t *a, int Bytes )
+{
+  int	   i;
+  uint64_t Data = 0;
+
+  for( Data = 0, i = Bytes-1; i >= 0; i-- )
+  {
+    Data = Data << 8 | a[i];
+  }
+  return Data;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+#if SAMPLE_TEST
+void AppendData(Huff_Decode_app_t *AppPtr )
+{
+  int i;
+
+  console_print( "****** Append Data *******\n" );
+  if( Counter == 0 )
+    SampleBinData = 0xf2ae535690194e40;
+  else if( Counter == 1 )
+  {
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "BEF : %s\n", temp_print_buf );
+
+    SampleBinData = SampleBinData << 61 | 0xc5185d5cc304e96b >> 3;
+
+
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "AFT : %s\n", temp_print_buf );
+  }
+  else if( Counter == 2 )
+  {
+
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "CNT 2 BEF : %s\n", temp_print_buf );
+
+    SampleBinData = 0x6670;
+    SampleWrIndex = 11;
+    SampleRdIndex = 0;
+
+    GetBinary( SampleBinData, 8, temp_print_buf );
+    console_print( "CNT 2 AFT : %s\n", temp_print_buf );
+    return;
+  }
+  else
+  {
+    SampleBinData = 0;
+    SampleWrIndex = 0;
+    return;
+
+  }
+
+  /*
+     else if( Counter == 1 )
+     SampleBinData = 0xc5185d5cc304e96b;
+   */
+
+
+  SampleWrIndex = 64;
+}
+#endif

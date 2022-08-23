@@ -1,18 +1,12 @@
 #ifndef __HUFFMAN_DECODE_HEADER_H__
 #define __HUFFMAN_DECODE_HEADER_H__
 
-#include"Huffman_Header.h"
+#include "Huffman_Header.h"
 
 
-
-
-
-
-
-
-
-#define	      MAX_DATA_CAN_READ		100
-#define	      DECODE_MAX_LEN_BUF_LEN	10
+#define	      DECODE_IN_BUF_MAX_LEN	100
+#define	      DECODE_OUT_BUF_MAX_LEN	 10
+#define	      DECODE_BUF_BYTES		  8
 
 
 /*	  DECODE  STATEFLOW DECLERATION	  */
@@ -54,16 +48,7 @@ typedef enum
   DEC_IN_FILE		    ,
   DEC_CREATE_OUT_FILENAME   ,
   DEC_OPEN_OUTFILE	    ,
-
-#if 0
-  DEC_FILE_SIZE		    ,
-  DEC_DS_COUNT		    ,
-  DEC_ALLOCATE		    ,
-  DEC_GET_DS		    ,
-#else
   DEC_ENCRYPT_METADATA	    ,
-#endif
-
   DEC_HEADER		    ,
   DEC_MAP_DATA		    ,
   DEC_FOOTER		    ,
@@ -95,7 +80,7 @@ typedef struct
 
 typedef struct
 {
-  int                    InFileDes;
+  int                   InFileDes;
   int                   OutFileDes;
   int                   CountIndex;
 
@@ -103,10 +88,8 @@ typedef struct
   char                  OutFileName[150];
 
   
-  uint8_t		IpData[ MAX_DATA_CAN_READ];
-  uint8_t		OpData[ MAX_DATA_CAN_READ];
+  uint8_t		IpData[ DECODE_IN_BUF_MAX_LEN ];
   int			RdRtnBytes;
-  int			WritePtr;
   uint8_t	        LastBitPos;
 
   Huff_Decode_DataStru_t **DataPtr;
@@ -116,14 +99,10 @@ typedef struct
   Huff_Decode_State_t	  MainSt;
   Huff_Decode_Metadata_t  MetadataSt;
 
-  Huff_Dec_Prev_St	  Prev;
-
   uint64_t		SrcFileSizeInBytes;
 
-
-  uint8_t		  OutFileBuf[DECODE_MAX_LEN_BUF_LEN];
+  uint8_t		  OutFileBuf[ DECODE_OUT_BUF_MAX_LEN ];
   int			  OutFileBufIndex;
-
 }Huff_Decode_app_t;
 
 
@@ -137,7 +116,7 @@ int GetCountDS( uint8_t , int * );
 bool MapData( Huff_Decode_app_t *, uint8_t, int);
 bool CheckEncode( bool , uint8_t *);
 bool AllocateMainMem( Huff_Decode_DataStru_t ***, int );
-int ReadData( Huff_Decode_app_t *);
+int ReadDataIpSrcFile( Huff_Decode_app_t *);
 void PrcsIpData( Huff_Decode_app_t *, uint8_t );
 void PrintDSdata(  Huff_Decode_app_t  * );
 bool AllocateSubMemory( Huff_Decode_DataStru_t ***, int );
@@ -150,14 +129,8 @@ void ReadLastBitPostion( uint8_t *);
 
 
 void AppendData(Huff_Decode_app_t *AppPtr );
-void Decode_ParseData( Huff_Decode_app_t *, uint64_t *, int *, int *);
-
-
-
-// uint8_t ReadDS( Huff_Decode_DataStru_t *, int );
-// char * GetOutFileExtent( int , char *);
-
-
+void Decode_ParseData( Huff_Decode_app_t *, uint8_t *, int *, int *);
+uint64_t DATA_BUF( uint8_t *, int );
 
 
 
