@@ -4,7 +4,7 @@
 
 #include"Huffman_Header.h"
 
-#define DEBUG_ON_ENCODE_PRINT	    1
+#define DEBUG_ON_ENCODE_PRINT	    0
 
 #define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BitsOfIndex, DataToSend)   \
     console_print( "%sASCII: %2X EncD: %2X BitEnc %2d || BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Text, Data,\
@@ -104,6 +104,7 @@ void WriteLastBitIndex( as_huff_t *, uint8_t );
 uint64_t MaskRemBits ( uint64_t , int );
 uint64_t ReverseBits ( uint64_t , int );
 struct MinHeapNode *  HuffmanCodes( int );
+void PrintArrBin ( as_data_t );
 
 
 

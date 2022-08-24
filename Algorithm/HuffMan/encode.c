@@ -454,7 +454,10 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
       if( BitOfEnc - temp )
       {
 	//GET REMAINING DATA
+#if DEBUG_ON_ENCODE_PRINT
 	console_print( "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
+#endif
+
 	for( i = BitOfEnc-temp; i > 0; i-- )
 	{
 #if DEBUG_ON_ENCODE_PRINT
@@ -475,7 +478,11 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
 	}
       }
       else
+      {
+#if DEBUG_ON_ENCODE_PRINT
 	console_print( "No Data is Pending to be Written\n" );
+#endif
+      }
     }
     else
     {

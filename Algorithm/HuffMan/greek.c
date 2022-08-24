@@ -4,7 +4,7 @@
 
 #define MAX_TREE_HT 60
 
-extern as_data_t CountData[0x7f+1];
+extern as_data_t CountData[ TOT_CHARS + 1];
 char TmpBuf[128] = {0};
 
 
@@ -141,10 +141,9 @@ void printArr(char  Data, int Freq, char  arr[], int n)
 
 void PrintArrBin ( as_data_t CountData )
 {
-  console_print(" Data : %2X || Freq : %10d || BitofEnc : %2d || EncData : %10X || Binary : ", 
-      CountData.Type, CountData.Freq, CountData.BitOfEnc, CountData.EncData );
-
-  printf( "%s\n" ,GetBinary ( CountData.EncData, 8, TmpBuf) );
+  console_print(" Data : %2X || Freq : %10d || BitofEnc : %2d || EncData : %10X || Binary : %s\n",
+      CountData.Type, CountData.Freq, CountData.BitOfEnc, CountData.EncData, 
+  GetBinary ( CountData.EncData, 8, TmpBuf) );
 
 }
 
@@ -166,7 +165,7 @@ void printCodes(struct MinHeapNode* root, uint64_t *EncDataPtr, int top, int Sta
   if (isLeaf(root))
   {
     //printf("%3d %c: ", root->data, root->data);
-    for ( int i = StartIndex; i <= 0x7f ; i++)
+    for ( int i = StartIndex; i <= TOT_CHARS ; i++)
       if ( CountData[i].Type == root->data )
       {
 	CountData[i].BitOfEnc = top;
