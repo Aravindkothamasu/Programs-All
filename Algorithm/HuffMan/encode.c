@@ -28,13 +28,13 @@ int main(int argc, char **argv)
   Huff.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
 
 
-  for(i=0;i<=0x7f ;i++)		//For Type Added to 1
+  for(i=0;i <= TOT_CHARS ;i++)		//For Type Added to 1
     CountData[i].Type = i;
 
   ReadInputFile(Huff.InFileDes);
 
 #if DEBUG_ON_ENCODE
-  for(i=0 ; i<=0x7f ; i++)
+  for(i=0 ; i <= TOT_CHARS; i++)
     if( 0 != CountData[i].Freq )
       console_print("RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
 #if DEBUG_ON_ENCODE
 
-  for(i=0 ; i<=0x7f ; i++)
+  for(i=0 ; i <= TOT_CHARS ; i++)
     if( 0 != CountData[i].Freq )
       console_print("AFTR_SORT -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
@@ -102,7 +102,6 @@ int main(int argc, char **argv)
 
   console_print( " ============  COMPLETED WRITING DS INTO FILE =============\n");
 
-  sleep( 2 );
 #if 1
   while( true )
   {
@@ -122,7 +121,7 @@ int main(int argc, char **argv)
     {
       for( i=0 ; i<BytesRead ; i++ )
       {
-	for( j=Huff.StartIndex ; j<= TOT_CHARS; j++ )
+	for( j = TOT_CHARS; j >= Huff.StartIndex ; j-- )
 	  if( ReadBuf[i] == CountData[j].Type)
 	  {
 	    if( false == CreateArray( CountData[j].Type, CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
@@ -298,7 +297,7 @@ void CreateDSFrame( as_huff_t *Huff )
 
   // DLE-STX TYPE[] BitOfEnc[] EncData[] - DLE-ETX	
 
-  for( i = Huff->StartIndex ; i <= TOT_CHARS ; i++,j=0 )
+  for( i = TOT_CHARS; i >= Huff->StartIndex; i--,j=0 )
   {
     console_print( "ASCII_DATA : %2X -- BitOfEnc : %2X -- EncData : %X\n", 
 	CountData[i].Type, CountData[i].BitOfEnc, CountData[i].EncData );
@@ -542,21 +541,26 @@ bool WriteInToFile(int FileDes, int Bytes )
 int GetStartingPoint()
 {
   int i=-1;
-  for( i=0;i<=0x7f;i++)
+
+  for( i=0; i <= TOT_CHARS ;i++)
     if( 0 != CountData[i].Freq )
       return i;
   return i;
 }
 
+
+// FIXME : Re-Look into it.
 void RearrangeData()
 {
   int i,j;
 
-  for( i=0;i<=0x7f-1;i++)
-    for( j=i+1 ; j<=0x7f ; j++)
+  for( i=0; i <= TOT_CHARS -1 ; i++)
+    for( j=i+1 ; j <= TOT_CHARS ; j++)
     {
-      if( CountData[i].Freq  > CountData[j].Freq )
+      if( CountData[i].Freq > CountData[j].Freq )
+      {
 	swap(i,j);
+      }
     }
 }
 
