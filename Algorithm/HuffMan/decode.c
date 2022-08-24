@@ -73,7 +73,6 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       { // FIXME : Change
 
 	ClosingCeremony( AppPtr );
-
 	exit(0);
       }
     }
@@ -493,7 +492,9 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
   {
     console_print("Reading from input File DONE \n" );
   }
+#if DEBUG_ON_DECODE_PRINT
   console_print( "%s Called Bytes Read : %d\n", __func__ , AppPtr->RdRtnBytes );
+#endif
   return AppPtr->RdRtnBytes;
 }
 
@@ -544,11 +545,13 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
     if( Percentage_FillUp( DECODE_BUF_BYTES *8, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) <= DataPtr->BitOfEnc ) 
       // FIXME : Re-check the condition
     {
+#if DEBUG_ON_DECODE_PRINT
       console_print( "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BYTES*8, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
 
       console_print( "WrIndex Buf is empty returning..\n" );
+#endif
 
       return;
     }
@@ -557,6 +560,8 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 
     if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, BinDataBufPtr, *BinDataRdIndexPtr )) 
     {
+
+#if DEBUG_ON_DECODE_PRINT
       console_print( "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BYTES * 8, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
@@ -569,6 +574,7 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 	  DataPtr->BitOfEnc,
 	  *BinDataWrIndexPtr,
 	  *BinDataRdIndexPtr );
+#endif
 
       ElementIndex = 0;
 
@@ -579,11 +585,14 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 	INCCIRCULARINDEX( *BinDataRdIndexPtr, DECODE_BUF_BYTES * 8 ); 
       }
 
+#if DEBUG_ON_DECODE_PRINT
       console_print( "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES ), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BYTES*8, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, 8, temp_print_buf));
       console_print("\n\n" );
+#endif
+
     }
     else
     {
@@ -603,14 +612,16 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 {
   int i;
 
+#if DEBUG_ON_DECODE_PRINT
   console_print( "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
       EncData, BitOfEnc, BinDataWrIndex, BinDataRdIndex, 
       Percentage_FillUp( DECODE_BUF_BYTES*8, BinDataWrIndex, BinDataRdIndex), DATA_BUF( BinDataBuf, DECODE_BUF_BYTES ) );
+#endif
 
 
   if( Percentage_FillUp( DECODE_BUF_BYTES*8, BinDataWrIndex, BinDataRdIndex) > 54 )
   {
-    console_print( "PERCENTAGE FILLUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
+    // console_print( "PERCENTAGE FILLUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
 #if SAMPLE_TEST
     AppendData(AppPtr);
@@ -628,7 +639,9 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
     // console_print( "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
     INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BYTES * 8 );
   }
+#if DEBUG_ON_DECODE_PRINT
   console_print( "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
+#endif
   // sleep(1);
   return true;
 }

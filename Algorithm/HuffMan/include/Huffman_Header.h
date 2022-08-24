@@ -83,7 +83,7 @@
 #define console_print( format, ...)	      \
     FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
-#define CAL_SIZE(a)   (0x7f - a +1 )
+#define CAL_SIZE(a)   ( TOT_CHARS - a +1 )
 
 
 #define INCCIRCULARINDEX(Index, Len)  { \
