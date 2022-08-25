@@ -35,7 +35,7 @@ decode:	$(DECODE_SRC)
 
 
 clean:
-	$(DEL) $(EXE_ENCODE) $(EXE_DECODE) $(DEL_TMP_FILE) a.out
+	$(DEL) $(EXE_ENCODE) $(EXE_DECODE) $(OBJDIR) a.out
 
 cleanall:
 	$(DEL) $(OBJDIR) $(EXE_ENCODE) $(EXE_DECODE) 	
