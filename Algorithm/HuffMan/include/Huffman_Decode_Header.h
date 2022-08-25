@@ -10,7 +10,7 @@
 
 
 
-#define	      DECODE_IN_BUF_MAX_LEN	100
+#define	      DECODE_IN_BUF_MAX_LEN	1000
 #define	      DECODE_OUT_BUF_MAX_LEN	1000
 #define	      DECODE_BUF_BYTES		  8
 
