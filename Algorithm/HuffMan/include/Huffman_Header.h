@@ -15,6 +15,13 @@
 #include<stdint.h>
 
 
+////////////////////////     LOGS DIRECTORY MACRO DECLERATION	    /////////////////////////
+
+#define	    ENCODE_LOG_DIR_PATH	      logs/Encode
+#define	    DECODE_LOG_DIR_PATH	      logs/Decode
+
+
+
 
 ////////////////////////     ENCRYPT .bin METADATA WRITE PROP	    /////////////////////////
 
