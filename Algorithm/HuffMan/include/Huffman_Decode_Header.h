@@ -11,10 +11,11 @@
 
 
 #define	      DECODE_IN_BUF_MAX_LEN	1000
-#define	      DECODE_OUT_BUF_MAX_LEN	1000
 
 
-#define	      DECODE_BUF_BYTES		  36
+
+#define	      DECODE_OUT_BUF_MAX_LEN		1000
+#define	      DECODE_BUF_BYTES			  36
 #define	      DECODE_BUF_BITS_LEN	  DECODE_BUF_BYTES * 8
 
 
@@ -143,6 +144,7 @@ void ClosingCeremony(  Huff_Decode_app_t *);
 void AppendData(Huff_Decode_app_t *AppPtr );
 void Decode_ParseData( Huff_Decode_app_t *, uint8_t *, int *, int *);
 uint64_t DATA_BUF( uint8_t *, int );
+void PrintPercentageFileRead( Huff_Decode_app_t *);
 
 
 

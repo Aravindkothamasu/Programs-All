@@ -1,7 +1,8 @@
 #include "include/Huffman_Header.h"
 
 
-char PrintBuffer[500]={0};
+char	PrintBuffer[500]={0};
+char	PercentagePrintStr[250]		= {0};
 
 void CmdLineCheck(int argc, int MaxCount)
 {
@@ -69,6 +70,27 @@ int Percentage_FillUp( int MaxLen, int WritePtr, int ReadPtr )
   return Diff;
 }
 
+
+
+void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Value )
+{
+  int i;
+
+  system( "clear" );
+  printf( "\n\n\n\n\n\n\n" );
+
+  console_print( "\t\t\t\t-----------	  SRC FILE BYTE : %d	    PROCESSED FILE BYTES : %d	-----------\n", 
+      SrcFileSizeInBytes, ProcessedFileBytes );
+
+  bzero( PercentagePrintStr, sizeof( PercentagePrintStr ));
+  for( i = 0; i < 100; i++ )
+    if( i < Value )
+      strcat( PercentagePrintStr, "##" );
+    else 
+      strcat( PercentagePrintStr, "  " );
+
+  console_print( "\t%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
+}
 
 
 ////////////////////////////////////////////	    CREATING BINARY TO ARRAY	  /////////////////////////////////////

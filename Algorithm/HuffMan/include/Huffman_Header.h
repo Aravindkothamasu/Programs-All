@@ -122,6 +122,7 @@ void BitSet( uint8_t *, int, int );
 
 char * GetBinaryInArray (uint8_t *,int , char *);
 bool GetBitValInArray( uint8_t *, int );
+void PrintFillUpData( int , int , float );
 
 
 

@@ -35,6 +35,9 @@ int	 FileSizeBufIndex		=  0;
 
 
 
+float	PercentageFileRead		=  0;
+
+
 /*
  *  main() -> Main Function Starts here.
  */
@@ -422,11 +425,14 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
   close( AppPtr->OutFileDes );
   close( AppPtr->InFileDes );
 
+  PrintFillUpData( AppPtr->SrcFileSizeInBytes, AppPtr->OutFileWrittenBytes, 100.0f ); 
+
+
   console_print( "\n" );
-  console_print( "================================================================\n" );
-  console_print( "====== BYTES ORIGINAL FILE : %12d Bytes \n", AppPtr->SrcFileSizeInBytes );
-  console_print( "====== BYTES WRIITEN  FILE : %12d Bytes \n", AppPtr->OutFileWrittenBytes );
-  console_print( "================================================================\n" );
+  console_print( "==============================================================\n" );
+  console_print( "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
+  console_print( "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
+  console_print( "==============================================================\n" );
   console_print( "\n" );
 }
 
@@ -607,6 +613,20 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 }
 
 
+void PrintPercentageFileRead( Huff_Decode_app_t *AppPtr )
+{
+  float FilledUp = 0;
+
+  FilledUp = (float) ( ( AppPtr->OutFileWrittenBytes * 100 ) / AppPtr->SrcFileSizeInBytes );
+
+  if( FilledUp != PercentageFileRead )
+  {
+    PercentageFileRead = FilledUp;
+
+    PrintFillUpData( AppPtr->SrcFileSizeInBytes, AppPtr->OutFileWrittenBytes, PercentageFileRead );
+  }
+}
+
 
 bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 {
@@ -621,7 +641,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 
   if( Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex) > DECODE_BUF_BITS_LEN - 10 )
   {
-    // console_print( "PERCENTAGE FILLUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
+    // console_print( "PERCENTAGE FILLEDUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
 #if SAMPLE_TEST
     AppendData(AppPtr);
@@ -631,6 +651,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
     Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
 #endif
 
+    PrintPercentageFileRead( AppPtr );
   }
 
   for( i = BitOfEnc -1 ; i >= 0; i-- )
