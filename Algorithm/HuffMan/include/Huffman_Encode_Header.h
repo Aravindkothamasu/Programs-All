@@ -41,14 +41,11 @@ typedef struct myBst
 
 typedef struct 
 {
-  char	    *characters;
-  char	    *Backup;
-  int	    *CountOfEachChar;
-  int	    TotChar;
-  int	    InFileDes;
-  int	    OutFileDes;
-  int	    StartIndex;
-  as_bst_t  *root;
+  int		    InFileDes;
+  int		    OutFileDes;
+
+  int		    StartIndex;
+  as_bst_t	    *root;
 
   off_t		    OutFdLastBitPostion;
   uint64_t	    InFileBytesRead;
