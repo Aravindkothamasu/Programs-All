@@ -46,4 +46,4 @@ clean:
 
 cleanall:
 	$(DEL) $(OBJDIR) $(EXE_ENCODE) $(EXE_DECODE) 	
-	$(DEL) $(DEL_TMP_FILE) a.out
+	$(DEL) $(DEL_TMP_FILE) $(LOGDIR) a.out
