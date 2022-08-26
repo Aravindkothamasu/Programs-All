@@ -6,6 +6,11 @@ CFLAGS = -Wall
 OBJDIR = objs
 OBJDIR_ENCODE = $(OBJDIR)/Encode
 OBJDIR_DECODE = $(OBJDIR)/Decode
+
+LOGDIR = logs
+LOGDIR_ENCODE = $(LOGDIR)/Encode
+LOGDIR_DECODE = $(LOGDIR)/Decode
+
 EXE_ENCODE=encHuff
 EXE_DECODE=decHuff
 DEL_TMP_FILE=*.bin *_cpy
@@ -28,9 +33,11 @@ $(OBJDIR_DECODE)/%.o : %.c
 
 
 encode: $(ENCODE_SRC)
+	@mkdir -p $(LOGDIR_ENCODE)
 	$(CC) $(ENCODE_SRC) -o $(EXE_ENCODE)
 
 decode:	$(DECODE_SRC)
+	@mkdir -p $(LOGDIR_DECODE)
 	$(CC) $(DECODE_SRC) -o $(EXE_DECODE)
 
 
