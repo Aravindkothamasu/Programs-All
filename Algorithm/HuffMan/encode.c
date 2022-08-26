@@ -9,6 +9,7 @@ int BytesRead=0;
 uint8_t ReadBuf[16] = {0};
 char Buffer[128]={0};
 
+float	PercentageFileRead		=  0;
 
 int main(int argc, char **argv)
 {    
@@ -119,9 +120,13 @@ int main(int argc, char **argv)
     }
     else
     {
+      Huff.InFileBytesRead  +=  BytesRead;
+      PrintPercentageFileRead( &Huff );
+
       for( i=0 ; i<BytesRead ; i++ )
       {
 	for( j = TOT_CHARS; j >= Huff.StartIndex ; j-- )
+	{
 	  if( ReadBuf[i] == CountData[j].Type)
 	  {
 	    if( false == CreateArray( CountData[j].Type, CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
@@ -131,6 +136,7 @@ int main(int argc, char **argv)
 	    }
 	    break;
 	  }
+	}
       }
     }
   }
@@ -171,12 +177,11 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 {
 
 #if ENCRYPT_FILE_SIZE
-  uint64_t SrcFileSizeInBytes = 0;
 
-  SrcFileSizeInBytes = CalculateSourceFile( HuffPtr );
-  WriteFileSize( HuffPtr, SrcFileSizeInBytes );
+  HuffPtr->SrcFileSizeInBytes = CalculateSourceFile( HuffPtr );
+  WriteFileSize( HuffPtr, HuffPtr->SrcFileSizeInBytes );
   console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
-      SrcFileSizeInBytes, SrcFileSizeInBytes );
+      HuffPtr->SrcFileSizeInBytes, HuffPtr->SrcFileSizeInBytes );
 #else
   console_print( "-------- ENCRYPT File Size DISABLED\n\n");
 #endif
@@ -334,30 +339,30 @@ void CreateOutFileName( char *InFileName, char *OutFileName)
   return;
 }
 
-void testing( int FileDes)
+void testing( int WriteFileDes )
 {
   int i;
 
   for( i = 0x21 ;i<= 0x5a ;i++)
     if ( i >= 0x21 && i<= 0x3f )
     {
-      if( false ==  CreateArray( 0, i, 6, FileDes) )
+      if( false ==  CreateArray( 0, i, 6, WriteFileDes) )
 	return;
     }
     else if( i >= 0x40 && i <= 0x4f )
     {
-      if( false ==  CreateArray( 0, i, 7, FileDes) )
+      if( false ==  CreateArray( 0, i, 7, WriteFileDes) )
 	return;
     }
     else if( i >= 0x50  )
     {
-      if( false ==  CreateArray( 0, i, 7, FileDes) )
+      if( false ==  CreateArray( 0, i, 7, WriteFileDes) )
 	return;
     }
 }
 
 
-void WriteRemaingData( int FileDes)
+void WriteRemaingData( int WriteFileDes)
 {
   int Bit = 0, i = 0;
   int temp = 0;
@@ -374,7 +379,7 @@ void WriteRemaingData( int FileDes)
 
   for( i = Bit*8 ; i > temp; i-- )
   {
-    console_print( "-----\n" );
+    // console_print( "-----\n" );
     DataToSend = DataToSend << 1 | 0;
     INCCIRCULARINDEX( BitsOfIndex, MAX_LEN_BUF_BITS );
   }
@@ -383,33 +388,48 @@ void WriteRemaingData( int FileDes)
   GetBinary( DataToSend, 8, Buffer ); 
   console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
 
-  WriteInToFile( FileDes, BitsOfIndex/8 );
+  WriteInToFile( WriteFileDes, BitsOfIndex/8 );
 
 }
 
-void Header( int FileDes)
+void Header( int WriteFileDes)
 {
 
   // STX - EOT - STX - EOT
 
-  CreateArray( 0, ENCODE_HEADER_1, 8, FileDes);
-  CreateArray( 0, ENCODE_HEADER_2, 8, FileDes);
-  CreateArray( 0, ENCODE_HEADER_3, 8, FileDes);
-  CreateArray( 0, ENCODE_HEADER_4, 8, FileDes);
+  CreateArray( 0, ENCODE_HEADER_1, 8, WriteFileDes);
+  CreateArray( 0, ENCODE_HEADER_2, 8, WriteFileDes);
+  CreateArray( 0, ENCODE_HEADER_3, 8, WriteFileDes);
+  CreateArray( 0, ENCODE_HEADER_4, 8, WriteFileDes);
 }
 
-void Fooder(int FileDes)
+void Fooder(int WriteFileDes)
 {
   // ETX - ETB - ETX - ETB
 
-  CreateArray( 0, ENCODE_FOODER_1, 8, FileDes);
-  CreateArray( 0, ENCODE_FOODER_2, 8, FileDes);
-  CreateArray( 0, ENCODE_FOODER_3, 8, FileDes);
-  CreateArray( 0, ENCODE_FOODER_4, 8, FileDes);
+  CreateArray( 0, ENCODE_FOODER_1, 8, WriteFileDes);
+  CreateArray( 0, ENCODE_FOODER_2, 8, WriteFileDes);
+  CreateArray( 0, ENCODE_FOODER_3, 8, WriteFileDes);
+  CreateArray( 0, ENCODE_FOODER_4, 8, WriteFileDes);
 }
 
 
-bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes) 
+void PrintPercentageFileRead( as_huff_t *HuffPtr )
+{
+  float FilledUp = 0;
+
+  FilledUp = (float) ( ( HuffPtr->InFileBytesRead * 100 ) / HuffPtr->SrcFileSizeInBytes );
+
+  if( FilledUp != PercentageFileRead )
+  {
+    PercentageFileRead = FilledUp;
+
+    PrintFillUpData( HuffPtr->SrcFileSizeInBytes, HuffPtr->InFileBytesRead, PercentageFileRead );
+  }
+}
+
+
+bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes) 
 {
   int i, temp;
 
@@ -447,7 +467,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int FileDes)
     PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
 
-    if( true ==  WriteInToFile(FileDes, 8))
+    if( true ==  WriteInToFile( WriteFileDes, 8))
     {
       BitsOfIndex = DataToSend  = 0;  
 

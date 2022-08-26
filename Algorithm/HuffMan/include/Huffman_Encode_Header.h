@@ -50,7 +50,9 @@ typedef struct
   int	    StartIndex;
   as_bst_t  *root;
 
-  off_t	    OutFdLastBitPostion;
+  off_t		    OutFdLastBitPostion;
+  uint64_t	    InFileBytesRead;
+  uint64_t	    SrcFileSizeInBytes;
 }as_huff_t;
 
 struct MinHeapNode {
@@ -94,6 +96,7 @@ void WriteMetadata ( as_huff_t *HuffPtr );
 int CalculateSourceFile( as_huff_t *);
 void WriteFileSize( as_huff_t *, uint64_t );
 void WriteLastBitIndex( as_huff_t *, uint8_t );
+void PrintPercentageFileRead( as_huff_t *);
 
 
 
