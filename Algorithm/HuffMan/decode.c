@@ -542,13 +542,13 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
   do{
     DataPtr = AppPtr->DataPtr[ElementIndex];
 
-    if( Percentage_FillUp( DECODE_BUF_BYTES *8, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) <= DataPtr->BitOfEnc ) 
+    if( Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) <= DataPtr->BitOfEnc ) 
       // FIXME : Re-check the condition
     {
 #if DEBUG_ON_DECODE_PRINT
       console_print( "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
-	  Percentage_FillUp( DECODE_BUF_BYTES*8, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
+	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
 
       console_print( "WrIndex Buf is empty returning..\n" );
 #endif
@@ -564,7 +564,7 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 #if DEBUG_ON_DECODE_PRINT
       console_print( "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
-	  Percentage_FillUp( DECODE_BUF_BYTES * 8, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
+	  Percentage_FillUp( DECODE_BUF_BITS_LEN,  *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, DECODE_BUF_BYTES, temp_print_buf) );
 
       console_print( "DATA READ Indx %2d Data %X EncData %2X BitOfEnc %2d ----  WRINDX %2d RDINDX %2d\n", 
@@ -588,7 +588,7 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 #if DEBUG_ON_DECODE_PRINT
       console_print( "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES ), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
-	  Percentage_FillUp( DECODE_BUF_BYTES*8, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
+	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, 8, temp_print_buf));
       console_print("\n\n" );
 #endif
@@ -615,11 +615,11 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 #if DEBUG_ON_DECODE_PRINT
   console_print( "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
       EncData, BitOfEnc, BinDataWrIndex, BinDataRdIndex, 
-      Percentage_FillUp( DECODE_BUF_BYTES*8, BinDataWrIndex, BinDataRdIndex), DATA_BUF( BinDataBuf, DECODE_BUF_BYTES ) );
+      Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex), DATA_BUF( BinDataBuf, DECODE_BUF_BYTES ) );
 #endif
 
 
-  if( Percentage_FillUp( DECODE_BUF_BYTES*8, BinDataWrIndex, BinDataRdIndex) > 54 )
+  if( Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex) > DECODE_BUF_BITS_LEN - 10 )
   {
     // console_print( "PERCENTAGE FILLUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
