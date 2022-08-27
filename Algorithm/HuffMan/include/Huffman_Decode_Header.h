@@ -15,7 +15,7 @@
 
 
 #define	      DECODE_OUT_BUF_MAX_LEN		1000
-#define	      DECODE_BUF_BYTES			  36
+#define	      DECODE_BUF_BYTES			  12
 #define	      DECODE_BUF_BITS_LEN	  DECODE_BUF_BYTES * 8
 
 

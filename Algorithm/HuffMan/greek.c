@@ -104,7 +104,7 @@ void buildMinHeap(struct MinHeap* minHeap)
   int n = minHeap->size - 1;
   int i;
 
-  console_print("___________  SIZE : %d ___________\n", minHeap->size);
+  console_print( LOG_MAPPING, "___________  SIZE : %d ___________\n", minHeap->size);
 
   for (i = (n - 1) / 2; i >= 0; --i)
     minHeapify(minHeap, i);
@@ -141,7 +141,7 @@ void printArr(char  Data, int Freq, char  arr[], int n)
 
 void PrintArrBin ( as_data_t CountData )
 {
-  console_print(" Data : %2X || Freq : %10d || BitofEnc : %2d || EncData : %10X || Binary : %s\n",
+  console_print( LOG_MAPPING, " Data : %2X || Freq : %10d || BitofEnc : %2d || EncData : %10X || Binary : %s\n",
       CountData.Type, CountData.Freq, CountData.BitOfEnc, CountData.EncData, 
   GetBinary ( CountData.EncData, 8, TmpBuf) );
 

@@ -87,8 +87,8 @@
 #define DEBUG_ON_ENCODE		0
 #define DEBUG_ON_DECODE		1
 
-#define console_print( format, ...)	      \
-    FramingData( __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
+#define console_print( LogType, format, ...)	      \
+    FramingData( LogType, __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
 
 #define CAL_SIZE(a)   ( TOT_CHARS - a +1 )
 
@@ -109,15 +109,24 @@
 }
 
 
+typedef enum
+{
+  LOG_ERROR	    = 1,
+  LOG_MAPPING	    = 2,
+  LOG_GEN	    = 3,
 
+  LOG_PRIO_1	    = 4,
+  LOG_PRIO_2	    = 5,
+  LOG_PRIO_3	    = 6,
 
+}Huff_Debug_Log_St_t;
 
 
 //////////////////	  COMMON.C    ///////////////////
 
 void CmdLineCheck(int , int );
 int FileOpening (char *, short int );
-void FramingData( int , const char *, const char *, const char *, ...);
+void FramingData( int, int , const char *, const char *, const char *, ...);
 char * GetBinary (uint64_t , int , char *);
 int Percentage_FillUp( int, int , int );
 bool WriteDataIntoFile( int, uint8_t *, int );

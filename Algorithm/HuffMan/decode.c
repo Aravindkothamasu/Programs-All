@@ -88,7 +88,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	  {
 	    CheckIpFile( argv[1]);
 
-	    console_print("========  Check Input File Done  =========\n");
+	    console_print( LOG_GEN, "========  Check Input File Done  =========\n");
 	    AppPtr->MainSt = DEC_IN_FILE;
 	  }
 	  break;
@@ -112,8 +112,8 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	  {
 	    AppPtr->OutFileDes = FileOpening( AppPtr->OutFileName, WRITE_MODE_FILE);
 
-	    console_print("I/p FileName : %s\n", argv[1] );
-	    console_print("O/p FileName : %s\n", AppPtr->OutFileName);
+	    console_print( LOG_GEN, "I/p FileName : %s\n", argv[1] );
+	    console_print( LOG_GEN, "O/p FileName : %s\n", AppPtr->OutFileName);
 
 	    AppPtr->MainSt = DEC_ENCRYPT_METADATA;
 	  }
@@ -146,13 +146,13 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 #if ENCRYPT_HEADER
 	    if( true == CheckEncode( true, AppPtr->IpData + i ) )
 	    {
-	      console_print("============  Decoding HEADER SUCCESS  ===========\n\n");
+	      console_print( LOG_MAPPING, "============  Decoding HEADER SUCCESS  ===========\n\n");
 	      i += 3;
 	      AppPtr->MainSt = DEC_MAP_DATA;
 	    }
 	    else
 	    {
-	      console_print( "**** DEC Header Else Executed \n" );
+	      console_print( LOG_ERROR, "**** DEC Header Else Executed \n" );
 	      return;
 	    }
 #else
@@ -167,12 +167,12 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	    // FIXME : Handle Last Byte of the array
 	    if( true == MapData( AppPtr, AppPtr->IpData[i], sizeof( uint8_t) * 8 ) )
 	    {
-	      // console_print("============  Mapping Data SUCCESS  ===========\n");
+	      // console_print( LOG_MAPPING, "============  Mapping Data SUCCESS  ===========\n");
 	      // AppPtr->MainSt = DEC_FOOTER;
 	    }
 	    else
 	    {
-	      console_print( "Something nasty things has happened, control should not come here\n" );
+	      console_print( LOG_ERROR, "Something nasty things has happened, control should not come here\n" );
 	      return;
 	    }
 	  }
@@ -182,7 +182,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	  {
 	    if( true == CheckEncode( false, AppPtr->IpData + i ) )
 	    {
-	      console_print("============  Decoding FOOTER SUCCESS  ===========\n");
+	      console_print( LOG_MAPPING, "============  Decoding FOOTER SUCCESS  ===========\n");
 	      return;
 	    }
 	    else
@@ -192,7 +192,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	default :
 	  {
-	    console_print("Unknown State : %d\n", AppPtr->MainSt );
+	    console_print( LOG_ERROR,"Unknown State : %d\n", AppPtr->MainSt );
 	    exit ( 0 );
 	  }
 	  break;
@@ -206,7 +206,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
-  // console_print( "%s HDDR Called || ST %d || DATA : %2X \n", __func__, AppPtr->DataFlowSt, Data );
+  // console_print( LOG_GEN, "%s HDDR Called || ST %d || DATA : %2X \n", __func__, AppPtr->DataFlowSt, Data );
 
   switch( AppPtr->DataFlowSt )
   {
@@ -218,7 +218,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	    return;
 	  else
 	  {
-	    console_print("Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
+	    console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 		DATA_ST_BYTE_0, Data );
 	    exit( 0);
 	  }
@@ -232,7 +232,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
       {
 	if( DATA_ST_BYTE_1 != Data )
 	{
-	  console_print("Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
+	  console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 	      DATA_ST_BYTE_1, Data );
 	  exit( 0);
 	}
@@ -272,7 +272,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
       {
 	if( DATA_ST_BYTE_5 != Data )
 	{
-	  console_print("Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
+	  console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 	      DATA_ST_BYTE_5, Data );
 	  exit( 0);
 	}
@@ -285,7 +285,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
       {
 	if( DATA_ST_BYTE_6 != Data )
 	{
-	  console_print("Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
+	  console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 	      DATA_ST_BYTE_6, Data );
 	  exit( 0);
 	}
@@ -293,14 +293,14 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	{
 	  AppPtr->Indx++;
 	  AppPtr->DataFlowSt = DS_HDDR_STR_1;
-	  // console_print( "INDEX : %d\n", AppPtr->Indx );
+	  // console_print( LOG_MAPPING, "INDEX : %d\n", AppPtr->Indx );
 	}
       }
       break;
 
 
     default : 
-      console_print( " Error in Getting State");
+      console_print( LOG_ERROR, " Error in Getting State");
       exit( 0 );
   }
 
@@ -320,7 +320,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
 int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 {
-  // console_print( "%s   Data : %2X : ST : %d\n", __func__, Data, AppPtr->MetadataSt );
+  // console_print( LOG_MAPPING, "%s   Data : %2X : ST : %d\n", __func__, Data, AppPtr->MetadataSt );
 
   switch( AppPtr->MetadataSt )
   {
@@ -331,13 +331,13 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 #if  ENCRYPT_FILE_SIZE
 	if( true == GetSourceFileSize( Data, &AppPtr->SrcFileSizeInBytes ))
 	{
-	  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
+	  console_print( LOG_MAPPING, "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
 	      AppPtr->SrcFileSizeInBytes, AppPtr->SrcFileSizeInBytes );
 	  AppPtr->MetadataSt = METADATA_COUNT_DS;
 
 	}
 #else
-	console_print( "-------- ENCRYPT File Size DISABLED\n\n");
+	console_print( LOG_ERROR, "-------- ENCRYPT File Size DISABLED\n\n");
 	AppPtr->MetadataSt = METADATA_COUNT_DS;
 	return -1;
 #endif
@@ -354,10 +354,10 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	{
 	  if( AppPtr->CountIndex < 0 )
 	  {
-	    console_print("Error in Reading Binary Data\n");
+	    console_print( LOG_ERROR,"Error in Reading Binary Data\n");
 	    // TODO : ProgramExit()
 	  }
-	  console_print("============   CountIndex : Hex : %2X || Dec %d   ===========\n",
+	  console_print( LOG_MAPPING,"============   CountIndex : Hex : %2X || Dec %d   ===========\n",
 	      AppPtr->CountIndex, AppPtr->CountIndex);
 
 	  AppPtr->MetadataSt = METADATA_READ_DS;
@@ -366,7 +366,7 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	}
 
 #else
-	console_print( "-------- ENCRYPT Count DS is DISABLED\n\n");
+	console_print( LOG_MAPPING, "-------- ENCRYPT Count DS is DISABLED\n\n");
 	AppPtr->MetadataSt = METADATA_READ_DS;
 	return -1;
 #endif
@@ -380,7 +380,7 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
 	if( AppPtr->Indx == AppPtr->CountIndex )
 	{
-	  console_print("============  Reading the Frame Format Completed ===========\n");
+	  console_print( LOG_MAPPING,"============  Reading the Frame Format Completed ===========\n");
 	  PrintDSdata( AppPtr );
 	  AppPtr->MetadataSt = METADATA_LAST_BIT;
 	}
@@ -394,17 +394,17 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 #if ENCRYPT_LAST_BIT_INDEX
 	{
 	  LastBitPosBuf[LastBitPosIndex++] = Data;
-	  // console_print( "---LAST BIT POS DATA FEED : %d -- %2X\n", LastBitPosIndex, Data );
+	  // console_print( LOG_MAPPING, "---LAST BIT POS DATA FEED : %d -- %2X\n", LastBitPosIndex, Data );
 	  if( LastBitPosIndex < 5 )
 	    break;
 
 	  ReadLastBitPostion( &AppPtr->LastBitPos );
-	  console_print( "LastBit Position --> %ld\n", AppPtr->LastBitPos );
+	  console_print( LOG_MAPPING, "LastBit Position --> %ld\n", AppPtr->LastBitPos );
 
 	  return  1;
 	}
 #else
-	console_print( "-------- ENCRYPT LAST BIT INDEX DISABLED\n\n");
+	console_print( LOG_MAPPING , "-------- ENCRYPT LAST BIT INDEX DISABLED\n\n");
 	return -1;
 #endif
       }
@@ -418,7 +418,7 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
 {
   Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
-  console_print( "READ DONE\n" );
+  console_print( LOG_GEN, "READ DONE\n" );
 
   AppPtr->OutFileWrittenBytes += AppPtr->OutFileBufIndex;
   WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
@@ -428,12 +428,12 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
   PrintFillUpData( AppPtr->SrcFileSizeInBytes, AppPtr->OutFileWrittenBytes, 100.0f ); 
 
 
-  console_print( "\n" );
-  console_print( "==============================================================\n" );
-  console_print( "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
-  console_print( "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
-  console_print( "==============================================================\n" );
-  console_print( "\n" );
+  console_print( LOG_GEN, "\n" );
+  console_print( LOG_GEN, "==============================================================\n" );
+  console_print( LOG_GEN, "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
+  console_print( LOG_GEN, "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
+  console_print( LOG_GEN, "==============================================================\n" );
+  console_print( LOG_GEN, "\n" );
 }
 
 void AddDataWriteBuf( Huff_Decode_app_t *AppPtr, uint8_t Data )
@@ -462,7 +462,7 @@ void ReadLastBitPostion( uint8_t *LastBitPosPtr )
     *LastBitPosPtr = LastBitPosBuf[2];
   }
   else
-    console_print( "---- Error in Reading LastBitPosBuf \n" );
+    console_print( LOG_ERROR, "---- Error in Reading LastBitPosBuf \n" );
 
 }
 
@@ -476,7 +476,7 @@ void PrintDSdata(  Huff_Decode_app_t  * AppPtr )
   for( i=0; i < AppPtr->CountIndex ; i ++ )
   {
     GetBinary( AppPtr->DataPtr[i]->EncData, sizeof( uint64_t ), Temp );
-    console_print("INDX[%3d] Data : %2X | BitEnc %2d | EncData : %6X | Bin : %s\n",
+    console_print( LOG_MAPPING,"INDX[%3d] Data : %2X | BitEnc %2d | EncData : %6X | Bin : %s\n",
 	i+1, 
 	AppPtr->DataPtr[i]->Type, 
 	AppPtr->DataPtr[i]->BitOfEnc, 
@@ -492,14 +492,14 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
 
   if( -1 == AppPtr->RdRtnBytes )
   {
-    console_print("Error in Reading from input File : %s\n", strerror( errno ));
+    console_print( LOG_ERROR,"Error in Reading from input File : %s\n", strerror( errno ));
   }
   else if( 0 == AppPtr->RdRtnBytes )
   {
-    console_print("Reading from input File DONE \n" );
+    console_print( LOG_GEN,"Reading from input File DONE \n" );
   }
 #if DEBUG_ON_DECODE_PRINT
-  console_print( "%s Called Bytes Read : %d\n", __func__ , AppPtr->RdRtnBytes );
+  console_print( LOG_MAPPING, "%s Called Bytes Read : %d\n", __func__ , AppPtr->RdRtnBytes );
 #endif
   return AppPtr->RdRtnBytes;
 }
@@ -507,7 +507,7 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
 
 void ProgramExit()
 {
-  console_print( "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
+  console_print( LOG_ERROR, "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
   exit(0);
 }
 
@@ -518,7 +518,9 @@ bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint8_t *EncData2, int Bit
   bool Operator2 = false;
   int  i, lBinDataRdIndx = 0;
 
-  // console_print( "DataPtr Type : %X || Bit %2d || EncData %X\n", DataPtr->Type, DataPtr->BitOfEnc, DataPtr->EncData );
+  // console_print( LOG_MAPPING, "DataPtr Type : %X || Bit %2d || EncData %X\n", 
+  // DataPtr->Type, DataPtr->BitOfEnc, DataPtr->EncData );
+
   lBinDataRdIndx = BitOfEnc2;
 
   for( i = BitOfEnc1-1; i >= 0; i-- )
@@ -527,10 +529,10 @@ bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint8_t *EncData2, int Bit
     Operator2 = GetBitValInArray( EncData2, lBinDataRdIndx );
     INCCIRCULARINDEX( lBinDataRdIndx, DECODE_BUF_BYTES * 8);
 
-    // console_print( "INDEX : %d || Ope1 : %d || Ope2 : %d\n", i, Operator1, Operator2 );
+    // console_print( LOG_GEN, "INDEX : %d || Ope1 : %d || Ope2 : %d\n", i, Operator1, Operator2 );
     if( Operator1 != Operator2 )
     {
-      // console_print( "==== Un-Match ====\n" );
+      // console_print( LOG_GEN, "==== Un-Match ====\n" );
       return false;
     }
   }
@@ -552,28 +554,28 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
       // FIXME : Re-check the condition
     {
 #if DEBUG_ON_DECODE_PRINT
-      console_print( "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
+      console_print( LOG_GEN, "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
 
-      console_print( "WrIndex Buf is empty returning..\n" );
+      console_print( LOG_GEN, "WrIndex Buf is empty returning..\n" );
 #endif
 
       return;
     }
-    // console_print( "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
+    // console_print( LOG_GEN , "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
     // ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr, DataPtr->BitOfEnc );
 
     if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, BinDataBufPtr, *BinDataRdIndexPtr )) 
     {
 
 #if DEBUG_ON_DECODE_PRINT
-      console_print( "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
+      console_print( LOG_GEN, "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN,  *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, DECODE_BUF_BYTES, temp_print_buf) );
 
-      console_print( "DATA READ Indx %2d Data %X EncData %2X BitOfEnc %2d ----  WRINDX %2d RDINDX %2d\n", 
+      console_print( LOG_GEN, "DATA READ Indx %2d Data %X EncData %2X BitOfEnc %2d ----  WRINDX %2d RDINDX %2d\n", 
 	  ElementIndex,
 	  DataPtr->Type,
 	  DataPtr->EncData,
@@ -592,11 +594,11 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
       }
 
 #if DEBUG_ON_DECODE_PRINT
-      console_print( "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
+      console_print( LOG_GEN, "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES ), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, 8, temp_print_buf));
-      console_print("\n\n" );
+      console_print( LOG_GEN,"\n\n" );
 #endif
 
     }
@@ -633,7 +635,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
   int i;
 
 #if DEBUG_ON_DECODE_PRINT
-  console_print( "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
+  console_print( LOG_GEN, "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
       EncData, BitOfEnc, BinDataWrIndex, BinDataRdIndex, 
       Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex), DATA_BUF( BinDataBuf, DECODE_BUF_BYTES ) );
 #endif
@@ -641,7 +643,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 
   if( Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex) > DECODE_BUF_BITS_LEN - 10 )
   {
-    // console_print( "PERCENTAGE FILLEDUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
+    // console_print( LOG_GEN, "PERCENTAGE FILLEDUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
 #if SAMPLE_TEST
     AppendData(AppPtr);
@@ -657,11 +659,11 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
   for( i = BitOfEnc -1 ; i >= 0; i-- )
   {
     BitFeed( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, i ) );
-    // console_print( "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
+    // console_print( LOG_GEN, "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
     INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BYTES * 8 );
   }
 #if DEBUG_ON_DECODE_PRINT
-  console_print( "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
+  console_print( LOG_GEN, "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
 #endif
   // sleep(1);
   return true;
@@ -676,7 +678,7 @@ bool CheckEncode( bool isHeader, uint8_t *DataRead )
     if( ( ENCODE_HEADER_1 == DataRead[0] ) && ( ENCODE_HEADER_2 == DataRead[1] ) &&
 	( ENCODE_HEADER_3 == DataRead[2] ) && ( ENCODE_HEADER_4 == DataRead[3] ) )
     {
-      console_print("Encoding HEADER PASSED\n");
+      console_print( LOG_MAPPING,"Encoding HEADER PASSED\n");
       return true;
     }
   }
@@ -685,11 +687,11 @@ bool CheckEncode( bool isHeader, uint8_t *DataRead )
     if( ( ENCODE_FOODER_1 == DataRead[0] ) && ( ENCODE_FOODER_2 == DataRead[1] ) &&
 	( ENCODE_FOODER_3 == DataRead[2] ) && ( ENCODE_FOODER_4 == DataRead[3] ) )
     {
-      console_print("Encoding FOOTER PASSED\n");
+      console_print( LOG_MAPPING,"Encoding FOOTER PASSED\n");
       return true;
     }
   }
-  console_print("Error in Parsing Encoding [%s] %X %X %X %X\n", isHeader ? "HEADER" : "FOOTER", 
+  console_print( LOG_ERROR,"Error in Parsing Encoding [%s] %X %X %X %X\n", isHeader ? "HEADER" : "FOOTER", 
       DataRead[0], DataRead[1], DataRead[2], DataRead[3]);
   return false;
 }
@@ -698,7 +700,7 @@ bool CheckEncode( bool isHeader, uint8_t *DataRead )
 
 int GetCountDS( uint8_t Data, int *CountIndexPtr )
 {
-  // console_print("Decode Get Count Data Structure Called INDX : %d, Data : %2X\n", DSCountIndex, Data );
+  // console_print( LOG_MAPPING,"Decode Get Count Data Structure Called INDX : %d, Data : %2X\n", DSCountIndex, Data );
 
   DSCountBuf[DSCountIndex++] = Data;
 
@@ -720,7 +722,7 @@ int GetCountDS( uint8_t Data, int *CountIndexPtr )
 #if 1
   int Index;
   for( Index = 0; Index < 5; Index++ )
-    console_print( "---- GetCountDS[%2d] -- %2X\n", Index, DSCountBuf[Index] );
+    console_print( LOG_MAPPING, "---- GetCountDS[%2d] -- %2X\n", Index, DSCountBuf[Index] );
 #endif
 
   return true;
@@ -741,16 +743,16 @@ bool GetSourceFileSize( uint8_t Data, uint64_t *FileSizePtr )
   }
 
   for( Index = 0; Index < 12; Index++ )
-    console_print( "GET SOURCE DATA : %02X\n", FileSizeBuf[Index] );
+    console_print( LOG_MAPPING, "GET SOURCE DATA : %02X\n", FileSizeBuf[Index] );
 
   if( ( ASCII_STX == FileSizeBuf[0] ) && ( ASCII_EOT == FileSizeBuf[1] ) &&
       ( ASCII_STX == FileSizeBuf[10] ) && ( ASCII_EOT == FileSizeBuf[11] ) )
   {
-    console_print("Getting File Size ENCRYPT PASSED\n");
+    console_print( LOG_MAPPING,"Getting File Size ENCRYPT PASSED\n");
     for( Index = 2; Index < 10; Index++ )
       *FileSizePtr = *FileSizePtr << 8 | FileSizeBuf[Index];
   }
-  console_print( "SOURCE FILE SIZE HEX %lX  || DEC : %ld\n", *FileSizePtr, *FileSizePtr );
+  console_print( LOG_MAPPING, "SOURCE FILE SIZE HEX %lX  || DEC : %ld\n", *FileSizePtr, *FileSizePtr );
 
   return true;
 }
@@ -759,14 +761,14 @@ bool GetSourceFileSize( uint8_t Data, uint64_t *FileSizePtr )
 
 void CreateOutFileName ( char *OutFileName, char *InFileName)
 {
-  console_print("Create Out FileName Func Called\n");
+  console_print( LOG_MAPPING,"Create Out FileName Func Called\n");
 
   int Len = strlen( InFileName );
 
   strncpy( OutFileName, InFileName, Len - 4);
   strcat( OutFileName, "_cpy" );             //TODO : Remove after testing
 
-  console_print("Out FileName : %s\n", OutFileName);
+  console_print( LOG_MAPPING,"Out FileName : %s\n", OutFileName);
 
 
 }  
@@ -784,7 +786,7 @@ void CheckIpFile( char *FileName)
   for( i=0;i<4;i++)
     if( temp[i] != FileName[len-3+i] )
     {
-      console_print("Input FileName externtion is not ended with .bin\n");
+      console_print( LOG_MAPPING, "Input FileName externtion is not ended with .bin\n");
       exit(0);
     }
 }
@@ -797,7 +799,7 @@ void MemoryAllocation( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 {
   if( true == AllocateMainMem( DataPtr, CountIndex ) )
     if( true == AllocateSubMemory( DataPtr, CountIndex ) )
-      console_print("============  Allocating Memory Success  ===========\n");
+      console_print( LOG_MAPPING, "============  Allocating Memory Success  ===========\n");
 }
 
 
@@ -811,7 +813,7 @@ bool AllocateSubMemory( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 
     if( NULL == (*DataPtr)[i] )
     {
-      console_print("Unable to Allocate Memory for Sub Arrays Reason : %s", strerror( errno ));
+      console_print( LOG_ERROR,"Unable to Allocate Memory for Sub Arrays Reason : %s", strerror( errno ));
       return false;
     }
   }
@@ -825,11 +827,11 @@ bool AllocateMainMem( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 
   if( NULL != *DataPtr )
   {
-    console_print( "Allocated Main Memory ---- %d\n", CountIndex );
+    console_print( LOG_MAPPING, "Allocated Main Memory ---- %d\n", CountIndex );
     return true;
   }
   else
-    console_print( "malloc failure : %s", strerror(errno ));
+    console_print( LOG_ERROR, "malloc failure : %s", strerror(errno ));
 
   return false;
 }
@@ -857,32 +859,32 @@ void AppendData(Huff_Decode_app_t *AppPtr )
 {
   int i;
 
-  console_print( "****** Append Data *******\n" );
+  console_print( LOG_GEN, "****** Append Data *******\n" );
   if( Counter == 0 )
     SampleBinData = 0xf2ae535690194e40;
   else if( Counter == 1 )
   {
     GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "BEF : %s\n", temp_print_buf );
+    console_print( LOG_GEN, "BEF : %s\n", temp_print_buf );
 
     SampleBinData = SampleBinData << 61 | 0xc5185d5cc304e96b >> 3;
 
 
     GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "AFT : %s\n", temp_print_buf );
+    console_print( LOG_GEN, "AFT : %s\n", temp_print_buf );
   }
   else if( Counter == 2 )
   {
 
     GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "CNT 2 BEF : %s\n", temp_print_buf );
+    console_print( LOG_GEN, "CNT 2 BEF : %s\n", temp_print_buf );
 
     SampleBinData = 0x6670;
     SampleWrIndex = 11;
     SampleRdIndex = 0;
 
     GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( "CNT 2 AFT : %s\n", temp_print_buf );
+    console_print( LOG_GEN, "CNT 2 AFT : %s\n", temp_print_buf );
     return;
   }
   else

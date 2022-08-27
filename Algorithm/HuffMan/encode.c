@@ -37,18 +37,18 @@ int main(int argc, char **argv)
 #if DEBUG_ON_ENCODE
   for(i=0 ; i <= TOT_CHARS; i++)
     if( 0 != CountData[i].Freq )
-      console_print("RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
+      console_print( LOG_PRIO_1, "RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
 #endif
 
   RearrangeData();
-  console_print("\n");
+  console_print( LOG_GEN, "\n");
 
 #if DEBUG_ON_ENCODE
 
   for(i=0 ; i <= TOT_CHARS ; i++)
     if( 0 != CountData[i].Freq )
-      console_print("AFTR_SORT -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
+      console_print( LOG_GEN, "AFTR_SORT -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
 #endif
 
@@ -56,18 +56,18 @@ int main(int argc, char **argv)
 
   if( -1 == Huff.StartIndex )
   { 
-    console_print("Error Occured in Getting StartIndex\n");
+    console_print( LOG_ERROR, "Error Occured in Getting StartIndex\n");
     return -1;
   }
 
-  console_print("Start Index : %3d\n",Huff.StartIndex);
+  console_print( LOG_GEN,"Start Index : %3d\n",Huff.StartIndex);
 
-  console_print("=====   Creating the Binary Tree  ======\n");
-  console_print("\n\n\n");
+  console_print(LOG_GEN, "=====   Creating the Binary Tree  ======\n");
+  console_print(LOG_GEN, "\n\n\n");
 
 
   HuffmanCodes(Huff.StartIndex);
-  console_print("After Creating HuffMan Tree Start Indx : %d CAL : %d\n",
+  console_print(LOG_GEN, "After Creating HuffMan Tree Start Indx : %d CAL : %d\n",
       Huff.StartIndex, CAL_SIZE ( Huff.StartIndex ) );
 
   for( i = Huff.StartIndex; i <= TOT_CHARS ; i++ )
@@ -75,12 +75,12 @@ int main(int argc, char **argv)
     TempBit += CountData[i].BitOfEnc;
   }
 
-  console_print( "\n" );
-  console_print( "\t===========================================\n" );
-  console_print("\t\t Bit of Enc Tot : %d \n", TempBit);
-  console_print("\t\t Tot Chars : %d \n", CAL_SIZE( Huff.StartIndex ) * 8 ); 
-  console_print( "\t===========================================\n" );
-  console_print( "\n" );
+  console_print(LOG_MAPPING, "\n" );
+  console_print(LOG_MAPPING, "\t===========================================\n" );
+  console_print(LOG_MAPPING, "\t\t Bit of Enc Tot : %d \n", TempBit);
+  console_print(LOG_MAPPING, "\t\t Tot Chars : %d \n", CAL_SIZE( Huff.StartIndex ) * 8 ); 
+  console_print(LOG_MAPPING, "\t===========================================\n" );
+  console_print(LOG_MAPPING, "\n" );
 
 
   /////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
   Header( Huff.OutFileDes );	      // Writing Headers into OutFile
 #endif
 
-  console_print( " ============  COMPLETED WRITING DS INTO FILE =============\n");
+  console_print(LOG_GEN, " ============  COMPLETED WRITING DS INTO FILE =============\n");
 
 #if 1
   while( true )
@@ -110,12 +110,12 @@ int main(int argc, char **argv)
 
     if( 0 == BytesRead )
     {
-      console_print("Reading Done\n");
+      console_print(LOG_GEN, "Reading Done\n");
       break;
     }
     else if( -1 == BytesRead )
     {
-      console_print("Uable to read the input File : %s\n", strerror(errno));
+      console_print(LOG_ERROR, "Unable to read the input File : %s\n", strerror(errno));
       break;
     }
     else
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 	  {
 	    if( false == CreateArray( CountData[j].Type, CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
 	    {
-	      console_print(" ERROR in Creating Frame\n");
+	      console_print( LOG_ERROR, " ERROR in Creating Frame\n");
 	      return -1;
 	    }
 	    break;
@@ -143,13 +143,13 @@ int main(int argc, char **argv)
 #endif 
   close( Huff.InFileDes );
 
-  console_print("Done OutPut printed on : [ %s ]\n", OutFileName);
+  console_print(LOG_MAPPING, "Done OutPut printed on : [ %s ]\n", OutFileName);
 
 #if ENCRYPT_FOOTER
   Fooder( Huff.OutFileDes );
-  console_print( "-------- ENCRYPT Footer Writing Done\n\n");
+  console_print( LOG_MAPPING, "-------- ENCRYPT Footer Writing Done\n\n");
 #else
-  console_print( "-------- ENCRYPT Footer DISABLED\n\n");
+  console_print( LOG_MAPPING, "-------- ENCRYPT Footer DISABLED\n\n");
 #endif
 
 
@@ -163,10 +163,10 @@ int main(int argc, char **argv)
 
   close( Huff.OutFileDes );
 
-  console_print("\n");
-  console_print("*************   ENCODE OF [%s] DONE    ******************\n", argv[1]);
-  console_print("!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
-  console_print("\n\n");
+  console_print(LOG_MAPPING, "\n");
+  console_print(LOG_MAPPING, "*************   ENCODE OF [%s] DONE    ******************\n", argv[1]);
+  console_print(LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
+  console_print(LOG_MAPPING, "\n\n");
 
   return 0;
 }
@@ -180,37 +180,37 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 
   HuffPtr->SrcFileSizeInBytes = CalculateSourceFile( HuffPtr );
   WriteFileSize( HuffPtr, HuffPtr->SrcFileSizeInBytes );
-  console_print( "-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
+  console_print( LOG_MAPPING,"-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
       HuffPtr->SrcFileSizeInBytes, HuffPtr->SrcFileSizeInBytes );
 #else
-  console_print( "-------- ENCRYPT File Size DISABLED\n\n");
+  console_print( LOG_MAPPING,"-------- ENCRYPT File Size DISABLED\n\n");
 #endif
 
 
 
 #if ENCRYPT_COUNT_DS
   WriteCountDS( HuffPtr );	      // Writing Total Count of Data Structure in File
-  console_print( "-------- ENCRYPT Writing Count DS Done\n\n" );
+  console_print( LOG_MAPPING,"-------- ENCRYPT Writing Count DS Done\n\n" );
 #else
-  console_print( "-------- ENCRYPT Count DS is DISABLED\n\n");
+  console_print( LOG_MAPPING,"-------- ENCRYPT Count DS is DISABLED\n\n");
 #endif
 
 
 
 #if ENCRYPT_CREATE_DS_FRAME
   CreateDSFrame( HuffPtr );	      // Writing Data Structures Frames into Out File
-  console_print( "-------- ENCRYPT Writing Frame Format Writing Done\n\n");
+  console_print( LOG_MAPPING,"-------- ENCRYPT Writing Frame Format Writing Done\n\n");
 #else
-  console_print( "-------- ENCRYPT Writing Frame Format DISABLED\n\n");
+  console_print( LOG_MAPPING,"-------- ENCRYPT Writing Frame Format DISABLED\n\n");
 #endif
 
 
   HuffPtr->OutFdLastBitPostion = lseek( HuffPtr->OutFileDes, 0, SEEK_CUR );
-  console_print( "LSEEK POSITION : %d\n", (int ) HuffPtr->OutFdLastBitPostion );
+  console_print( LOG_MAPPING,"LSEEK POSITION : %d\n", (int ) HuffPtr->OutFdLastBitPostion );
 
 #if ENCRYPT_LAST_BIT_INDEX
   WriteLastBitIndex( HuffPtr, 1 );
-  console_print( "-------- ENCRYPT Writing LAST BIT INDEX Done\n\n");
+  console_print( LOG_MAPPING,"-------- ENCRYPT Writing LAST BIT INDEX Done\n\n");
 #else
   console_print( "-------- ENCRYPT Writing LAST BIT INDEX DISABLED\n\n");
 #endif
@@ -222,7 +222,7 @@ void WriteLastBitIndex( as_huff_t *HuffPtr, uint8_t Data )
   uint8_t BufWrite[5] = {0};
 
 #if ENCRYPT_LAST_BIT_INDEX
-  console_print( "Writing Last Bit Index : %d\n", Data );
+  console_print( LOG_MAPPING,"Writing Last Bit Index : %d\n", Data );
 
   BufWrite[0] = ASCII_DLE;
   BufWrite[1] = ASCII_STX;
@@ -243,7 +243,7 @@ int CalculateSourceFile( as_huff_t *HuffPtr )
 
   if( -1 == fstat( HuffPtr->InFileDes, &statbuf ))
   {
-    console_print( "Unable to get file Properties : %s\n", strerror(errno));
+    console_print( LOG_ERROR,"Unable to get file Properties : %s\n", strerror(errno));
     return 0;
   }
 
@@ -270,7 +270,7 @@ void WriteFileSize( as_huff_t *HuffPtr, uint64_t FileLenInBytes )
 
 
   for( i = 0; i < 12; i++ )
-    console_print( "WRITE FILE SIZE %2d - %02X\n", i, Data[i] );
+    console_print( LOG_MAPPING,"WRITE FILE SIZE %2d - %02X\n", i, Data[i] );
 
   if( false == WriteDataIntoFile( HuffPtr->OutFileDes, Data, 12) )
     exit( 0 );
@@ -304,7 +304,7 @@ void CreateDSFrame( as_huff_t *Huff )
 
   for( i = TOT_CHARS; i >= Huff->StartIndex; i--,j=0 )
   {
-    console_print( "ASCII_DATA : %2X -- BitOfEnc : %2X -- EncData : %X\n", 
+    console_print( LOG_MAPPING, "ASCII_DATA : %2X -- BitOfEnc : %2X -- EncData : %X\n", 
 	CountData[i].Type, CountData[i].BitOfEnc, CountData[i].EncData );
 
     memset( BufWrite, 0, sizeof( BufWrite ));
@@ -368,25 +368,25 @@ void WriteRemaingData( int WriteFileDes)
   int temp = 0;
 
   GetBinary( DataToSend, 8, Buffer ); 
-  console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
+  console_print( LOG_GEN, "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
 
   /////////////////////////////
 
   Bit = ( BitsOfIndex / 8 ) + 1;
-  console_print( "No.of Bytes : %d Bal %d\n", Bit, Bit * 8 - BitsOfIndex );
-  console_print( "Start : %d END : %d\n", Bit*8,  BitsOfIndex );
+  console_print( LOG_GEN,"No.of Bytes : %d Bal %d\n", Bit, Bit * 8 - BitsOfIndex );
+  console_print( LOG_GEN,"Start : %d END : %d\n", Bit*8,  BitsOfIndex );
   temp = BitsOfIndex;
 
   for( i = Bit*8 ; i > temp; i-- )
   {
-    // console_print( "-----\n" );
+    // console_print( LOG_GEN,"-----\n" );
     DataToSend = DataToSend << 1 | 0;
     INCCIRCULARINDEX( BitsOfIndex, MAX_LEN_BUF_BITS );
   }
 
   /////////////////////////////
   GetBinary( DataToSend, 8, Buffer ); 
-  console_print( "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
+  console_print( LOG_GEN,"BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
 
   WriteInToFile( WriteFileDes, BitsOfIndex/8 );
 
@@ -436,30 +436,30 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
   if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS-1 )
   {
 #if DEBUG_ON_ENCODE_PRINT
-    console_print("Enter into if \n\n");
+    console_print(LOG_GEN,"Enter into if \n\n");
     PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
 
     temp = CheckDiff();
 #if DEBUG_ON_ENCODE_PRINT
-    console_print( "CHECK DIFF : %d\n", temp );
+    console_print( LOG_GEN,"CHECK DIFF : %d\n", temp );
 #endif
 
     for( i = 0; i < temp; i++ )
     {
 #if DEBUG_ON_ENCODE_PRINT
-      console_print( "\n\n" );
+      console_print( LOG_GEN,"\n\n" );
       PRINT_CURRENT_BUF_POSITION( "BEF ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
       APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS +1, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
 
 #if DEBUG_ON_ENCODE_PRINT
-      console_print( "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
+      console_print( LOG_GEN, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
 	  EncData, BitOfEnc, BitOfEnc -i -1,
 	  GetBitVal( (uint64_t) EncData, BitOfEnc -i -1));
 
       PRINT_CURRENT_BUF_POSITION( "AFT ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-      console_print( "\n\n" );
+      console_print( LOG_GEN, "\n\n" );
 #endif
     }
 
@@ -475,38 +475,38 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
       {
 	//GET REMAINING DATA
 #if DEBUG_ON_ENCODE_PRINT
-	console_print( "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
+	console_print( LOG_GEN, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
 #endif
 
 	for( i = BitOfEnc-temp; i > 0; i-- )
 	{
 #if DEBUG_ON_ENCODE_PRINT
-	  console_print("\n\n" );
+	  console_print( LOG_GEN, "\n\n" );
 	  PRINT_CURRENT_BUF_POSITION( "BWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
 #endif
 
 	  APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, i-1 ));
 
 #if DEBUG_ON_ENCODE_PRINT
-	  console_print( "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
+	  console_print( LOG_GEN, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
 	      EncData, BitOfEnc, BitOfEnc -i -1,
 	      GetBitVal( (uint64_t) EncData, i -1));
 
 	  PRINT_CURRENT_BUF_POSITION( "AWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-	  console_print( "\n\n" );
+	  console_print( LOG_GEN, "\n\n" );
 #endif
 	}
       }
       else
       {
 #if DEBUG_ON_ENCODE_PRINT
-	console_print( "No Data is Pending to be Written\n" );
+	console_print( LOG_ERROR, "No Data is Pending to be Written\n" );
 #endif
       }
     }
     else
     {
-      console_print("Error Writing into file\n");
+      console_print( LOG_ERROR, "Error Writing into file\n");
       return false;
     }
 
@@ -515,7 +515,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
   {
     for( i = 0; i < BitOfEnc; i++ )
     {
-      // console_print( "BIT %d EncData : %X BitOfEnc : %d ADDING : %d\n", BitOfEnc -i-1,
+      // console_print( LOG_GEN, "BIT %d EncData : %X BitOfEnc : %d ADDING : %d\n", BitOfEnc -i-1,
       // EncData, BitOfEnc, GetBitVal( ( uint64_t ) EncData, BitOfEnc - i -1 ));
       APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
     }
@@ -543,7 +543,7 @@ bool WriteInToFile(int FileDes, int Bytes )
 {
   uint8_t *uPtr8 ;
   int i;
-  // console_print( "%s Called Bit %d\n", __func__, BitsOfIndex );
+  // console_print( LOG_GEN, "%s Called Bit %d\n", __func__, BitsOfIndex );
 
   uPtr8 = ( uint8_t *) &DataToSend + Bytes-1;
 
@@ -551,14 +551,12 @@ bool WriteInToFile(int FileDes, int Bytes )
   {
     if( write( FileDes, uPtr8, 1) < 0 )
     {
-      console_print("DATA WRITTEN FAILURE : %s\n", strerror(errno));
+      console_print( LOG_ERROR, "DATA WRITTEN FAILURE : %s\n", strerror(errno));
       return false;
     }
     else
     {
-#if 0
-      console_print("DATA WRITTEN INTO FILE : %x\n", *uPtr8);
-#endif
+        // console_print( LOG_GEN, "DATA WRITTEN INTO FILE : %x\n", *uPtr8);
     }
     uPtr8--;
   }
@@ -613,7 +611,7 @@ void ReadInputFile(int FileDes)
     Len = read(FileDes, BufRead, sizeof(BufRead));
     if( Len == -1 )
     {
-      console_print("Read Error: %s", strerror(errno));
+      console_print( LOG_ERROR, "Read Error: %s", strerror(errno));
       break;
     }
     else if( 0 == Len )
@@ -625,6 +623,6 @@ void ReadInputFile(int FileDes)
       (CountData[ char_data ].Freq)++;
     }
   }
-  console_print("Done\n");
+  console_print( LOG_GEN, "Done\n");
 }
 

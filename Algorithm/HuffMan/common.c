@@ -1,14 +1,14 @@
 #include "include/Huffman_Header.h"
 
 
-char	PrintBuffer[500]={0};
+char	PrintBuffer[ 1 * 1024 ]={0};
 char	PercentagePrintStr[250]		= {0};
 
 void CmdLineCheck(int argc, int MaxCount)
 {
   if( argc != MaxCount)
   {   
-    console_print("ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
+    console_print( LOG_ERROR, "ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
     exit(0);
   }
 
@@ -23,7 +23,7 @@ int FileOpening (char *Filename, short int Flags)
 
   if ( -1 == FileDes )
   {
-    console_print("ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
+    console_print( LOG_ERROR, "ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
     exit(0);
   }
 
@@ -32,11 +32,61 @@ int FileOpening (char *Filename, short int Flags)
 
 
 
-void FramingData( int Line, const char *Func, const char *File, const char *format, ...)
+void FramingData( int LogType, int Line, const char *Func, const char *File, const char *format, ...)
 {								    
   va_list args;
   va_start( args, format);					    
-  sprintf( PrintBuffer, "#%8s#  %18s() [%3d] : ", File, Func, Line);	    
+
+  bzero( PrintBuffer, sizeof( PrintBuffer ));
+
+
+  switch( LogType )
+  {
+    case LOG_ERROR:
+      {
+	strcpy( PrintBuffer, "LOG_ERROR  " );
+      }
+      break;
+
+    case LOG_MAPPING:
+      {
+	strcpy( PrintBuffer, "LOG_MAP    " );
+      }
+      break;
+
+    case LOG_GEN:
+      {
+	strcpy( PrintBuffer, "LOG_GEN    " );
+      }
+      break;
+
+    case LOG_PRIO_1:
+      {
+	strcpy( PrintBuffer, "LOG_PRIO1  " );
+      }
+      break;
+
+    case LOG_PRIO_2:
+      {
+	strcpy( PrintBuffer, "LOG_PRIO2  " );
+      }
+      break;
+
+    case LOG_PRIO_3:
+      {
+	strcpy( PrintBuffer, "LOG_PRIO3  " );
+      }
+      break;
+
+    default:
+      {
+	printf( "================== DEFAULT STATE : %d\n", LogType );
+      }
+      break;
+  }
+  
+
+  sprintf( PrintBuffer+strlen( PrintBuffer ), "#%8s#  %18s() [%3d] : ", File, Func, Line);	    
   vsprintf( &PrintBuffer[strlen( PrintBuffer)], format, args);		    
   va_end(args);	
   printf("%s", PrintBuffer);
@@ -47,7 +97,7 @@ bool WriteDataIntoFile( int OutFileDes, uint8_t *DataPtr, int DataLen )
 {
   if( -1 == write( OutFileDes, DataPtr, DataLen ) )
   {
-    console_print(" Write SYSTEM call fails : %s", strerror(errno));
+    console_print( LOG_ERROR, " Write SYSTEM call fails : %s", strerror(errno));
     return false;
   }
   else 
@@ -79,7 +129,7 @@ void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Valu
   system( "clear" );
   printf( "\n\n\n\n\n\n\n" );
 
-  console_print( "\t\t\t\t-----------	  SRC FILE BYTE : %d	    PROCESSED FILE BYTES : %d	-----------\n", 
+  console_print( LOG_GEN, "\t\t\t\t-----------	  SRC FILE BYTE : %d	    PROCESSED FILE BYTES : %d	-----------\n", 
       SrcFileSizeInBytes, ProcessedFileBytes );
 
   bzero( PercentagePrintStr, sizeof( PercentagePrintStr ));
@@ -89,7 +139,7 @@ void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Valu
     else 
       strcat( PercentagePrintStr, "  " );
 
-  console_print( "\t%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
+  console_print( LOG_GEN, "\t%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
 }
 
 
@@ -125,7 +175,7 @@ char * GetBinaryInArray (uint8_t *a,int size_in_bytes, char *Buf)
 
   for( ; ; )
   {
-    // console_print( "BYTEINDEX %d || BITINDEX %d\n", ByteIndex, BitIndex );
+    // console_print( LOG_GEN, "BYTEINDEX %d || BITINDEX %d\n", ByteIndex, BitIndex );
 
     if( true == GetBitValInArray( a, Index-- ))
       Buf[ StrLen++ ] = '1';
@@ -135,7 +185,7 @@ char * GetBinaryInArray (uint8_t *a,int size_in_bytes, char *Buf)
 
     if( 0 == ByteIndex && BitIndex == 0 )
     {
-      // console_print( "%s\n", Buf );
+      // console_print( LOG_GEN, "%s\n", Buf );
       break;
     }
 
@@ -147,7 +197,7 @@ char * GetBinaryInArray (uint8_t *a,int size_in_bytes, char *Buf)
 
     if( BitIndex == 0 )
     {
-      // console_print( "\n" );
+      // console_print( LOG_GEN, "\n" );
       DECCIRCULARINDEX( ByteIndex, size_in_bytes );
     }
     DECCIRCULARINDEX( BitIndex, 8 );
@@ -179,7 +229,7 @@ void BitFeed( uint8_t *ArrayPtr, int Index, bool BitValue )
   ByteIndex = Index/8;
   BitIndex  = Index - ( ByteIndex * 8 );
 
-  // console_print( "BYTE INDX %d BIT %d\n", ByteIndex, BitIndex );
+  // console_print( LOG_GEN, "BYTE INDX %d BIT %d\n", ByteIndex, BitIndex );
 
   if( true == BitValue )
     BitSet( ArrayPtr, ByteIndex, BitIndex );

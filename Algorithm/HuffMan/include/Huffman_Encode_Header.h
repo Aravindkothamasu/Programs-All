@@ -7,7 +7,7 @@
 #define DEBUG_ON_ENCODE_PRINT	    0
 
 #define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BitsOfIndex, DataToSend)   \
-    console_print( "%sASCII: %2X EncD: %2X BitEnc %2d || BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Text, Data,\
+    console_print( LOG_PRIO_1, "%sASCII: %2X EncD: %2X BitEnc %2d || BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Text, Data,\
 	EncData, BitOfEnc, BitsOfIndex, \
 	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
 
