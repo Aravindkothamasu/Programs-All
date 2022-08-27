@@ -139,6 +139,7 @@ int ReadMetaData( Huff_Decode_app_t *, uint8_t );
 void MemoryAllocation( Huff_Decode_DataStru_t ***, int );
 void ReadLastBitPostion( uint8_t *);
 void ClosingCeremony(  Huff_Decode_app_t *);
+void ProgramExit( bool );
 
 
 void AppendData(Huff_Decode_app_t *AppPtr );

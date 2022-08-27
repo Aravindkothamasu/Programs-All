@@ -38,6 +38,10 @@ int	 FileSizeBufIndex		=  0;
 float	PercentageFileRead		=  0;
 
 
+
+int	LogFileDes			=  0;
+
+
 /*
  *  main() -> Main Function Starts here.
  */
@@ -70,13 +74,14 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
       if( -1 == AppPtr->RdRtnBytes )
       {
-	exit(0);
+	console_print( LOG_ERROR, "Input File Read Error : %s\n", strerror(errno));
+	ProgramExit( false );
       }
       else if( 0 == AppPtr->RdRtnBytes )
       { // FIXME : Change
 
 	ClosingCeremony( AppPtr );
-	exit(0);
+	ProgramExit( true );
       }
     }
 
@@ -220,7 +225,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	  {
 	    console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 		DATA_ST_BYTE_0, Data );
-	    exit( 0);
+	    ProgramExit( false );
 	  }
 	}
 	else
@@ -234,7 +239,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	{
 	  console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 	      DATA_ST_BYTE_1, Data );
-	  exit( 0);
+	  ProgramExit( false );
 	}
 	else
 	  AppPtr->DataFlowSt = DS_DATA_TYPE;
@@ -274,7 +279,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	{
 	  console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 	      DATA_ST_BYTE_5, Data );
-	  exit( 0);
+	  ProgramExit( false );
 	}
 	else
 	  AppPtr->DataFlowSt = DS_DATA_FOOT_2;
@@ -287,7 +292,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 	{
 	  console_print( LOG_ERROR,"Data Read Error at Data Structure Act %2X Rcvd : %2X\n",
 	      DATA_ST_BYTE_6, Data );
-	  exit( 0);
+	  ProgramExit( false );
 	}
 	else
 	{
@@ -301,7 +306,7 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
     default : 
       console_print( LOG_ERROR, " Error in Getting State");
-      exit( 0 );
+      ProgramExit( false );
   }
 
   return;
@@ -313,8 +318,8 @@ void PrcsIpData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 /*
    Return
    -1 -> Current State is disabled
-    0 -> Metadata read incomplete.
-    1 -> Metadata read complete.
+   0 -> Metadata read incomplete.
+   1 -> Metadata read complete.
  */
 
 
@@ -505,9 +510,13 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
 }
 
 
-void ProgramExit()
+void ProgramExit( bool ExitState )
 {
-  console_print( LOG_ERROR, "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
+  if( false == ExitState )
+    console_print( LOG_ERROR, "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
+  else
+    console_print( LOG_GEN, "====== APPLICATION EXIT ======\n" );
+
   exit(0);
 }
 
@@ -607,7 +616,7 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
       INCCIRCULARINDEX( ElementIndex, AppPtr->CountIndex ); 
       if( 0 == ElementIndex )
       {
-	ProgramExit();
+	ProgramExit(false);
       }
     }
 
@@ -787,7 +796,7 @@ void CheckIpFile( char *FileName)
     if( temp[i] != FileName[len-3+i] )
     {
       console_print( LOG_MAPPING, "Input FileName externtion is not ended with .bin\n");
-      exit(0);
+      ProgramExit(false);
     }
 }
 
