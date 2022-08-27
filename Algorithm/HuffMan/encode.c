@@ -10,6 +10,7 @@ uint8_t ReadBuf[16] = {0};
 char Buffer[128]={0};
 
 float	PercentageFileRead		=  0;
+int	LogFileDes			=  -1;
 
 int main(int argc, char **argv)
 {    
@@ -27,6 +28,7 @@ int main(int argc, char **argv)
   CreateOutFileName( argv[1], OutFileName);
 
   Huff.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
+  LogFileDes	  = FileOpening( CreateLogFilename( ENCODE_LOG_DIR_PATH, argv[1] ), WRITE_MODE_FILE );
 
 
   for(i=0;i <= TOT_CHARS ;i++)		//For Type Added to 1
@@ -168,6 +170,8 @@ int main(int argc, char **argv)
   console_print(LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
   console_print(LOG_MAPPING, "\n\n");
 
+  close( LogFileDes );
+  LogFileDes = -1;
   return 0;
 }
 

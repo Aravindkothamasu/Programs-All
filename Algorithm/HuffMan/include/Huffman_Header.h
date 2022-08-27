@@ -119,6 +119,7 @@ typedef enum
   LOG_PRIO_2	    = 5,
   LOG_PRIO_3	    = 6,
 
+  LOG_SCREEN	    = 7,
 }Huff_Debug_Log_St_t;
 
 
@@ -139,6 +140,9 @@ void BitSet( uint8_t *, int, int );
 char * GetBinaryInArray (uint8_t *,int , char *);
 bool GetBitValInArray( uint8_t *, int );
 void PrintFillUpData( int , int , float );
+char * CreateLogFilename( char *, char *);
+void ProgramExit( bool );
+void WriteLogFile( int , int , char *, int );
 
 
 

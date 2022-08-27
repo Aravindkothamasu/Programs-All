@@ -115,6 +115,8 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	case DEC_OPEN_OUTFILE :
 	  {
+	    // FIXME : Need to check whether it is right or not.
+	    LogFileDes = FileOpening( CreateLogFilename( DECODE_LOG_DIR_PATH, argv[1] ), WRITE_MODE_FILE );
 	    AppPtr->OutFileDes = FileOpening( AppPtr->OutFileName, WRITE_MODE_FILE);
 
 	    console_print( LOG_GEN, "I/p FileName : %s\n", argv[1] );
@@ -429,6 +431,10 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
   WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
   close( AppPtr->OutFileDes );
   close( AppPtr->InFileDes );
+  LogFileDes = -1;
+
+  if( LogFileDes > 0 )
+    close( LogFileDes );
 
   PrintFillUpData( AppPtr->SrcFileSizeInBytes, AppPtr->OutFileWrittenBytes, 100.0f ); 
 
@@ -510,15 +516,6 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
 }
 
 
-void ProgramExit( bool ExitState )
-{
-  if( false == ExitState )
-    console_print( LOG_ERROR, "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
-  else
-    console_print( LOG_GEN, "====== APPLICATION EXIT ======\n" );
-
-  exit(0);
-}
 
 
 bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint8_t *EncData2, int BitOfEnc2 )

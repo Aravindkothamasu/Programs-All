@@ -1,35 +1,54 @@
 #include "include/Huffman_Header.h"
 
 
-char	PrintBuffer[ 1 * 1024 ]={0};
-char	PercentagePrintStr[250]		= {0};
+char	PrintBuffer	      [1*1024]		= {0};
+char	PercentagePrintStr    [250]		= {0};
+char	FileNameBuf	      [512]		= {0};
+
+extern	int   LogFileDes;
+
+
 
 void CmdLineCheck(int argc, int MaxCount)
 {
   if( argc != MaxCount)
   {   
     console_print( LOG_ERROR, "ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
-    exit(0);
+    ProgramExit( false );
   }
 
   return;
 }
 
+////////////////////////////////////////////	    FILE OPERATIONS	  /////////////////////////////////////
 
 int FileOpening (char *Filename, short int Flags)
 {
-  int FileDes;
+  int FileDes = -1;
   FileDes = open( Filename, Flags,0664);
 
   if ( -1 == FileDes )
   {
     console_print( LOG_ERROR, "ERROR IN FILE OPENING : %s ,REASON : %s\n",Filename,strerror(errno));
-    exit(0);
+    ProgramExit( false );
   }
 
   return FileDes;
 }
 
+char * CreateLogFilename( char *Basepath, char *SrcFilename )
+{
+  bzero( FileNameBuf, sizeof( FileNameBuf ));
+
+  strcpy( FileNameBuf, Basepath );
+  // strncpy( FileNameBuf+strlen(FileNameBuf), SrcFilename, strlen( SrcFilename )-4 );
+  strcat( FileNameBuf, SrcFilename );
+  strcat( FileNameBuf, "_log" );
+  
+  console_print( LOG_GEN, "LOG FILENAME : %s\n", FileNameBuf );
+
+  return FileNameBuf;
+}
 
 
 void FramingData( int LogType, int Line, const char *Func, const char *File, const char *format, ...)
@@ -78,19 +97,44 @@ void FramingData( int LogType, int Line, const char *Func, const char *File, con
       }
       break;
 
+    case LOG_SCREEN:
+      {
+	strcpy( PrintBuffer, "LOG_SCREEN " );
+      }
+      break;
+
     default:
       {
 	printf( "================== DEFAULT STATE : %d\n", LogType );
       }
       break;
   }
-  
+
 
   sprintf( PrintBuffer+strlen( PrintBuffer ), "#%8s#  %18s() [%3d] : ", File, Func, Line);	    
   vsprintf( &PrintBuffer[strlen( PrintBuffer)], format, args);		    
   va_end(args);	
-  printf("%s", PrintBuffer);
+
+
+  WriteLogFile( LogFileDes, LogType, PrintBuffer, strlen( PrintBuffer ));
+
+
+  if( LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
+    printf("%s", PrintBuffer);
 }
+
+void WriteLogFile( int FileDes, int LogType, char *Data, int DataLen )
+{
+  if( FileDes > 0 )
+  {
+    if( LOG_SCREEN == LogType )
+      return;
+
+    // TODO : Need to Add Priority check 
+    write( FileDes, PrintBuffer, strlen( PrintBuffer )); 
+  }
+}
+
 
 
 bool WriteDataIntoFile( int OutFileDes, uint8_t *DataPtr, int DataLen )
@@ -129,7 +173,7 @@ void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Valu
   system( "clear" );
   printf( "\n\n\n\n\n\n\n" );
 
-  console_print( LOG_GEN, "\t\t\t\t-----------	  SRC FILE BYTE : %d	    PROCESSED FILE BYTES : %d	-----------\n", 
+  console_print( LOG_SCREEN, "\t\t\t\t-----------	  SRC FILE BYTE : %d	    PROCESSED FILE BYTES : %d	-----------\n", 
       SrcFileSizeInBytes, ProcessedFileBytes );
 
   bzero( PercentagePrintStr, sizeof( PercentagePrintStr ));
@@ -139,7 +183,7 @@ void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Valu
     else 
       strcat( PercentagePrintStr, "  " );
 
-  console_print( LOG_GEN, "\t%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
+  console_print( LOG_SCREEN, "\t%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
 }
 
 
@@ -253,4 +297,20 @@ bool GetBitVal( uint64_t Data, uint8_t BitIndex )
   return ( (Data >> BitIndex ) & 1 );
 }
 
+
+
+
+
+void ProgramExit( bool ExitState )
+{
+  if( false == ExitState )
+  {
+    console_print( LOG_ERROR, "====== SOME THING HAS STRUCK NEED TO EXIT ======\n" );
+  }
+  else
+  {
+    console_print( LOG_GEN, "====== APPLICATION EXIT ======\n" );
+  }
+  exit(0);
+}
 
