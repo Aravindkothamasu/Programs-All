@@ -432,20 +432,20 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
   WriteDataIntoFile( AppPtr->OutFileDes, AppPtr->OutFileBuf, AppPtr->OutFileBufIndex );
   close( AppPtr->OutFileDes );
   close( AppPtr->InFileDes );
-  LogFileDes = -1;
-
-  if( LogFileDes > 0 )
-    close( LogFileDes );
 
   PrintFillUpData( AppPtr->SrcFileSizeInBytes, AppPtr->OutFileWrittenBytes, 100.0f ); 
 
+  console_print( LOG_MAPPING, "\n" );
+  console_print( LOG_MAPPING, "==============================================================\n" );
+  console_print( LOG_MAPPING, "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
+  console_print( LOG_MAPPING, "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
+  console_print( LOG_MAPPING, "==============================================================\n" );
+  console_print( LOG_MAPPING, "\n" );
 
-  console_print( LOG_GEN, "\n" );
-  console_print( LOG_GEN, "==============================================================\n" );
-  console_print( LOG_GEN, "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
-  console_print( LOG_GEN, "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
-  console_print( LOG_GEN, "==============================================================\n" );
-  console_print( LOG_GEN, "\n" );
+  if( LogFileDes > 0 )
+    close( LogFileDes );
+  LogFileDes = -1;
+
 }
 
 void AddDataWriteBuf( Huff_Decode_app_t *AppPtr, uint8_t Data )

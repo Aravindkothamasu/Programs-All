@@ -93,6 +93,7 @@ int CalculateSourceFile( as_huff_t *);
 void WriteFileSize( as_huff_t *, uint64_t );
 void WriteLastBitIndex( as_huff_t *, uint8_t );
 void PrintPercentageFileRead( as_huff_t *);
+void ClosingCeremony(  as_huff_t *, char* );
 
 
 

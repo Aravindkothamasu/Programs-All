@@ -11,7 +11,7 @@ char Buffer[128]={0};
 
 float	PercentageFileRead		=   0;
 int	LogFileDes			=  -1;
-int     DebugSt				=   1;
+int     DebugSt				=   0;
 
 int main(int argc, char **argv)
 {    
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
   Fooder( Huff.OutFileDes );
   console_print( LOG_MAPPING, "-------- ENCRYPT Footer Writing Done\n\n");
 #else
-  console_print( LOG_MAPPING, "-------- ENCRYPT Footer DISABLED\n\n");
+  console_print( LOG_GEN , "-------- ENCRYPT Footer DISABLED\n\n");
 #endif
 
 
@@ -161,20 +161,28 @@ int main(int argc, char **argv)
   lseek( Huff.OutFileDes, 0, SEEK_END );
   /////////  
 
-  WriteRemaingData( Huff.OutFileDes);
 
-  close( Huff.OutFileDes );
-
-  console_print(LOG_MAPPING, "\n");
-  console_print(LOG_MAPPING, "*************   ENCODE OF [%s] DONE    ******************\n", argv[1]);
-  console_print(LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - Huff.StartIndex + 1);
-  console_print(LOG_MAPPING, "\n\n");
-
-  close( LogFileDes );
-  LogFileDes = -1;
+  ClosingCeremony( &Huff, argv[1] );
   return 0;
 }
 
+
+void ClosingCeremony(  as_huff_t *HuffPtr, char *FileName )
+{
+  WriteRemaingData( HuffPtr->OutFileDes);
+
+  close( HuffPtr->OutFileDes );
+
+  console_print( LOG_MAPPING, "\n");
+  console_print( LOG_MAPPING, "=======================================================================\n" );
+  console_print( LOG_MAPPING, "================	  ENCRYPT OF %15s DONE    ==============\n", FileName );
+  console_print( LOG_MAPPING, "=======================================================================\n" );
+  console_print( LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - HuffPtr->StartIndex + 1);
+  console_print( LOG_MAPPING, "\n\n");
+
+  close( LogFileDes );
+  LogFileDes = -1;
+}
 
 
 void WriteMetadata ( as_huff_t *HuffPtr )
@@ -226,7 +234,7 @@ void WriteLastBitIndex( as_huff_t *HuffPtr, uint8_t Data )
   uint8_t BufWrite[5] = {0};
 
 #if ENCRYPT_LAST_BIT_INDEX
-  console_print( LOG_MAPPING,"Writing Last Bit Index : %d\n", Data );
+  console_print( LOG_GEN, "Writing Last Bit Index : %d\n", Data );
 
   BufWrite[0] = ASCII_DLE;
   BufWrite[1] = ASCII_STX;

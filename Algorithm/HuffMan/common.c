@@ -120,7 +120,7 @@ void FramingData( int LogType, int Line, const char *Func, const char *File, con
   WriteLogFile( LogFileDes, LogType, PrintBuffer, strlen( PrintBuffer ));
 
 
-  if( LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
+  if( LogType == LOG_MAPPING || LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
     printf("%s", PrintBuffer);
 }
 
