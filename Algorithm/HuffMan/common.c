@@ -6,6 +6,7 @@ char	PercentagePrintStr    [250]		= {0};
 char	FileNameBuf	      [512]		= {0};
 
 extern	int   LogFileDes;
+extern	int   DebugSt;
 
 
 
@@ -130,7 +131,12 @@ void WriteLogFile( int FileDes, int LogType, char *Data, int DataLen )
     if( LOG_SCREEN == LogType )
       return;
 
-    // TODO : Need to Add Priority check 
+    if( LogType == LOG_PRIO_1 || LogType == LOG_PRIO_2 || LogType == LOG_PRIO_3 )
+    {
+      if( DebugSt <= 0 )
+	return;
+    }
+
     write( FileDes, PrintBuffer, strlen( PrintBuffer )); 
   }
 }

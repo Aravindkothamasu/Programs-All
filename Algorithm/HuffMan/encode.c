@@ -9,8 +9,9 @@ int BytesRead=0;
 uint8_t ReadBuf[16] = {0};
 char Buffer[128]={0};
 
-float	PercentageFileRead		=  0;
+float	PercentageFileRead		=   0;
 int	LogFileDes			=  -1;
+int     DebugSt				=   1;
 
 int main(int argc, char **argv)
 {    
@@ -19,7 +20,6 @@ int main(int argc, char **argv)
   int i=0,j;
 
   uint64_t TempBit = 0;
-
 
   CmdLineCheck (argc, 2);
 
@@ -439,37 +439,27 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
 
   if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS-1 )
   {
-#if DEBUG_ON_ENCODE_PRINT
-    console_print(LOG_GEN,"Enter into if \n\n");
+    console_print( LOG_PRIO_1,"Enter into if \n\n");
     PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-#endif
 
     temp = CheckDiff();
-#if DEBUG_ON_ENCODE_PRINT
-    console_print( LOG_GEN,"CHECK DIFF : %d\n", temp );
-#endif
+    console_print( LOG_PRIO_1,"CHECK DIFF : %d\n", temp );
 
     for( i = 0; i < temp; i++ )
     {
-#if DEBUG_ON_ENCODE_PRINT
-      console_print( LOG_GEN,"\n\n" );
+      console_print( LOG_PRIO_1, "\n\n" );
       PRINT_CURRENT_BUF_POSITION( "BEF ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-#endif
       APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS +1, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
 
-#if DEBUG_ON_ENCODE_PRINT
-      console_print( LOG_GEN, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
+      console_print( LOG_PRIO_1, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
 	  EncData, BitOfEnc, BitOfEnc -i -1,
 	  GetBitVal( (uint64_t) EncData, BitOfEnc -i -1));
 
       PRINT_CURRENT_BUF_POSITION( "AFT ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-      console_print( LOG_GEN, "\n\n" );
-#endif
+      console_print( LOG_PRIO_1, "\n\n" );
     }
 
-#if DEBUG_ON_ENCODE_PRINT
     PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-#endif
 
     if( true ==  WriteInToFile( WriteFileDes, 8))
     {
@@ -478,34 +468,26 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
       if( BitOfEnc - temp )
       {
 	//GET REMAINING DATA
-#if DEBUG_ON_ENCODE_PRINT
-	console_print( LOG_GEN, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
-#endif
+	console_print( LOG_PRIO_1, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
 
 	for( i = BitOfEnc-temp; i > 0; i-- )
 	{
-#if DEBUG_ON_ENCODE_PRINT
-	  console_print( LOG_GEN, "\n\n" );
+	  console_print( LOG_PRIO_1, "\n\n" );
 	  PRINT_CURRENT_BUF_POSITION( "BWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-#endif
 
 	  APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, i-1 ));
 
-#if DEBUG_ON_ENCODE_PRINT
-	  console_print( LOG_GEN, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
+	  console_print( LOG_PRIO_1, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
 	      EncData, BitOfEnc, BitOfEnc -i -1,
 	      GetBitVal( (uint64_t) EncData, i -1));
 
 	  PRINT_CURRENT_BUF_POSITION( "AWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-	  console_print( LOG_GEN, "\n\n" );
-#endif
+	  console_print( LOG_PRIO_1, "\n\n" );
 	}
       }
       else
       {
-#if DEBUG_ON_ENCODE_PRINT
-	console_print( LOG_ERROR, "No Data is Pending to be Written\n" );
-#endif
+	console_print( LOG_PRIO_1, "No Data is Pending to be Written\n" );
       }
     }
     else
@@ -525,9 +507,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
     }
   }
 
-#if DEBUG_ON_ENCODE_PRINT
   PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-#endif
   return true;
 }
 
