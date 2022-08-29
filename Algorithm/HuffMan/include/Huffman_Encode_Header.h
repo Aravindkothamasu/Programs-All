@@ -5,18 +5,21 @@
 #include"Huffman_Header.h"
 
 
-#define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BitsOfIndex, DataToSend)   \
-    console_print( LOG_PRIO_1, "%sASCII: %2X EncD: %2X BitEnc %2d || BitIndex : %02d  Bin : %s  DtToSnd : %llX\n", Text, Data,\
-	EncData, BitOfEnc, BitsOfIndex, \
-	GetBinary(DataToSend, sizeof( DataToSend ), Buffer), DataToSend);
+#define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf )   \
+    console_print( LOG_PRIO_1, "%s ASCII: %2X EncD: %2X BitEnc %2d || WrIndx : %02d  Bin : %s\n", Text, Data,\
+	EncData, BitOfEnc, BinDataWrIndex, \
+	GetBinaryInArray(BinDataBuf, ENCODE_BUF_BYTES, Buffer));
 
 
-#define APPEND_BIT( IndexVar, MaxLen, DataBuf, Bit )	\
+#define APPEND_BIT( BinDataBuf, BinDataWrIndex, Bit, MaxLen )	\
 { \
-  INCCIRCULARINDEX( IndexVar, MaxLen);  \
-  DataBuf = DataBuf << 1 | Bit;  \
+  BitFeed( BinDataBuf, BinDataWrIndex, Bit); \
+  DECCIRCULARINDEX( BinDataWrIndex, ENCODE_BUF_BITS_LEN );  \
 }
 
+
+#define	      ENCODE_BUF_BYTES			  8
+#define	      ENCODE_BUF_BITS_LEN	  ENCODE_BUF_BYTES * 8
 
 
 
@@ -79,23 +82,21 @@ void RearrangeData();
 void swap(int i, int j);
 int GetStartingPoint();
 bool CreateArray( uint8_t, uint64_t , int, int);
-void CreateDSFrame( as_huff_t *);
 bool WriteInToFile(int , int );
-void WriteCountDS ( as_huff_t *);
-uint8_t MaskData(uint8_t );
-int CheckDiff();
 void WriteRemaingData( int );
 void CreateOutFileName( char *, char *);
 void Fooder(int );
 void Header( int );
-void WriteMetadata ( as_huff_t *HuffPtr );
-int CalculateSourceFile( as_huff_t *);
 void WriteFileSize( as_huff_t *, uint64_t );
-void WriteLastBitIndex( as_huff_t *, uint8_t );
 void PrintPercentageFileRead( as_huff_t *);
 void ClosingCeremony(  as_huff_t *, char* );
 
-
+/*	  META DATA FUNCTIONS	  */
+void WriteMetadata ( as_huff_t *HuffPtr );
+int CalculateSourceFile( as_huff_t *);
+void WriteCountDS ( as_huff_t *);
+void CreateDSFrame( as_huff_t *);
+void WriteLastBitIndex( as_huff_t *, uint8_t );
 
 
 

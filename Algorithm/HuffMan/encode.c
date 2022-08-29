@@ -2,16 +2,18 @@
 #include "include/Huffman_Encode_Header.h"
 
 as_data_t CountData[TOT_CHARS+1]={0};
-uint64_t DataToSend = 0;
-int BitsOfIndex = 0;
 
-int BytesRead=0;
-uint8_t ReadBuf[16] = {0};
-char Buffer[128]={0};
 
-float	PercentageFileRead		=   0;
-int	LogFileDes			=  -1;
-int     DebugSt				=   0;
+uint8_t	   BinDataBuf[ENCODE_BUF_BYTES]	    = {0};
+int	   BinDataWrIndex		    =  0;
+
+int	   BytesRead			    =  0;
+uint8_t	   ReadBuf[256]			    = {0};
+char	   Buffer[1*1024]		    = {0};
+
+float	   PercentageFileRead		    =   0;
+int	   LogFileDes			    =  -1;
+int	   DebugSt			    =   0;
 
 int main(int argc, char **argv)
 {    
@@ -27,6 +29,8 @@ int main(int argc, char **argv)
 
   CreateOutFileName( argv[1], OutFileName);
 
+  BinDataWrIndex  = ENCODE_BUF_BITS_LEN -1;
+
   Huff.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
   LogFileDes	  = FileOpening( CreateLogFilename( ENCODE_LOG_DIR_PATH, argv[1] ), WRITE_MODE_FILE );
 
@@ -36,23 +40,18 @@ int main(int argc, char **argv)
 
   ReadInputFile(Huff.InFileDes);
 
-#if DEBUG_ON_ENCODE
   for(i=0 ; i <= TOT_CHARS; i++)
     if( 0 != CountData[i].Freq )
       console_print( LOG_PRIO_1, "RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
-#endif
 
   RearrangeData();
   console_print( LOG_GEN, "\n");
-
-#if DEBUG_ON_ENCODE
 
   for(i=0 ; i <= TOT_CHARS ; i++)
     if( 0 != CountData[i].Freq )
       console_print( LOG_GEN, "AFTR_SORT -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
-#endif
 
   Huff.StartIndex = GetStartingPoint();
 
@@ -189,7 +188,6 @@ void WriteMetadata ( as_huff_t *HuffPtr )
 {
 
 #if ENCRYPT_FILE_SIZE
-
   HuffPtr->SrcFileSizeInBytes = CalculateSourceFile( HuffPtr );
   WriteFileSize( HuffPtr, HuffPtr->SrcFileSizeInBytes );
   console_print( LOG_MAPPING,"-------- ENCRYPT File Size Writing DECIMAL : %ld  || HEX : %lX Done\n\n", 
@@ -376,32 +374,18 @@ void testing( int WriteFileDes )
 
 void WriteRemaingData( int WriteFileDes)
 {
-  int Bit = 0, i = 0;
-  int temp = 0;
+  int ByteCount = 0;
+  int temp	= 0;
 
-  GetBinary( DataToSend, 8, Buffer ); 
-  console_print( LOG_GEN, "BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
-
-  /////////////////////////////
-
-  Bit = ( BitsOfIndex / 8 ) + 1;
-  console_print( LOG_GEN,"No.of Bytes : %d Bal %d\n", Bit, Bit * 8 - BitsOfIndex );
-  console_print( LOG_GEN,"Start : %d END : %d\n", Bit*8,  BitsOfIndex );
-  temp = BitsOfIndex;
-
-  for( i = Bit*8 ; i > temp; i-- )
+  for( temp = ENCODE_BUF_BITS_LEN-1; temp >= 0; temp -= 8 )
   {
-    // console_print( LOG_GEN,"-----\n" );
-    DataToSend = DataToSend << 1 | 0;
-    INCCIRCULARINDEX( BitsOfIndex, MAX_LEN_BUF_BITS );
+    ByteCount++;
+    console_print( LOG_ERROR, "temp %2d || ByteCount : %d WRINDX : %d\n", temp, ByteCount, BinDataWrIndex );
+    if( temp <= BinDataWrIndex )
+      break;
   }
 
-  /////////////////////////////
-  GetBinary( DataToSend, 8, Buffer ); 
-  console_print( LOG_GEN,"BEF %s Data %lX BitIndex %d %s\n", __func__, DataToSend, BitsOfIndex, Buffer );
-
-  WriteInToFile( WriteFileDes, BitsOfIndex/8 );
-
+  WriteInToFile( WriteFileDes, ByteCount-1 );
 }
 
 void Header( int WriteFileDes)
@@ -440,38 +424,33 @@ void PrintPercentageFileRead( as_huff_t *HuffPtr )
   }
 }
 
+void ClearBuffers( )
+{
+  int j;
+
+  BinDataWrIndex = ENCODE_BUF_BITS_LEN -1;
+  for( j = 0; j < ENCODE_BUF_BYTES; j++ )
+    BinDataBuf[j] = 0;
+}
 
 bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes) 
 {
   int i, temp;
 
-  if( BitsOfIndex + BitOfEnc > MAX_LEN_BUF_BITS-1 )
+  if( BinDataWrIndex < BitOfEnc )
   {
-    console_print( LOG_PRIO_1,"Enter into if \n\n");
-    PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-
-    temp = CheckDiff();
+    temp = BinDataWrIndex + 1;
     console_print( LOG_PRIO_1,"CHECK DIFF : %d\n", temp );
 
     for( i = 0; i < temp; i++ )
     {
-      console_print( LOG_PRIO_1, "\n\n" );
-      PRINT_CURRENT_BUF_POSITION( "BEF ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-      APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS +1, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
-
-      console_print( LOG_PRIO_1, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
-	  EncData, BitOfEnc, BitOfEnc -i -1,
-	  GetBitVal( (uint64_t) EncData, BitOfEnc -i -1));
-
-      PRINT_CURRENT_BUF_POSITION( "AFT ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-      console_print( LOG_PRIO_1, "\n\n" );
+      APPEND_BIT( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, BitOfEnc -i-1 ), ENCODE_BUF_BITS_LEN );
     }
-
-    PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
+    PRINT_CURRENT_BUF_POSITION( "AFT ", Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf );
 
     if( true ==  WriteInToFile( WriteFileDes, 8))
     {
-      BitsOfIndex = DataToSend  = 0;  
+      ClearBuffers();
 
       if( BitOfEnc - temp )
       {
@@ -480,18 +459,9 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
 
 	for( i = BitOfEnc-temp; i > 0; i-- )
 	{
-	  console_print( LOG_PRIO_1, "\n\n" );
-	  PRINT_CURRENT_BUF_POSITION( "BWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-
-	  APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, i-1 ));
-
-	  console_print( LOG_PRIO_1, "EncData : %X || BitOfEnc %d || BITINDX %d -- BITVALUE %d\n", 
-	      EncData, BitOfEnc, BitOfEnc -i -1,
-	      GetBitVal( (uint64_t) EncData, i -1));
-
-	  PRINT_CURRENT_BUF_POSITION( "AWR ", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
-	  console_print( LOG_PRIO_1, "\n\n" );
+	  APPEND_BIT( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, i-1 ), ENCODE_BUF_BITS_LEN );
 	}
+	PRINT_CURRENT_BUF_POSITION( "AWR ", Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf );
       }
       else
       {
@@ -503,44 +473,28 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
       console_print( LOG_ERROR, "Error Writing into file\n");
       return false;
     }
-
   }
   else
   {
     for( i = 0; i < BitOfEnc; i++ )
     {
-      // console_print( LOG_GEN, "BIT %d EncData : %X BitOfEnc : %d ADDING : %d\n", BitOfEnc -i-1,
-      // EncData, BitOfEnc, GetBitVal( ( uint64_t ) EncData, BitOfEnc - i -1 ));
-      APPEND_BIT( BitsOfIndex, MAX_LEN_BUF_BITS, DataToSend, GetBitVal( EncData, BitOfEnc -i-1 ));
+      APPEND_BIT( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, BitOfEnc -i-1 ), ENCODE_BUF_BITS_LEN );
     }
   }
 
-  PRINT_CURRENT_BUF_POSITION( "", Data, EncData, BitOfEnc, BitsOfIndex, DataToSend );
+  PRINT_CURRENT_BUF_POSITION( " ", Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf );
   return true;
 }
 
-
-
-int CheckDiff ()	
-{			
-  return MAX_LEN_BUF_BITS - BitsOfIndex;
-}
-
-
-/*
- * FIXME : Need to Re-check
- */
 
 bool WriteInToFile(int FileDes, int Bytes )
 {
   uint8_t *uPtr8 ;
   int i;
-  // console_print( LOG_GEN, "%s Called Bit %d\n", __func__, BitsOfIndex );
 
-  uPtr8 = ( uint8_t *) &DataToSend + Bytes-1;
-
-  for( i=0 ;i < Bytes; i++)	  // FIXME : Change it to -> based on BitIndex writing into file
+  for( i=0 ;i < Bytes; i++)
   {
+    uPtr8 = &(BinDataBuf[ENCODE_BUF_BYTES -1 -i]);
     if( write( FileDes, uPtr8, 1) < 0 )
     {
       console_print( LOG_ERROR, "DATA WRITTEN FAILURE : %s\n", strerror(errno));

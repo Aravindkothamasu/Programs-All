@@ -76,16 +76,13 @@
 
 ////////////////////////////////////////////////////////
 
-#define MAX_LEN_BUF_BITS      64
 
-#define SIZE_BUFFER	      10
 #define READ_MODE_FILE	      O_RDONLY
 #define WRITE_MODE_FILE	      O_RDWR|O_TRUNC|O_CREAT
 
 #define TOT_CHARS	      0x7f
 
-#define DEBUG_ON_ENCODE		0
-#define DEBUG_ON_DECODE		1
+
 
 #define console_print( LogType, format, ...)	      \
     FramingData( LogType, __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
