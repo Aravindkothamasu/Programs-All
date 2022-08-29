@@ -9,11 +9,14 @@ int	   BinDataWrIndex		    =  0;
 
 int	   BytesRead			    =  0;
 uint8_t	   ReadBuf[256]			    = {0};
+
+
+
 char	   Buffer[1*1024]		    = {0};
 
 float	   PercentageFileRead		    =   0;
 int	   LogFileDes			    =  -1;
-int	   DebugSt			    =   0;
+int	   DebugSt			    =	0;
 
 int main(int argc, char **argv)
 {    
@@ -42,7 +45,7 @@ int main(int argc, char **argv)
 
   for(i=0 ; i <= TOT_CHARS; i++)
     if( 0 != CountData[i].Freq )
-      console_print( LOG_PRIO_1, "RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
+      console_print( LOG_PRIO1, "RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
 
   RearrangeData();
@@ -440,7 +443,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
   if( BinDataWrIndex < BitOfEnc )
   {
     temp = BinDataWrIndex + 1;
-    console_print( LOG_PRIO_1,"CHECK DIFF : %d\n", temp );
+    console_print( LOG_PRIO1,"CHECK DIFF : %d\n", temp );
 
     for( i = 0; i < temp; i++ )
     {
@@ -448,14 +451,14 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
     }
     PRINT_CURRENT_BUF_POSITION( "AFT ", Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf );
 
-    if( true ==  WriteInToFile( WriteFileDes, 8))
+    if( true ==  WriteInToFile( WriteFileDes, ENCODE_BUF_BYTES ))
     {
       ClearBuffers();
 
       if( BitOfEnc - temp )
       {
 	//GET REMAINING DATA
-	console_print( LOG_PRIO_1, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
+	console_print( LOG_PRIO1, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
 
 	for( i = BitOfEnc-temp; i > 0; i-- )
 	{
@@ -465,7 +468,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
       }
       else
       {
-	console_print( LOG_PRIO_1, "No Data is Pending to be Written\n" );
+	console_print( LOG_PRIO1, "No Data is Pending to be Written\n" );
       }
     }
     else
@@ -482,7 +485,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
     }
   }
 
-  PRINT_CURRENT_BUF_POSITION( " ", Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf );
+  PRINT_CURRENT_BUF_POSITION( "    ", Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf );
   return true;
 }
 

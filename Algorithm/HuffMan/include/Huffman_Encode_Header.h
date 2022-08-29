@@ -6,7 +6,7 @@
 
 
 #define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf )   \
-    console_print( LOG_PRIO_1, "%s ASCII: %2X EncD: %2X BitEnc %2d || WrIndx : %02d  Bin : %s\n", Text, Data,\
+    console_print( LOG_PRIO1, "%s ASCII: %2X EncD: %2X BitEnc %2d || WrIndx : %02d  Bin : %s\n", Text, Data,\
 	EncData, BitOfEnc, BinDataWrIndex, \
 	GetBinaryInArray(BinDataBuf, ENCODE_BUF_BYTES, Buffer));
 
@@ -14,11 +14,11 @@
 #define APPEND_BIT( BinDataBuf, BinDataWrIndex, Bit, MaxLen )	\
 { \
   BitFeed( BinDataBuf, BinDataWrIndex, Bit); \
-  DECCIRCULARINDEX( BinDataWrIndex, ENCODE_BUF_BITS_LEN );  \
+  DECCIRCULARINDEX( BinDataWrIndex, MaxLen );  \
 }
 
 
-#define	      ENCODE_BUF_BYTES			  8
+#define	      ENCODE_BUF_BYTES			  10
 #define	      ENCODE_BUF_BITS_LEN	  ENCODE_BUF_BYTES * 8
 
 

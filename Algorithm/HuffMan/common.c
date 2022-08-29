@@ -59,6 +59,8 @@ void FramingData( int LogType, int Line, const char *Func, const char *File, con
 
   bzero( PrintBuffer, sizeof( PrintBuffer ));
 
+  if( ( !DebugSt ) && ( LogType == LOG_PRIO1 || LogType == LOG_PRIO2 || LogType == LOG_PRIO3 ))
+    return;
 
   switch( LogType )
   {
@@ -80,19 +82,19 @@ void FramingData( int LogType, int Line, const char *Func, const char *File, con
       }
       break;
 
-    case LOG_PRIO_1:
+    case LOG_PRIO1:
       {
 	strcpy( PrintBuffer, "LOG_PRIO1  " );
       }
       break;
 
-    case LOG_PRIO_2:
+    case LOG_PRIO2:
       {
 	strcpy( PrintBuffer, "LOG_PRIO2  " );
       }
       break;
 
-    case LOG_PRIO_3:
+    case LOG_PRIO3:
       {
 	strcpy( PrintBuffer, "LOG_PRIO3  " );
       }
@@ -120,7 +122,7 @@ void FramingData( int LogType, int Line, const char *Func, const char *File, con
   WriteLogFile( LogFileDes, LogType, PrintBuffer, strlen( PrintBuffer ));
 
 
-  if( DebugSt > 0 || LogType == LOG_MAPPING || LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
+  if( DebugSt || LogType == LOG_MAPPING || LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
     printf("%s", PrintBuffer);
 }
 
@@ -131,9 +133,9 @@ void WriteLogFile( int FileDes, int LogType, char *Data, int DataLen )
     if( LOG_SCREEN == LogType )
       return;
 
-    if( LogType == LOG_PRIO_1 || LogType == LOG_PRIO_2 || LogType == LOG_PRIO_3 )
+    if( LogType == LOG_PRIO1 || LogType == LOG_PRIO2 || LogType == LOG_PRIO3 )
     {
-      if( DebugSt <= 0 )
+      if( DebugSt < 2 )
 	return;
     }
 
