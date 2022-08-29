@@ -120,7 +120,7 @@ void FramingData( int LogType, int Line, const char *Func, const char *File, con
   WriteLogFile( LogFileDes, LogType, PrintBuffer, strlen( PrintBuffer ));
 
 
-  if( LogType == LOG_MAPPING || LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
+  if( DebugSt > 0 || LogType == LOG_MAPPING || LogType == LOG_SCREEN || LogType == LOG_ERROR || LogFileDes <= 0 )
     printf("%s", PrintBuffer);
 }
 
@@ -176,8 +176,11 @@ void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Valu
 {
   int i;
 
-  system( "clear" );
-  printf( "\n\n\n\n\n\n\n" );
+  if( DebugSt == 0 )
+  {
+    system( "clear" );
+    printf( "\n\n\n\n\n\n\n" );
+  }
 
   console_print( LOG_SCREEN, "\t\t\t\t-----------	  SRC FILE BYTE : %d	    PROCESSED FILE BYTES : %d	-----------\n", 
       SrcFileSizeInBytes, ProcessedFileBytes );
