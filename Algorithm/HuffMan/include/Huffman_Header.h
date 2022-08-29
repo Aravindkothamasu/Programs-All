@@ -12,7 +12,9 @@
 #include<errno.h>
 #include<strings.h>
 #include<sys/stat.h>
+#include<sys/time.h>
 #include<stdint.h>
+#include<time.h>
 
 
 ////////////////////////     LOGS DIRECTORY MACRO DECLERATION	    /////////////////////////
@@ -127,6 +129,7 @@ char * GetBinary (uint64_t , int , char *);
 int Percentage_FillUp( int, int , int );
 bool WriteDataIntoFile( int, uint8_t *, int );
 bool GetBitVal( uint64_t, uint8_t );
+long long GetEpochTimeMs(  );
 
 void BitFeed( uint8_t *, int , bool );
 void BitClear( uint8_t *, int, int );

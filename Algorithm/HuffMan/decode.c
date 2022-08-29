@@ -37,6 +37,9 @@ int     DebugSt				=  0;
 
 int main (int argc, char **argv)
 {  
+  long long StartTime;
+  long long EndTime;
+
   int FileIndex;
   Huff_Decode_app_t App={0};
 
@@ -46,7 +49,18 @@ int main (int argc, char **argv)
   {
     ClearBuffers( &App );
     App.RdRtnBytes = 4;
+
+    StartTime = GetEpochTimeMs();
     DecodeHuffMan( &App, argv[FileIndex] );
+    ClosingCeremony( &App );
+    EndTime   = GetEpochTimeMs();
+
+    console_print( LOG_MAPPING, "======    EXECUTION TIME : %6d Milli Sec =======\n", EndTime - StartTime );
+
+    if( LogFileDes > 0 )
+      close( LogFileDes );
+    LogFileDes = -1;
+
   }
 
   ProgramExit( true );
@@ -102,7 +116,6 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
       else if( 0 == AppPtr->RdRtnBytes )
       { // FIXME : Change
 
-	ClosingCeremony( AppPtr );
 	return;
       }
     }
@@ -462,10 +475,6 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
   console_print( LOG_MAPPING, "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
   console_print( LOG_MAPPING, "==============================================================\n" );
   console_print( LOG_MAPPING, "\n" );
-
-  if( LogFileDes > 0 )
-    close( LogFileDes );
-  LogFileDes = -1;
 
   FreeupMemory( AppPtr );
 }
