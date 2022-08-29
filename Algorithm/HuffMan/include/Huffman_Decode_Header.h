@@ -77,7 +77,6 @@ typedef struct
   int                   OutFileDes;
   int                   CountIndex;
 
-
   char                  OutFileName[150];
 
   
