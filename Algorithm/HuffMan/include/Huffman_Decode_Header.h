@@ -102,6 +102,8 @@ typedef struct
 
 //////////////////	  DECODE.C    ///////////////////
 
+void DecodeHuffMan(Huff_Decode_app_t *, char *);
+
 void CreateOutFileName( char *, char *);
 void CheckIpFile( char *);
 void CreateOutFileName ( char *, char *);     // TODO : Need to Change in encode.c and decode.c files
@@ -113,7 +115,6 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *);
 void PrcsIpData( Huff_Decode_app_t *, uint8_t );
 void PrintDSdata(  Huff_Decode_app_t  * );
 bool AllocateSubMemory( Huff_Decode_DataStru_t ***, int );
-void DecodeHuffMan(Huff_Decode_app_t *, int , char **);
 void WriteData( Huff_Decode_app_t *);
 bool GetSourceFileSize( uint8_t , uint64_t * );
 int ReadMetaData( Huff_Decode_app_t *, uint8_t );

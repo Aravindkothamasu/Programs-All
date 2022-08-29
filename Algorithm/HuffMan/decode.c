@@ -49,19 +49,24 @@ int     DebugSt				=  0;
 
 int main (int argc, char **argv)
 {  
+  int FileIndex;
   Huff_Decode_app_t App={0};
 
-  CmdLineCheck( argc, 2);
+  CmdLineCheck( argc, 2 );
 
   App.RdRtnBytes = 4;
 
-  DecodeHuffMan( &App, argc, argv );
+  for( FileIndex = 1; FileIndex < argc; FileIndex++ )
+    DecodeHuffMan( &App, argv[FileIndex] );
+
+  printf( "ARGC  %d\n", argc );
+  ProgramExit( true );
   return 0;
 }
 
 
 
-void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
+void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 {
   uint32_t i = 0;
   int Rtn;
@@ -82,7 +87,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       { // FIXME : Change
 
 	ClosingCeremony( AppPtr );
-	ProgramExit( true );
+	return;
       }
     }
 
@@ -92,7 +97,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
       {
 	case DEC_CHCK_IN_FILE :
 	  {
-	    CheckIpFile( argv[1]);
+	    CheckIpFile( InputFileName );
 
 	    console_print( LOG_GEN, "========  Check Input File Done  =========\n");
 	    AppPtr->MainSt = DEC_IN_FILE;
@@ -101,7 +106,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	case DEC_IN_FILE :
 	  {
-	    AppPtr->InFileDes = FileOpening( argv[1], READ_MODE_FILE);
+	    AppPtr->InFileDes = FileOpening( InputFileName, READ_MODE_FILE);
 
 	    AppPtr->MainSt = DEC_CREATE_OUT_FILENAME;
 	  }
@@ -109,7 +114,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 
 	case DEC_CREATE_OUT_FILENAME :
 	  {
-	    CreateOutFileName( AppPtr->OutFileName, argv[1]);
+	    CreateOutFileName( AppPtr->OutFileName, InputFileName );
 	    AppPtr->MainSt = DEC_OPEN_OUTFILE;
 	  }
 	  break;
@@ -117,10 +122,10 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, int argc, char **argv )
 	case DEC_OPEN_OUTFILE :
 	  {
 	    // FIXME : Need to check whether it is right or not.
-	    LogFileDes = FileOpening( CreateLogFilename( DECODE_LOG_DIR_PATH, argv[1] ), WRITE_MODE_FILE );
+	    LogFileDes = FileOpening( CreateLogFilename( DECODE_LOG_DIR_PATH, InputFileName ), WRITE_MODE_FILE );
 	    AppPtr->OutFileDes = FileOpening( AppPtr->OutFileName, WRITE_MODE_FILE);
 
-	    console_print( LOG_GEN, "I/p FileName : %s\n", argv[1] );
+	    console_print( LOG_GEN, "I/p FileName : %s\n", InputFileName );
 	    console_print( LOG_GEN, "O/p FileName : %s\n", AppPtr->OutFileName);
 
 	    AppPtr->MainSt = DEC_ENCRYPT_METADATA;

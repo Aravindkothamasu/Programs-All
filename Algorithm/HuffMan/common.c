@@ -12,9 +12,10 @@ extern	int   DebugSt;
 
 void CmdLineCheck(int argc, int MaxCount)
 {
-  if( argc != MaxCount)
+  // if( argc != MaxCount)
+  if( argc < 2 )
   {   
-    console_print( LOG_ERROR, "ERROR CMLD LINE USAGE : ./Encode   [Input File]\n");
+    console_print( LOG_ERROR, "ERROR CMLD LINE USAGE : ./Encode  [FILE_1] [FILE_2]  ..... \n");
     ProgramExit( false );
   }
 
