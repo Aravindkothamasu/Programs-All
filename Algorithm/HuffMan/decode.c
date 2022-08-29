@@ -1,20 +1,8 @@
 #include "include/Huffman_Decode_Header.h"
 
-#define	    SAMPLE_TEST		  0
+int	 EncDataByts			= 0;
 
-int EncDataByts = 0;
-char temp_print_buf[256]={0};
-
-
-#if SAMPLE_TEST
-int	 Counter=0;
-uint64_t SampleBinData =  0;
-int	 SampleWrIndex =  1;
-int	 SampleRdIndex =  0;
-
-#endif
-
-
+char	 temp_print_buf[512]		= {0};
 
 uint8_t  BinDataBuf[DECODE_BUF_BYTES]	= {0};
 int	 BinDataWrIndex			=  0;
@@ -54,22 +42,50 @@ int main (int argc, char **argv)
 
   CmdLineCheck( argc, 2 );
 
-  App.RdRtnBytes = 4;
-
   for( FileIndex = 1; FileIndex < argc; FileIndex++ )
+  {
+    ClearBuffers( &App );
+    App.RdRtnBytes = 4;
     DecodeHuffMan( &App, argv[FileIndex] );
+  }
 
-  printf( "ARGC  %d\n", argc );
   ProgramExit( true );
   return 0;
 }
 
+void ClearBuffers( Huff_Decode_app_t *AppPtr )
+{
+  memset( AppPtr, 0, sizeof( Huff_Decode_app_t ));
 
+  EncDataByts			= 0;
+  bzero( temp_print_buf, sizeof( temp_print_buf ));
+
+  bzero( BinDataBuf, sizeof( BinDataBuf ));
+  BinDataWrIndex			=  0;
+  BinDataRdIndex			=  0;
+
+
+  bzero( LastBitPosBuf, sizeof( LastBitPosBuf ));
+  LastBitPosIndex		=  0;
+
+  bzero( DSCountBuf, sizeof( DSCountBuf ));
+  DSCountIndex			=  0;
+
+
+  bzero( FileSizeBuf, sizeof( FileSizeBuf ));
+  FileSizeBufIndex		=  0;
+
+  PercentageFileRead		=  0;
+  LogFileDes			=  0;
+}
 
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 {
   uint32_t i = 0;
   int Rtn;
+
+  console_print( LOG_ERROR, "MAIN APPLICATION STARTED .........\n" );
+  sleep( 1 );
 
 
   while( true )
@@ -648,14 +664,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
   {
     // console_print( LOG_PRIO, "PERCENTAGE FILLEDUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
-#if SAMPLE_TEST
-    AppendData(AppPtr);
-    Counter++;
-    Decode_ParseData( AppPtr, SampleBinData, &SampleRdIndex, &SampleWrIndex );
-#else
     Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
-#endif
-
     PrintPercentageFileRead( AppPtr );
   }
 
@@ -861,57 +870,3 @@ uint64_t DATA_BUF( uint8_t *a, int Bytes )
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-#if SAMPLE_TEST
-void AppendData(Huff_Decode_app_t *AppPtr )
-{
-  int i;
-
-  console_print( LOG_GEN, "****** Append Data *******\n" );
-  if( Counter == 0 )
-    SampleBinData = 0xf2ae535690194e40;
-  else if( Counter == 1 )
-  {
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( LOG_GEN, "BEF : %s\n", temp_print_buf );
-
-    SampleBinData = SampleBinData << 61 | 0xc5185d5cc304e96b >> 3;
-
-
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( LOG_GEN, "AFT : %s\n", temp_print_buf );
-  }
-  else if( Counter == 2 )
-  {
-
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( LOG_GEN, "CNT 2 BEF : %s\n", temp_print_buf );
-
-    SampleBinData = 0x6670;
-    SampleWrIndex = 11;
-    SampleRdIndex = 0;
-
-    GetBinary( SampleBinData, 8, temp_print_buf );
-    console_print( LOG_GEN, "CNT 2 AFT : %s\n", temp_print_buf );
-    return;
-  }
-  else
-  {
-    SampleBinData = 0;
-    SampleWrIndex = 0;
-    return;
-
-  }
-
-  /*
-     else if( Counter == 1 )
-     SampleBinData = 0xc5185d5cc304e96b;
-   */
-
-
-  SampleWrIndex = 64;
-}
-#endif
