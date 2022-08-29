@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
   for(i=0 ; i <= TOT_CHARS; i++)
     if( 0 != CountData[i].Freq )
-      console_print( LOG_PRIO1, "RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
+      console_print( LOG_PRIO, "RAW_DATA  -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
 
   RearrangeData();
@@ -443,7 +443,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
   if( BinDataWrIndex < BitOfEnc )
   {
     temp = BinDataWrIndex + 1;
-    console_print( LOG_PRIO1,"CHECK DIFF : %d\n", temp );
+    console_print( LOG_PRIO,"CHECK DIFF : %d\n", temp );
 
     for( i = 0; i < temp; i++ )
     {
@@ -458,7 +458,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
       if( BitOfEnc - temp )
       {
 	//GET REMAINING DATA
-	console_print( LOG_PRIO1, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
+	console_print( LOG_PRIO, "------ REMAINING COUNT : %d\n", BitOfEnc - temp );
 
 	for( i = BitOfEnc-temp; i > 0; i-- )
 	{
@@ -468,7 +468,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
       }
       else
       {
-	console_print( LOG_PRIO1, "No Data is Pending to be Written\n" );
+	console_print( LOG_PRIO, "No Data is Pending to be Written\n" );
       }
     }
     else

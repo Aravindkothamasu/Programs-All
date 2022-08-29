@@ -6,7 +6,7 @@
 
 
 #define PRINT_CURRENT_BUF_POSITION( Text, Data, EncData, BitOfEnc, BinDataWrIndex, BinDataBuf )   \
-    console_print( LOG_PRIO1, "%s ASCII: %2X EncD: %2X BitEnc %2d || WrIndx : %02d  Bin : %s\n", Text, Data,\
+    console_print( LOG_PRIO, "%s ASCII: %2X EncD: %2X BitEnc %2d || WrIndx : %02d  Bin : %s\n", Text, Data,\
 	EncData, BitOfEnc, BinDataWrIndex, \
 	GetBinaryInArray(BinDataBuf, ENCODE_BUF_BYTES, Buffer));
 

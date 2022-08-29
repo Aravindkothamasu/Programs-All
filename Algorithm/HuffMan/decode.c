@@ -511,7 +511,7 @@ int ReadDataIpSrcFile( Huff_Decode_app_t *AppPtr )
   {
     console_print( LOG_GEN,"Reading from input File DONE \n" );
   }
-  console_print( LOG_PRIO1, "%s Called Bytes Read : %d\n", __func__ , AppPtr->RdRtnBytes );
+  console_print( LOG_PRIO, "%s Called Bytes Read : %d\n", __func__ , AppPtr->RdRtnBytes );
   return AppPtr->RdRtnBytes;
 }
 
@@ -559,26 +559,26 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
     if( Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) <= DataPtr->BitOfEnc ) 
       // FIXME : Re-check the condition
     {
-      console_print( LOG_PRIO1, "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
+      console_print( LOG_PRIO, "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
 
-      console_print( LOG_PRIO1, "WrIndex Buf is empty returning..\n" );
+      console_print( LOG_PRIO, "WrIndex Buf is empty returning..\n" );
 
       return;
     }
-    // console_print( LOG_PRIO1, "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
+    // console_print( LOG_PRIO, "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
     // ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr, DataPtr->BitOfEnc );
 
     if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, BinDataBufPtr, *BinDataRdIndexPtr )) 
     {
 
-      console_print( LOG_PRIO1, "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
+      console_print( LOG_PRIO, "BEF EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN,  *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, DECODE_BUF_BYTES, temp_print_buf) );
 
-      console_print( LOG_PRIO1, "DATA READ Indx %2d Data %X EncData %2X BitOfEnc %2d ----  WRINDX %2d RDINDX %2d\n", 
+      console_print( LOG_PRIO, "DATA READ Indx %2d Data %X EncData %2X BitOfEnc %2d ----  WRINDX %2d RDINDX %2d\n", 
 	  ElementIndex,
 	  DataPtr->Type,
 	  DataPtr->EncData,
@@ -595,11 +595,11 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 	INCCIRCULARINDEX( *BinDataRdIndexPtr, DECODE_BUF_BITS_LEN );
       }
 
-      console_print( LOG_PRIO1, "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
+      console_print( LOG_PRIO, "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
 	  ElementIndex, DATA_BUF( BinDataBufPtr, DECODE_BUF_BYTES ), *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr),
 	  GetBinaryInArray( BinDataBufPtr, 8, temp_print_buf));
-      console_print( LOG_PRIO1, "\n\n" );
+      console_print( LOG_PRIO, "\n\n" );
 
     }
     else
@@ -634,14 +634,14 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
 {
   int i;
 
-  console_print( LOG_PRIO1, "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
+  console_print( LOG_PRIO, "BMAP ENC %02X BitOfEnc %d || WRINDX %2d RDINDX %2d DIFF %2d DATA %llX \n", 
       EncData, BitOfEnc, BinDataWrIndex, BinDataRdIndex, 
       Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex), DATA_BUF( BinDataBuf, DECODE_BUF_BYTES ) );
 
 
   if( Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex) > DECODE_BUF_BITS_LEN - 10 )
   {
-    // console_print( LOG_PRIO1, "PERCENTAGE FILLEDUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
+    // console_print( LOG_PRIO, "PERCENTAGE FILLEDUP EncData : %02X BitOfEnc %d\n", EncData, BitOfEnc );
 
 #if SAMPLE_TEST
     AppendData(AppPtr);
@@ -660,7 +660,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
     // console_print( LOG_GEN, "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
     INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BITS_LEN );
   }
-  console_print( LOG_PRIO1, "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
+  console_print( LOG_PRIO, "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
   // sleep(1);
   return true;
 }

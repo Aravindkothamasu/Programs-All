@@ -112,11 +112,9 @@ typedef enum
   LOG_MAPPING	    = 2,
   LOG_GEN	    = 3,
 
-  LOG_PRIO1	    = 4,
-  LOG_PRIO2	    = 5,
-  LOG_PRIO3	    = 6,
+  LOG_PRIO	    = 4,
 
-  LOG_SCREEN	    = 7,
+  LOG_SCREEN	    = 5,
 }Huff_Debug_Log_St_t;
 
 
