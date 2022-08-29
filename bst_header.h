@@ -19,4 +19,9 @@ void print(B *);
 int * filter (B** ,int );
 void create(B **,int);
 
+
+
+
+
+
 #endif
