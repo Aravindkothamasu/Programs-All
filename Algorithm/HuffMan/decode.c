@@ -40,7 +40,7 @@ float	PercentageFileRead		=  0;
 
 
 int	LogFileDes			=  0;
-int     DebugSt				=  1;
+int     DebugSt				=  0;
 
 
 /*
@@ -532,7 +532,7 @@ bool isLetterMatch( uint64_t EncData1, int BitOfEnc1, uint8_t *EncData2, int Bit
   {
     Operator1 = GetBitVal( EncData1, i );
     Operator2 = GetBitValInArray( EncData2, lBinDataRdIndx );
-    INCCIRCULARINDEX( lBinDataRdIndx, DECODE_BUF_BYTES * 8);
+    INCCIRCULARINDEX( lBinDataRdIndx, DECODE_BUF_BITS_LEN );
 
     // console_print( LOG_GEN, "INDEX : %d || Ope1 : %d || Ope2 : %d\n", i, Operator1, Operator2 );
     if( Operator1 != Operator2 )
@@ -591,7 +591,7 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 
       for( i = 0; i < DataPtr->BitOfEnc; i++)
       {
-	INCCIRCULARINDEX( *BinDataRdIndexPtr, DECODE_BUF_BYTES * 8 ); 
+	INCCIRCULARINDEX( *BinDataRdIndexPtr, DECODE_BUF_BITS_LEN );
       }
 
       console_print( LOG_PRIO_1, "AFT EleIndx %2d | Data %lX | WrIndx %2d | RdIndx %2d | Diff %d - %s\n", 
@@ -657,7 +657,7 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
   {
     BitFeed( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, i ) );
     // console_print( LOG_GEN, "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
-    INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BYTES * 8 );
+    INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BITS_LEN );
   }
   console_print( LOG_PRIO_1, "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
   // sleep(1);
