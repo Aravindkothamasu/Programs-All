@@ -446,6 +446,7 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
     close( LogFileDes );
   LogFileDes = -1;
 
+  FreeupMemory( AppPtr );
 }
 
 void AddDataWriteBuf( Huff_Decode_app_t *AppPtr, uint8_t Data )
@@ -789,6 +790,16 @@ void CheckIpFile( char *FileName)
 
 //////////////////////////////////////////     MEMORY ALLOCATION FUNCTIONS	///////////////////////////////////////////////////
 
+void FreeupMemory( Huff_Decode_app_t *AppPtr )
+{
+  int i;
+
+  for( i = 0; i < AppPtr->CountIndex ; i++ )
+  {
+    free( AppPtr->DataPtr[i] );
+  }
+  free( AppPtr->DataPtr );
+}
 
 void MemoryAllocation( Huff_Decode_DataStru_t ***DataPtr, int CountIndex )
 {

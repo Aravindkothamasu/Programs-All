@@ -70,15 +70,6 @@ typedef struct
 }Huff_Decode_DataStru_t;
 
 
-typedef struct
-{
-  uint64_t  Data;
-  uint8_t   EnnoBit;
-  uint8_t   Ennodhi;
-
-
-}Huff_Dec_Prev_St;
-
 
 typedef struct
 {
@@ -130,6 +121,7 @@ int ReadMetaData( Huff_Decode_app_t *, uint8_t );
 void MemoryAllocation( Huff_Decode_DataStru_t ***, int );
 void ReadLastBitPostion( uint8_t *);
 void ClosingCeremony(  Huff_Decode_app_t *);
+void FreeupMemory( Huff_Decode_app_t *);
 
 
 void AppendData(Huff_Decode_app_t *AppPtr );
