@@ -37,8 +37,8 @@ int     DebugSt				=  0;
 
 int main (int argc, char **argv)
 {  
-  long long StartTime;
-  long long EndTime;
+  double StartTime;
+  double EndTime;
 
   int FileIndex;
   Huff_Decode_app_t App={0};
@@ -55,7 +55,8 @@ int main (int argc, char **argv)
     ClosingCeremony( &App );
     EndTime   = GetEpochTimeMs();
 
-    console_print( LOG_MAPPING, "======    EXECUTION TIME : %6d Milli Sec =======\n", EndTime - StartTime );
+    console_print( LOG_MAPPING, "START : %llf || STOP : %llf \n", StartTime, EndTime ); 
+    console_print( LOG_MAPPING, "======    EXECUTION TIME : %6.3f Sec =======\n", EndTime - StartTime );
 
     if( LogFileDes > 0 )
       close( LogFileDes );

@@ -315,12 +315,18 @@ void ProgramExit( bool ExitState )
 }
 
 
-long long GetEpochTimeMs(  )
+double GetEpochTimeMs(  )
 {
   struct timeval tv = {0};
+  double Rtn = 0;
+
   gettimeofday( &tv, NULL);
 
-  return ( ( tv.tv_sec * 1000 ) + ( tv.tv_usec / 1000 ));
+  Rtn = tv.tv_usec / 1000;
+  Rtn /= 1000;
+  Rtn += tv.tv_sec;
+
+  return Rtn;
 }
 
 
