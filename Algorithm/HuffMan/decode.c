@@ -49,13 +49,13 @@ int main (int argc, char **argv)
   {
     ClearBuffers( &App );
     App.RdRtnBytes = 4;
+    App.EncryptFileCount = -1;
 
     StartTime = GetEpochTimeMs();
     DecodeHuffMan( &App, argv[FileIndex] );
     ClosingCeremony( &App );
     EndTime   = GetEpochTimeMs();
 
-    console_print( LOG_MAPPING, "START : %llf || STOP : %llf \n", StartTime, EndTime ); 
     console_print( LOG_MAPPING, "======    EXECUTION TIME : %6.3f Sec =======\n", EndTime - StartTime );
 
     if( LogFileDes > 0 )
@@ -96,13 +96,16 @@ void ClearBuffers( Huff_Decode_app_t *AppPtr )
 
 void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 {
-  uint32_t i = 0;
-  int Rtn;
+  uint32_t    i = 0;
+  int	      Rtn;
+  struct stat statbuf = {0};
+  int	      BitCount = 0;
 
   console_print( LOG_ERROR, "MAIN APPLICATION STARTED .........\n" );
   sleep( 1 );
 
 
+  BitCount = 8;
   while( true )
   {
     if( AppPtr->MainSt >= DEC_ENCRYPT_METADATA )
@@ -123,6 +126,8 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 
     for( i = 0 ; i < AppPtr->RdRtnBytes ; i++ )
     {
+      AppPtr->EncryptFileCount++;
+
       switch( AppPtr->MainSt )
       {
 	case DEC_CHCK_IN_FILE :
@@ -137,6 +142,16 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 	case DEC_IN_FILE :
 	  {
 	    AppPtr->InFileDes = FileOpening( InputFileName, READ_MODE_FILE);
+
+	    if( -1 == fstat( AppPtr->InFileDes, &statbuf ))
+	    {
+	      console_print( LOG_ERROR, "Getting Properties of ERROR : %s\n", strerror(errno));
+	    }
+	    else
+	    {
+	      AppPtr->EncryptFileSize = statbuf.st_size;
+	      console_print( LOG_MAPPING, "ENCRYPT FILE SIZE : %lld\n", AppPtr->EncryptFileSize );
+	    }
 
 	    AppPtr->MainSt = DEC_CREATE_OUT_FILENAME;
 	  }
@@ -155,6 +170,7 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 	    LogFileDes = FileOpening( CreateLogFilename( DECODE_LOG_DIR_PATH, InputFileName ), WRITE_MODE_FILE );
 	    AppPtr->OutFileDes = FileOpening( AppPtr->OutFileName, WRITE_MODE_FILE);
 
+	    console_print( LOG_MAPPING, "COUNT1 : %lld || COUNT2 : %lld\n", AppPtr->EncryptFileSize, AppPtr->EncryptFileCount );
 	    console_print( LOG_GEN, "I/p FileName : %s\n", InputFileName );
 	    console_print( LOG_GEN, "O/p FileName : %s\n", AppPtr->OutFileName);
 
@@ -207,18 +223,20 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 
 	case DEC_MAP_DATA :
 	  {
-	    // FIXME : Handle Last Byte of the array
-	    if( true == MapData( AppPtr, AppPtr->IpData[i], sizeof( uint8_t) * 8 ) )
+	    if( AppPtr->EncryptFileCount == AppPtr->EncryptFileSize )
+	    {
+	      // console_print( LOG_ERROR, "LAST BIT POS  :  %d DATA : %2X\n", AppPtr->LastBitPos, AppPtr->IpData[i] );
+	      BitCount = AppPtr->LastBitPos;
+	    }
+
+
+	    if( true == MapData( AppPtr, AppPtr->IpData[i], 1 * BitCount ) )
 	    {
 	      // console_print( LOG_MAPPING, "============  Mapping Data SUCCESS  ===========\n");
 	      // AppPtr->MainSt = DEC_FOOTER;
 	    }
-	    else
-	    {
-	      console_print( LOG_ERROR, "Something nasty things has happened, control should not come here\n" );
-	      return;
-	    }
 	  }
+
 	  break;
 
 	case DEC_FOOTER:
@@ -470,6 +488,7 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
 
   PrintFillUpData( AppPtr->SrcFileSizeInBytes, AppPtr->OutFileWrittenBytes, 100.0f ); 
 
+  console_print( LOG_MAPPING, "COUNT1 : %lld || COUNT2 : %lld\n", AppPtr->EncryptFileSize,  AppPtr->EncryptFileCount );
   console_print( LOG_MAPPING, "\n" );
   console_print( LOG_MAPPING, "==============================================================\n" );
   console_print( LOG_MAPPING, "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
@@ -587,7 +606,7 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
   do{
     DataPtr = AppPtr->DataPtr[ElementIndex];
 
-    if( Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) <= DataPtr->BitOfEnc ) 
+    if( Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) < DataPtr->BitOfEnc ) 
       // FIXME : Re-check the condition
     {
       console_print( LOG_PRIO, "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 

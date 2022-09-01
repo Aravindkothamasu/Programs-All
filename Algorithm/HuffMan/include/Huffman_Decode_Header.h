@@ -96,6 +96,9 @@ typedef struct
 
   uint8_t		  OutFileBuf[ DECODE_OUT_BUF_MAX_LEN ];
   int			  OutFileBufIndex;
+
+  uint64_t		  EncryptFileSize;
+  uint64_t		  EncryptFileCount;
 }Huff_Decode_app_t;
 
 

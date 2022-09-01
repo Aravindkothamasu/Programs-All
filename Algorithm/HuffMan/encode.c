@@ -171,13 +171,19 @@ int main(int argc, char **argv)
 
 void ClosingCeremony(  as_huff_t *HuffPtr, char *FileName )
 {
+  struct stat statbuf= {0};
+
   WriteRemaingData( HuffPtr->OutFileDes);
+  if( -1 == fstat( HuffPtr->OutFileDes, &statbuf ))
+    console_print( LOG_ERROR, "Getting Properties of OUT FILE ERROR : %s\n", strerror(errno));
 
   close( HuffPtr->OutFileDes );
 
   console_print( LOG_MAPPING, "\n");
   console_print( LOG_MAPPING, "=======================================================================\n" );
-  console_print( LOG_MAPPING, "================	  ENCRYPT OF %15s DONE    ==============\n", FileName );
+  console_print( LOG_MAPPING, "==============	  ENCRYPT OF %15s DONE    ==============\n", FileName );
+  console_print( LOG_MAPPING, "==============          SOURCE FILE SIZE : %12lld Bytes   =======\n", HuffPtr->SrcFileSizeInBytes );
+  console_print( LOG_MAPPING, "==============      COMPRESSED FILE SIZE : %12lld Bytes   =======\n", statbuf.st_size );
   console_print( LOG_MAPPING, "=======================================================================\n" );
   console_print( LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - HuffPtr->StartIndex + 1);
   console_print( LOG_MAPPING, "\n\n");
@@ -383,7 +389,7 @@ void WriteRemaingData( int WriteFileDes)
   for( temp = ENCODE_BUF_BITS_LEN-1; temp >= 0; temp -= 8 )
   {
     ByteCount++;
-    console_print( LOG_ERROR, "temp %2d || ByteCount : %d WRINDX : %d\n", temp, ByteCount, BinDataWrIndex );
+    // console_print( LOG_ERROR, "temp %2d || ByteCount : %d WRINDX : %d\n", temp, ByteCount, BinDataWrIndex );
     if( temp <= BinDataWrIndex )
       break;
   }
