@@ -18,6 +18,9 @@
 }
 
 
+#define	      ENCODE_IN_BUF_MAX_LEN		1000
+
+
 #define	      ENCODE_BUF_BYTES			  10
 #define	      ENCODE_BUF_BITS_LEN	  ENCODE_BUF_BYTES * 8
 
@@ -48,6 +51,10 @@ typedef struct
 
   int		    StartIndex;
   as_bst_t	    *root;
+
+  uint8_t	    ReadBuf[ ENCODE_IN_BUF_MAX_LEN ];
+  int		    BytesRead;
+
 
   off_t		    OutFdLastBitPostion;
   uint64_t	    InFileBytesRead;
@@ -90,6 +97,12 @@ void Header( int );
 void WriteFileSize( as_huff_t *, uint64_t );
 void PrintPercentageFileRead( as_huff_t *);
 void ClosingCeremony(  as_huff_t *, char* );
+bool EncodeHuffMan( as_huff_t *, char *);
+void ClearBuffers( );
+void ClearWriteBuffers();
+
+
+
 
 /*	  META DATA FUNCTIONS	  */
 void WriteMetadata ( as_huff_t *HuffPtr );

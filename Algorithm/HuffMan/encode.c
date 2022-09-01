@@ -1,16 +1,10 @@
 
 #include "include/Huffman_Encode_Header.h"
 
-as_data_t CountData[TOT_CHARS+1]={0};
-
+as_data_t  CountData[TOT_CHARS+1]={0};
 
 uint8_t	   BinDataBuf[ENCODE_BUF_BYTES]	    = {0};
 int	   BinDataWrIndex		    =  0;
-
-int	   BytesRead			    =  0;
-uint8_t	   ReadBuf[256]			    = {0};
-
-
 
 char	   Buffer[1*1024]		    = {0};
 
@@ -18,30 +12,62 @@ float	   PercentageFileRead		    =   0;
 int	   LogFileDes			    =  -1;
 int	   DebugSt			    =	0;
 
+
 int main(int argc, char **argv)
 {    
   as_huff_t  Huff={0};
-  char OutFileName[36]={0};
-  int i=0,j;
+  int	     FileIndex = 0;
+  double     StartTime;
+  double     EndTime;
 
-  uint64_t TempBit = 0;
 
   CmdLineCheck (argc, 2);
 
-  Huff.InFileDes  = FileOpening(argv[1],  READ_MODE_FILE);
+  for( FileIndex = 1; FileIndex < argc; FileIndex++ )
+  {
+    ClearBuffers  (  &Huff);
 
-  CreateOutFileName( argv[1], OutFileName);
+    StartTime = GetEpochTimeMs();
+    {
+      EncodeHuffMan(   &Huff, argv[FileIndex] );
+      ClosingCeremony( &Huff, argv[FileIndex] );
+    }
+    EndTime   = GetEpochTimeMs();
+
+    console_print( LOG_MAPPING, "==============       EXECUTION TIME	     : %6.3f Sec  \t===========\n", EndTime - StartTime );
+    console_print( LOG_MAPPING, "=======================================================================\n" );
+    console_print( LOG_MAPPING, "\n\n");
+
+    if( LogFileDes > 0 )
+      close( LogFileDes );
+    LogFileDes = -1;
+  }
+
+  ProgramExit( true );
+  return 0;
+}
+
+
+bool EncodeHuffMan( as_huff_t *HuffPtr, char *InputSrcFileName )
+{
+  char	   OutFileName[36]={0};
+  int	   i=0,j;
+  uint64_t TempBit = 0;
+
+  HuffPtr->InFileDes  = FileOpening( InputSrcFileName,  READ_MODE_FILE);
+
+  CreateOutFileName( InputSrcFileName, OutFileName);
 
   BinDataWrIndex  = ENCODE_BUF_BITS_LEN -1;
 
-  Huff.OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
-  LogFileDes	  = FileOpening( CreateLogFilename( ENCODE_LOG_DIR_PATH, argv[1] ), WRITE_MODE_FILE );
+  HuffPtr->OutFileDes = FileOpening( OutFileName, WRITE_MODE_FILE);
+  LogFileDes	      = FileOpening( CreateLogFilename( ENCODE_LOG_DIR_PATH, InputSrcFileName ), WRITE_MODE_FILE );
 
 
   for(i=0;i <= TOT_CHARS ;i++)		//For Type Added to 1
     CountData[i].Type = i;
 
-  ReadInputFile(Huff.InFileDes);
+  ReadInputFile( HuffPtr->InFileDes);
 
   for(i=0 ; i <= TOT_CHARS; i++)
     if( 0 != CountData[i].Freq )
@@ -56,25 +82,25 @@ int main(int argc, char **argv)
       console_print( LOG_GEN, "AFTR_SORT -> INDX : %3d || DATA :  %3d || FREQ : %5d\n",
 	  i, CountData[i].Type, CountData[i].Freq);
 
-  Huff.StartIndex = GetStartingPoint();
+  HuffPtr->StartIndex = GetStartingPoint();
 
-  if( -1 == Huff.StartIndex )
+  if( -1 == HuffPtr->StartIndex )
   { 
     console_print( LOG_ERROR, "Error Occured in Getting StartIndex\n");
     return -1;
   }
 
-  console_print( LOG_GEN,"Start Index : %3d\n",Huff.StartIndex);
+  console_print( LOG_GEN,"Start Index : %3d\n", HuffPtr->StartIndex);
 
   console_print(LOG_GEN, "=====   Creating the Binary Tree  ======\n");
   console_print(LOG_GEN, "\n\n\n");
 
 
-  HuffmanCodes(Huff.StartIndex);
+  HuffmanCodes( HuffPtr->StartIndex);
   console_print(LOG_GEN, "After Creating HuffMan Tree Start Indx : %d CAL : %d\n",
-      Huff.StartIndex, CAL_SIZE ( Huff.StartIndex ) );
+      HuffPtr->StartIndex, CAL_SIZE ( HuffPtr->StartIndex ) );
 
-  for( i = Huff.StartIndex; i <= TOT_CHARS ; i++ )
+  for( i = HuffPtr->StartIndex; i <= TOT_CHARS ; i++ )
   {
     TempBit += CountData[i].BitOfEnc;
   }
@@ -82,7 +108,7 @@ int main(int argc, char **argv)
   console_print(LOG_MAPPING, "\n" );
   console_print(LOG_MAPPING, "\t===========================================\n" );
   console_print(LOG_MAPPING, "\t\t Bit of Enc Tot : %d \n", TempBit);
-  console_print(LOG_MAPPING, "\t\t Tot Chars : %d \n", CAL_SIZE( Huff.StartIndex ) * 8 ); 
+  console_print(LOG_MAPPING, "\t\t Tot Chars : %d \n", CAL_SIZE( HuffPtr->StartIndex ) * 8 ); 
   console_print(LOG_MAPPING, "\t===========================================\n" );
   console_print(LOG_MAPPING, "\n" );
 
@@ -90,19 +116,19 @@ int main(int argc, char **argv)
   /////////////////////////////////////////////////////////////////////////
 
 
-  if( -1 ==  lseek( Huff.InFileDes, SEEK_SET, 0) )
+  if( -1 ==  lseek( HuffPtr->InFileDes, SEEK_SET, 0) )
   {
-    close(Huff.InFileDes );
-    Huff.InFileDes = FileOpening( argv[1], READ_MODE_FILE);
+    close(HuffPtr->InFileDes );
+    HuffPtr->InFileDes = FileOpening( InputSrcFileName, READ_MODE_FILE);
   }
 
 
   ////////////////////// WRITING DATA STRUCTURE INTO .bin FILE  ////////////////////
 
-  WriteMetadata( &Huff );
+  WriteMetadata( HuffPtr );
 
 #if ENCRYPT_HEADER
-  Header( Huff.OutFileDes );	      // Writing Headers into OutFile
+  Header( HuffPtr->OutFileDes );	      // Writing Headers into OutFile
 #endif
 
   console_print(LOG_GEN, " ============  COMPLETED WRITING DS INTO FILE =============\n");
@@ -110,30 +136,30 @@ int main(int argc, char **argv)
 #if 1
   while( true )
   {
-    BytesRead = read( Huff.InFileDes, ReadBuf, sizeof(ReadBuf));
+    HuffPtr->BytesRead = read( HuffPtr->InFileDes, HuffPtr->ReadBuf, sizeof( HuffPtr->ReadBuf));
 
-    if( 0 == BytesRead )
+    if( 0 == HuffPtr->BytesRead )
     {
       console_print(LOG_GEN, "Reading Done\n");
       break;
     }
-    else if( -1 == BytesRead )
+    else if( -1 == HuffPtr->BytesRead )
     {
       console_print(LOG_ERROR, "Unable to read the input File : %s\n", strerror(errno));
       break;
     }
     else
     {
-      Huff.InFileBytesRead  +=  BytesRead;
-      PrintPercentageFileRead( &Huff );
+      HuffPtr->InFileBytesRead  +=  HuffPtr->BytesRead;
+      PrintPercentageFileRead( HuffPtr );
 
-      for( i=0 ; i<BytesRead ; i++ )
+      for( i=0 ; i<HuffPtr->BytesRead ; i++ )
       {
-	for( j = TOT_CHARS; j >= Huff.StartIndex ; j-- )
+	for( j = TOT_CHARS; j >= HuffPtr->StartIndex ; j-- )
 	{
-	  if( ReadBuf[i] == CountData[j].Type)
+	  if( HuffPtr->ReadBuf[i] == CountData[j].Type)
 	  {
-	    if( false == CreateArray( CountData[j].Type, CountData[j].EncData, CountData[j].BitOfEnc, Huff.OutFileDes) )
+	    if( false == CreateArray( CountData[j].Type, CountData[j].EncData, CountData[j].BitOfEnc, HuffPtr->OutFileDes) )
 	    {
 	      console_print( LOG_ERROR, " ERROR in Creating Frame\n");
 	      return -1;
@@ -145,12 +171,10 @@ int main(int argc, char **argv)
     }
   }
 #endif 
-  close( Huff.InFileDes );
-
   console_print(LOG_MAPPING, "Done OutPut printed on : [ %s ]\n", OutFileName);
 
 #if ENCRYPT_FOOTER
-  Fooder( Huff.OutFileDes );
+  Fooder( HuffPtr->OutFileDes );
   console_print( LOG_MAPPING, "-------- ENCRYPT Footer Writing Done\n\n");
 #else
   console_print( LOG_GEN , "-------- ENCRYPT Footer DISABLED\n\n");
@@ -158,14 +182,31 @@ int main(int argc, char **argv)
 
 
   ////////// FIXME : Rearrange in a proper manner 
-  lseek( Huff.OutFileDes, Huff.OutFdLastBitPostion, SEEK_SET );
-  WriteLastBitIndex( &Huff, 5 );
-  lseek( Huff.OutFileDes, 0, SEEK_END );
+  lseek( HuffPtr->OutFileDes, HuffPtr->OutFdLastBitPostion, SEEK_SET );
+  WriteLastBitIndex( HuffPtr, 5 );
+  lseek( HuffPtr->OutFileDes, 0, SEEK_END );
   /////////  
 
 
-  ClosingCeremony( &Huff, argv[1] );
   return 0;
+}
+
+
+
+
+void ClearBuffers( as_huff_t *HuffPtr )
+{
+  memset( HuffPtr, 0, sizeof( as_huff_t ));
+
+  memset( CountData, 0, sizeof( CountData ));
+
+  memset( BinDataBuf, 0, sizeof( uint8_t ) * ENCODE_BUF_BYTES );
+  BinDataWrIndex		    =  0;
+
+  memset( Buffer, 0, sizeof( Buffer ));
+
+  PercentageFileRead		    =   0;
+  LogFileDes			    =  -1;
 }
 
 
@@ -178,18 +219,15 @@ void ClosingCeremony(  as_huff_t *HuffPtr, char *FileName )
     console_print( LOG_ERROR, "Getting Properties of OUT FILE ERROR : %s\n", strerror(errno));
 
   close( HuffPtr->OutFileDes );
+  close( HuffPtr->InFileDes );
+
 
   console_print( LOG_MAPPING, "\n");
   console_print( LOG_MAPPING, "=======================================================================\n" );
   console_print( LOG_MAPPING, "==============	  ENCRYPT OF %15s DONE    ==============\n", FileName );
   console_print( LOG_MAPPING, "==============          SOURCE FILE SIZE : %12lld Bytes   =======\n", HuffPtr->SrcFileSizeInBytes );
   console_print( LOG_MAPPING, "==============      COMPRESSED FILE SIZE : %12lld Bytes   =======\n", statbuf.st_size );
-  console_print( LOG_MAPPING, "=======================================================================\n" );
-  console_print( LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - HuffPtr->StartIndex + 1);
-  console_print( LOG_MAPPING, "\n\n");
-
-  close( LogFileDes );
-  LogFileDes = -1;
+  // console_print( LOG_MAPPING, "!!!!  No.of Index created : %d   !!!\n", TOT_CHARS - HuffPtr->StartIndex + 1);
 }
 
 
@@ -433,7 +471,7 @@ void PrintPercentageFileRead( as_huff_t *HuffPtr )
   }
 }
 
-void ClearBuffers( )
+void ClearWriteBuffers( )
 {
   int j;
 
@@ -459,7 +497,7 @@ bool CreateArray( uint8_t Data, uint64_t EncData, int BitOfEnc, int WriteFileDes
 
     if( true ==  WriteInToFile( WriteFileDes, ENCODE_BUF_BYTES ))
     {
-      ClearBuffers();
+      ClearWriteBuffers();
 
       if( BitOfEnc - temp )
       {
