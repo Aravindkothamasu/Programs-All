@@ -52,11 +52,15 @@ int main (int argc, char **argv)
     App.EncryptFileCount = -1;
 
     StartTime = GetEpochTimeMs();
-    DecodeHuffMan( &App, argv[FileIndex] );
-    ClosingCeremony( &App );
+    {
+      DecodeHuffMan( &App, argv[FileIndex] );
+      ClosingCeremony( &App );
+    }
     EndTime   = GetEpochTimeMs();
 
-    console_print( LOG_MAPPING, "======    EXECUTION TIME : %6.3f Sec =======\n", EndTime - StartTime );
+    console_print( LOG_MAPPING, "======       EXECUTION TIME	  : %6.3f Sec  \t===========\n", EndTime - StartTime );
+    console_print( LOG_MAPPING, "==============================================================\n" );
+    console_print( LOG_MAPPING, "\n\n");
 
     if( LogFileDes > 0 )
       close( LogFileDes );
@@ -493,8 +497,6 @@ void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
   console_print( LOG_MAPPING, "==============================================================\n" );
   console_print( LOG_MAPPING, "======    BYTES ORIGINAL FILE : %12d Bytes	=======\n", AppPtr->SrcFileSizeInBytes );
   console_print( LOG_MAPPING, "======    BYTES WRIITEN  FILE : %12d Bytes	=======\n", AppPtr->OutFileWrittenBytes );
-  console_print( LOG_MAPPING, "==============================================================\n" );
-  console_print( LOG_MAPPING, "\n" );
 
   FreeupMemory( AppPtr );
 }
