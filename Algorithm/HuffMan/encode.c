@@ -183,7 +183,7 @@ bool EncodeHuffMan( as_huff_t *HuffPtr, char *InputSrcFileName )
 
   ////////// FIXME : Rearrange in a proper manner 
   lseek( HuffPtr->OutFileDes, HuffPtr->OutFdLastBitPostion, SEEK_SET );
-  WriteLastBitIndex( HuffPtr, 5 );
+  WriteLastBitIndex( HuffPtr, FindLastBit( BinDataWrIndex ));
   lseek( HuffPtr->OutFileDes, 0, SEEK_END );
   /////////  
 
@@ -192,7 +192,13 @@ bool EncodeHuffMan( as_huff_t *HuffPtr, char *InputSrcFileName )
 }
 
 
-
+int FindLastBit( int  WrIndex )
+{
+  int Rtn = 0;			
+  Rtn = ( WrIndex + 1 ) % 8;	
+  console_print( LOG_ERROR, "WRINDEX : %2d || Rtn : %d\n", WrIndex,8 - Rtn );
+  return ( 8 - Rtn );
+}
 
 void ClearBuffers( as_huff_t *HuffPtr )
 {

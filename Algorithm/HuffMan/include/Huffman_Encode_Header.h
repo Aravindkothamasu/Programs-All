@@ -100,6 +100,7 @@ void ClosingCeremony(  as_huff_t *, char* );
 bool EncodeHuffMan( as_huff_t *, char *);
 void ClearBuffers( );
 void ClearWriteBuffers();
+int FindLastBit( int );
 
 
 
