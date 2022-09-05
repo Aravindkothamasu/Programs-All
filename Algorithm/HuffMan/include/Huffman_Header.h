@@ -134,6 +134,7 @@ double GetEpochTimeMs(  );
 void BitFeed( uint8_t *, int , bool );
 void BitClear( uint8_t *, int, int );
 void BitSet( uint8_t *, int, int );
+uint8_t BitReversal( uint8_t );
 
 char * GetBinaryInArray (uint8_t *,int , char *);
 bool GetBitValInArray( uint8_t *, int );

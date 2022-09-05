@@ -297,6 +297,22 @@ bool GetBitVal( uint64_t Data, uint8_t BitIndex )
   return ( (Data >> BitIndex ) & 1 );
 }
 
+uint8_t BitReversal( uint8_t Data )
+{
+  int	  tempIndex = 0;
+  uint8_t temp = 0;
+
+  for( tempIndex = 0; tempIndex < 8; tempIndex++ )
+    if( GetBitVal( Data, tempIndex) )
+    {
+      temp |= ( 1 << ( 7 - tempIndex ));
+      console_print( LOG_ERROR, "BIT SET : %d || TEMP : %02X\n", tempIndex, temp );
+    }
+  return temp;
+}
+
+
+
 
 
 

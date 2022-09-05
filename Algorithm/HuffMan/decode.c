@@ -231,6 +231,10 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 	    {
 	      // console_print( LOG_ERROR, "LAST BIT POS  :  %d DATA : %2X\n", AppPtr->LastBitPos, AppPtr->IpData[i] );
 	      BitCount = AppPtr->LastBitPos;
+
+	      console_print( LOG_MAPPING, "BEFORE LAST BIT DATA : %02X \n", AppPtr->IpData[i] );
+	      AppPtr->IpData[i] = BitReversal( AppPtr->IpData[i] );
+	      console_print( LOG_MAPPING, "AFTER  LAST BIT DATA : %02X \n", AppPtr->IpData[i] );
 	    }
 
 
@@ -702,7 +706,6 @@ bool MapData( Huff_Decode_app_t *AppPtr, uint8_t EncData, int BitOfEnc)
   for( i = BitOfEnc -1 ; i >= 0; i-- )
   {
     BitFeed( BinDataBuf, BinDataWrIndex, GetBitVal( EncData, i ) );
-    // console_print( LOG_GEN, "BIT INDX : %2d | VAL : %d\n", BinDataWrIndex, GetBitVal( EncData, i ));
     INCCIRCULARINDEX( BinDataWrIndex, DECODE_BUF_BITS_LEN );
   }
   console_print( LOG_PRIO, "%s\n", GetBinaryInArray( BinDataBuf, DECODE_BUF_BYTES, temp_print_buf) );
