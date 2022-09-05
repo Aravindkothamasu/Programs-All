@@ -486,7 +486,14 @@ int ReadMetaData( Huff_Decode_app_t *AppPtr, uint8_t Data )
 
 void ClosingCeremony(  Huff_Decode_app_t *AppPtr )
 {
+  // console_print( LOG_MAPPING, "BEFORE WrIndex : %2d || RdIndex : %2d || DIFF : %d\n", 
+     // BinDataWrIndex, BinDataRdIndex, Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex ));
+
   Decode_ParseData( AppPtr, BinDataBuf, &BinDataRdIndex, &BinDataWrIndex );
+
+  // console_print( LOG_MAPPING, "AFTER  WrIndex : %2d || RdIndex : %2d || DIFF : %d\n", 
+     // BinDataWrIndex, BinDataRdIndex, Percentage_FillUp( DECODE_BUF_BITS_LEN, BinDataWrIndex, BinDataRdIndex ));
+
   console_print( LOG_GEN, "READ DONE\n" );
 
   AppPtr->OutFileWrittenBytes += AppPtr->OutFileBufIndex;
@@ -619,12 +626,13 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 
 	  Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr) );
 
-      console_print( LOG_PRIO, "WrIndex Buf is empty returning..\n" );
+      console_print( LOG_PRIO, "WrIndex Buf is empty returning INDEX : %2d || BIT : %d\n", 
+	  ElementIndex, DataPtr->BitOfEnc );
 
       return;
     }
-    // console_print( LOG_PRIO, "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
-    // ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr, DataPtr->BitOfEnc );
+    // console_print( LOG_MAPPING, "=========	  ElementIndex : %2d || WrIndex : %2d || RdIndex : %2d || BitOfEnc %d\n", 
+	// ElementIndex, *BinDataWrIndexPtr, *BinDataRdIndexPtr, DataPtr->BitOfEnc );
 
     if( true == isLetterMatch( DataPtr->EncData, DataPtr->BitOfEnc, BinDataBufPtr, *BinDataRdIndexPtr )) 
     {

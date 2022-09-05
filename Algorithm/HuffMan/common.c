@@ -306,7 +306,7 @@ uint8_t BitReversal( uint8_t Data )
     if( GetBitVal( Data, tempIndex) )
     {
       temp |= ( 1 << ( 7 - tempIndex ));
-      console_print( LOG_ERROR, "BIT SET : %d || TEMP : %02X\n", tempIndex, temp );
+      console_print( LOG_MAPPING, "BIT SET : %d || TEMP : %02X\n", tempIndex, temp );
     }
   return temp;
 }
