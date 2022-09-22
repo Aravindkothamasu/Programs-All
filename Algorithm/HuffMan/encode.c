@@ -196,7 +196,7 @@ int FindLastBit( int  WrIndex )
 {
   int Rtn = 0;			
   Rtn = ( WrIndex + 1 ) % 8;	
-  console_print( LOG_ERROR, "WRINDEX : %2d || Rtn : %d\n", WrIndex,8 - Rtn );
+  console_print( LOG_ERROR, "WRINDEX : %2d || Rtn : %d\n", WrIndex, 8 - Rtn );
   return ( 8 - Rtn );
 }
 
