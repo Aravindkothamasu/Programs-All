@@ -180,15 +180,18 @@ bool EncodeHuffMan( as_huff_t *HuffPtr, char *InputSrcFileName )
 #endif
 
 
-  ////////// FIXME : Rearrange in a proper manner 
-  lseek( HuffPtr->OutFileDes, HuffPtr->OutFdLastBitPostion, SEEK_SET );
-  WriteLastBitIndex( HuffPtr, FindLastBit( BinDataWrIndex ));
-  lseek( HuffPtr->OutFileDes, 0, SEEK_END );
-  /////////  
-
+  ReWriteLastBitPos( HuffPtr, &(HuffPtr->OutFileDes), HuffPtr->OutFdLastBitPostion );
 
   return 0;
 }
+
+void ReWriteLastBitPos( as_huff_t *HuffPtr, int *OutFileDesPtr, int WriteBitPos )
+{
+  lseek( *OutFileDesPtr, WriteBitPos, SEEK_SET );
+  WriteLastBitIndex( HuffPtr, FindLastBit( BinDataWrIndex ));
+  lseek( *OutFileDesPtr, 0, SEEK_END );
+}
+
 
 
 int FindLastBit( int  WrIndex )

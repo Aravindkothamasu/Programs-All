@@ -101,6 +101,7 @@ bool EncodeHuffMan( as_huff_t *, char *);
 void ClearBuffers( );
 void ClearWriteBuffers();
 int FindLastBit( int );
+void ReWriteLastBitPos( as_huff_t *, int *, int );
 
 
 

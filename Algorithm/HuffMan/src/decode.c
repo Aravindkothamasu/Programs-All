@@ -170,7 +170,6 @@ void DecodeHuffMan(Huff_Decode_app_t *AppPtr, char * InputFileName )
 
 	case DEC_OPEN_OUTFILE :
 	  {
-	    // FIXME : Need to check whether it is right or not.
 	    LogFileDes = FileOpening( CreateLogFilename( DECODE_LOG_DIR_PATH, InputFileName ), WRITE_MODE_FILE );
 	    AppPtr->OutFileDes = FileOpening( AppPtr->OutFileName, WRITE_MODE_FILE);
 
@@ -620,7 +619,6 @@ void Decode_ParseData( Huff_Decode_app_t *AppPtr, uint8_t *BinDataBufPtr, int *B
     DataPtr = AppPtr->DataPtr[ElementIndex];
 
     if( Percentage_FillUp( DECODE_BUF_BITS_LEN, *BinDataWrIndexPtr, *BinDataRdIndexPtr ) < DataPtr->BitOfEnc ) 
-      // FIXME : Re-check the condition
     {
       console_print( LOG_PRIO, "ElementIndex : %d || Bin Data : %lX || WrIndex : %d || RdIndex : %d || Diff %d\n", 
 	  ElementIndex, *BinDataBufPtr, *BinDataWrIndexPtr, *BinDataRdIndexPtr, 

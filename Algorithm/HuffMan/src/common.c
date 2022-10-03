@@ -183,7 +183,7 @@ void PrintFillUpData( int SrcFileSizeInBytes, int ProcessedFileBytes, float Valu
     else 
       strcat( PercentagePrintStr, "  " );
 
-  console_print( LOG_SCREEN, "\t%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
+  console_print( LOG_SCREEN, "%s  :  (%2.2f)%%\n", PercentagePrintStr, Value );
 }
 
 
