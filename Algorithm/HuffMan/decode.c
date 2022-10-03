@@ -818,7 +818,7 @@ void CreateOutFileName ( char *OutFileName, char *InFileName)
   int Len = strlen( InFileName );
 
   strncpy( OutFileName, InFileName, Len - 4);
-  strcat( OutFileName, "_cpy" );             //TODO : Remove after testing
+  strcat( OutFileName, DECRYPT_FILE_EXTENTION );
 
   console_print( LOG_MAPPING,"Out FileName : %s\n", OutFileName);
 

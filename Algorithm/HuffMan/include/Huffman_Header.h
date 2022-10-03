@@ -22,8 +22,7 @@
 #define	    ENCODE_LOG_DIR_PATH	      "logs/Encode/"
 #define	    DECODE_LOG_DIR_PATH	      "logs/Decode/"
 
-
-
+#define	    DECRYPT_FILE_EXTENTION    "_cpy"
 
 ////////////////////////     ENCRYPT .bin METADATA WRITE PROP	    /////////////////////////
 
