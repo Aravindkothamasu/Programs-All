@@ -20,8 +20,8 @@ DEL_TMP_FILE=*.bin *_cpy
 
 all: encode decode
 
-ENCODE_SRC= $(addprefix $(OBJDIR_ENCODE)/,  greek.o encode.o common.o )
-DECODE_SRC= $(addprefix $(OBJDIR_DECODE)/,  decode.o common.o )
+ENCODE_SRC= $(addprefix $(OBJDIR_ENCODE)/,  src/greek.o src/encode.o src/common.o )
+DECODE_SRC= $(addprefix $(OBJDIR_DECODE)/,  src/decode.o src/common.o )
 
 $(OBJDIR_ENCODE)/%.o : %.c
 	@mkdir -p $(@D)

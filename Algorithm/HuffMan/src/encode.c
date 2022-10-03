@@ -1,5 +1,4 @@
-
-#include "include/Huffman_Encode_Header.h"
+#include "../include/Huffman_Encode_Header.h"
 
 as_data_t  CountData[TOT_CHARS+1]={0};
 

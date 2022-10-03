@@ -1,4 +1,4 @@
-#include "include/Huffman_Header.h"
+#include "../include/Huffman_Header.h"
 
 
 char	PrintBuffer	      [1*1024]		= {0};
