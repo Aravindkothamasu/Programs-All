@@ -50,3 +50,27 @@ alias alws='cat ~/.bash_history | tr "\|\;" "\n" | sed -e "s/^ //g" | cut -d " "
 alias wifi='sudo arp-scan --interface=wlp0s20f3 --localnet'
 ############################################################
 
+
+git_dir=("device/qcom/sdm845/" "kernel/msm-4.9/" "packages/apps/Apirouterapp/" "system/vold/" "bootable/bootloader/edk2/" "hardware/qcom/display" "system/update-engine/" "system/bt")
+
+
+function brall()
+{
+    if [[ -z "$1" ]]; then
+        echo "Usage: $FUNCNAME <dir>" >&2
+        return 1
+    fi
+
+    if [[ ! -d "$1" ]]; then
+        echo "Invalid dir specified: '${1}'"
+        return 1
+    fi
+
+    cd "$1"
+    for sub in ${git_dir[@]}; do
+	[[ -d "${sub}/.git" ]] || continue
+	echo "$sub [$(cd "$sub"; git  branch | grep '^\*' | cut -d' ' -f2)]"
+    done
+}
+
+
