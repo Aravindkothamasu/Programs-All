@@ -1,0 +1,7 @@
+Commands to push or pull using ssh keys
+
+1, eval "$(ssh-agent -s)"	
+	it should return "Agent pid 1234"
+2, ssh-add ~/.ssh/<KEY>
+3, ssh-add -l
+
