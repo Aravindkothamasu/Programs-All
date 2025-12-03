@@ -1,10 +1,12 @@
 
 SOURCES = main.o
 EXE = hashExe
+REMOVE = rm -rf
+BUILD = gcc
 
 all: $(SOURCES)
-	gcc $(SOURCES) -o $(EXE)
+	$(BUILD) $(SOURCES) -o $(EXE)
 
 clean:
-	rm -rf $(SOURCES) $(EXE)
+	$(REMOVE) $(SOURCES) $(EXE)
 
