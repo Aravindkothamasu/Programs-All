@@ -32,9 +32,9 @@ void print_hash_table() {
     int i;
     for ( i=0; i < MAX_ARRAY_SIZE; i++) {
         if (Database[i] == NULL) {
-            printf("\t%2d, --------\n", i+1);
+            printf("\t%02d, --------\n", i+1);
         } else {
-            printf("\t%2d, ID: %d Name: %5s Grade: %d\n", i+1, Database[i]->Id, Database[i]->Name, Database[i]->Grade);
+            printf("\t%02d, ID: %d Name: %5s Grade: %d\n", i+1, Database[i]->Id, Database[i]->Name, Database[i]->Grade);
         }
     }
 }
@@ -50,6 +50,13 @@ void main ()
     Person data6 = {.Id=678, .Name="fgh", .Grade=678};
     Person data7 = {.Id=789, .Name="ghi", .Grade=789};
     Person data8 = {.Id=890, .Name="hij", .Grade=890};
+    Person data9 = {.Id=901, .Name="ijk", .Grade=901};
+    Person data10= {.Id=112, .Name="jkl", .Grade=112};
+    Person data11= {.Id=123, .Name="klm", .Grade=123};
+    Person data12= {.Id=234, .Name="lmn", .Grade=234};
+    Person data13= {.Id=345, .Name="mno", .Grade=345};
+    Person data14= {.Id=456, .Name="nop", .Grade=456};
+    Person data15= {.Id=567, .Name="opq", .Grade=567};
 
     hash_insert_data(&data1);
     hash_insert_data(&data2);
@@ -59,6 +66,13 @@ void main ()
     hash_insert_data(&data6);
     hash_insert_data(&data7);
     hash_insert_data(&data8);
+    hash_insert_data(&data9);
+    hash_insert_data(&data10);
+    hash_insert_data(&data11);
+    hash_insert_data(&data12);
+    hash_insert_data(&data13);
+    hash_insert_data(&data14);
+    hash_insert_data(&data15);
 
     print_hash_table();
 }
