@@ -24,13 +24,14 @@ typedef struct person{
     int             Grade;                  // Grade of candidate
     struct person   *prev;                  // Prev link pointer
     struct person   *next;                  // next link pointer
+    // Update hash_copy_contents(), if addition or deletion of elements.
 } Person;
 
 
 // Hash Functions
 bool hash_insert_data(Person *);
 bool hash_remove_data(char *);
-int  hash_search_data(Person *, char *);
+bool hash_search_data(Person *, char *);
 int  hash_generate_index(char *);
 int  hash_read_data(Person *);
 void hash_print_database();
