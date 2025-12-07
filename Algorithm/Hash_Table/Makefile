@@ -1,8 +1,8 @@
 
-SOURCES = main.o
-EXE = hashExe
-REMOVE = rm -rf
-BUILD = gcc
+SOURCES = main.o Hash.o
+EXE 	= hashExe
+REMOVE 	= rm -rf
+BUILD 	= gcc
 
 all: $(SOURCES)
 	$(BUILD) $(SOURCES) -o $(EXE)

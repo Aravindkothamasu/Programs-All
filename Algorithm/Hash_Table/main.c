@@ -2,46 +2,11 @@
 
 Person *Database[MAX_ARRAY_SIZE];
 
-int generate_hash_index(Person *data) {
-    // Later replace with another logic for hash_index
-    return rand()%MAX_ARRAY_SIZE;
-}
 
-bool hash_insert_data(Person *data) {
-    int hash_index = generate_hash_index(data);
-
-    // check pointer
-    if (data == NULL) return false;
-
-    // check data
-    if (data->Name == NULL) {
-        printf("input data is NULL\n");
-        return false;
-    }
-
-    if (Database[hash_index] == NULL) {
-        Database[hash_index] = data;
-    } else {
-        // Need to add linked list entry
-        printf("Hash index %02d entry is full\n", hash_index);
-    }
-    return true;
-}
-
-void print_hash_table() {
-    int i;
-    for ( i=0; i < MAX_ARRAY_SIZE; i++) {
-        if (Database[i] == NULL) {
-            printf("\t%02d, --------\n", i+1);
-        } else {
-            printf("\t%02d, ID: %d Name: %5s Grade: %d\n", i+1, Database[i]->Id, Database[i]->Name, Database[i]->Grade);
-        }
-    }
-}
 
 void main ()
 {
-    // print_hash_table();
+    // print_hash_database();
     Person data1 = {.Id=123, .Name="abc", .Grade=123};
     Person data2 = {.Id=234, .Name="bcd", .Grade=234};
     Person data3 = {.Id=345, .Name="cde", .Grade=345};
@@ -74,5 +39,4 @@ void main ()
     hash_insert_data(&data14);
     hash_insert_data(&data15);
 
-    print_hash_table();
 }

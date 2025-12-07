@@ -1,4 +1,5 @@
 *.txt
+.vscode/*
 
 Algorithm/Hash_Table/HashExe.exe
 Algorithm/Hash_Table/*.o
