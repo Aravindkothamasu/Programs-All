@@ -61,13 +61,10 @@ bool hash_insert_data(Person *data) {
 
     // loop to last struct, if data already exists.
     if (Database[hash_index]) {
-        console_print("Hash index %02d entry is full || Name: %s\n", hash_index, data->Name);       // TODO: Remove
         dataPtr=Database[hash_index];
         while(dataPtr->next) {
-            console_print("DATA %s: ITERATION dataPtr %X\n", data->Name, dataPtr);                  // TODO: Remove
             dataPtr=dataPtr->next;
         }
-        console_print("DATA %s: ITERATIONLST dataPtr %X\n", data->Name, dataPtr);                   // TODO: Remove
     }
     
     newDataPtr = calloc(1, sizeof(Person));
@@ -86,10 +83,6 @@ bool hash_insert_data(Person *data) {
     if (Database[hash_index]) {
         newDataPtr->prev = dataPtr;
         dataPtr->next    = newDataPtr;
-
-        console_print("New data %d - %s - %d prev - %X Next - %x\n", newDataPtr->Id, newDataPtr->Name, newDataPtr->Grade, 
-            newDataPtr->prev, Database[hash_index]->next);                                          // TODO: Remove
-        console_print("data inserted succesfully\n\n");                                             // TODO: Remove
     } else {
         Database[hash_index] = newDataPtr;
     }

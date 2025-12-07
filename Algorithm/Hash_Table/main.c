@@ -2,41 +2,49 @@
 
 Person *Database[MAX_ARRAY_SIZE];
 
+void add_data(int Id, char *Name, int Grade) {
+    Person data = {0};
 
+    data.Id=Id;
+    strcpy(data.Name, Name);
+    data.Grade=Grade;
+
+    hash_insert_data(&data);
+}
 
 void main ()
 {
     // print_hash_database();
-    Person data1 = {.Id=123, .Name="abc", .Grade=123};
-    Person data2 = {.Id=234, .Name="bcd", .Grade=234};
-    Person data3 = {.Id=345, .Name="cde", .Grade=345};
-    Person data4 = {.Id=456, .Name="def", .Grade=456};
-    Person data5 = {.Id=567, .Name="efg", .Grade=567};
-    Person data6 = {.Id=678, .Name="fgh", .Grade=678};
-    Person data7 = {.Id=789, .Name="ghi", .Grade=789};
-    Person data8 = {.Id=890, .Name="hij", .Grade=890};
-    Person data9 = {.Id=901, .Name="ijk", .Grade=901};
-    Person data10= {.Id=112, .Name="jkl", .Grade=112};
-    Person data11= {.Id=123, .Name="klm", .Grade=123};
-    Person data12= {.Id=234, .Name="lmn", .Grade=234};
-    Person data13= {.Id=345, .Name="mno", .Grade=345};
-    Person data14= {.Id=456, .Name="nop", .Grade=456};
-    Person data15= {.Id=567, .Name="opq", .Grade=567};
+    add_data(123, "abc", 123);
+    add_data(234, "bcd", 234);
+    add_data(345, "cde", 345);
+    add_data(456, "def", 456);
+    add_data(567, "efg", 567);
+    add_data(678, "fgh", 678);
+    add_data(789, "ghi", 789);
+    add_data(890, "hij", 890);
+    add_data(901, "ijk", 901);
+    add_data(112, "jkl", 112);
+    add_data(123, "klm", 123);
+    add_data(234, "lmn", 234);
+    add_data(345, "mno", 345);
+    add_data(456, "nop", 456);
+    add_data(567, "opq", 567);
+    add_data(678, "pqr", 678);
+    add_data(789, "qrs", 789);
+    add_data(890, "rst", 890);
+    add_data(901, "stu", 901);
+    add_data(112, "tuv", 112);
+    add_data(123, "uvw", 123);
+    add_data(234, "vwx", 234);
+    add_data(345, "wxy", 345);
 
-    hash_insert_data(&data1);
-    hash_insert_data(&data2);
-    hash_insert_data(&data3);
-    hash_insert_data(&data4);
-    hash_insert_data(&data5);
-    hash_insert_data(&data6);
-    hash_insert_data(&data7);
-    hash_insert_data(&data8);
-    hash_insert_data(&data9);
-    hash_insert_data(&data10);
-    hash_insert_data(&data11);
-    hash_insert_data(&data12);
-    hash_insert_data(&data13);
-    hash_insert_data(&data14);
-    hash_insert_data(&data15);
+    hash_print_database();
+
+    if(hash_remove_data("vwx")){
+        hash_remove_data("ijk");
+        console_print("\n**** DELETED SUCCESSFULLY ****\n\n");
+        hash_print_database();
+    }
 
 }
