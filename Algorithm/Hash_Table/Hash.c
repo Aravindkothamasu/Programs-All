@@ -20,7 +20,7 @@ int hash_generate_index(char *NameStr) {
 
 // Find required data from data structure
 // Return data.
-bool hash_search_data(Person *data, char *NameStr) {
+bool hash_search_data(Person *data, char *NameStr) {            // TODO: Remove search data.
     int hash_index = hash_generate_index(NameStr);;
     Person *dataPtr = NULL;
 
@@ -59,9 +59,8 @@ bool hash_insert_data(Person *data) {
         return false;
     }
 
-    if (Database[hash_index] == NULL) {
-        Database[hash_index] = data;
-    } else {
+    // loop to last struct, if data already exists.
+    if (Database[hash_index]) {
         console_print("Hash index %02d entry is full || Name: %s\n", hash_index, data->Name);       // TODO: Remove
         dataPtr=Database[hash_index];
         while(dataPtr->next) {
@@ -69,26 +68,30 @@ bool hash_insert_data(Person *data) {
             dataPtr=dataPtr->next;
         }
         console_print("DATA %s: ITERATIONLST dataPtr %X\n", data->Name, dataPtr);                   // TODO: Remove
+    }
+    
+    newDataPtr = calloc(1, sizeof(Person));
+    if (newDataPtr==NULL){
+        console_print("unable to create dynamic memory\n");
+        return false;
+    }
 
-        newDataPtr = calloc(1, sizeof(Person));
-        if (newDataPtr==NULL){
-            console_print("unable to create dynamic memory\n");
-            return false;
-        }
+    if(!hash_copy_contents(data, newDataPtr)) {
+        console_print("Unable to copy contents\n");
+        free(newDataPtr);
+        return false;
+    }
 
-        if(!hash_copy_contents(data, newDataPtr)) {
-            console_print("Unable to copy contents\n");
-            free(newDataPtr);
-            return false;
-        }
-
-        // create links
+    // create links
+    if (Database[hash_index]) {
         newDataPtr->prev = dataPtr;
         dataPtr->next    = newDataPtr;
 
         console_print("New data %d - %s - %d prev - %X Next - %x\n", newDataPtr->Id, newDataPtr->Name, newDataPtr->Grade, 
             newDataPtr->prev, Database[hash_index]->next);                                          // TODO: Remove
         console_print("data inserted succesfully\n\n");                                             // TODO: Remove
+    } else {
+        Database[hash_index] = newDataPtr;
     }
 
     return true;
@@ -97,17 +100,24 @@ bool hash_insert_data(Person *data) {
 // Remove Data from Database
 bool hash_remove_data(char *NameStr) {
     int hash_index = hash_generate_index(NameStr);
+    Person *DataPtr=NULL;
 
     if (Database[hash_index]==NULL) return false;
 
-    if(!strcmp(Database[hash_index]->Name, NameStr))
-        Database[hash_index] = NULL;
-    else {
-        console_print("Unable to remove Name:%s\n", NameStr);
-        return false;
+    for(DataPtr=Database[hash_index];DataPtr;DataPtr=DataPtr->next) {
+        if(!strcmp(DataPtr->Name, NameStr)) {
+            if(DataPtr->next)
+                DataPtr->next->prev = DataPtr->prev;
+            if(DataPtr->prev)
+                DataPtr->prev->next = DataPtr->next;
+
+            free(DataPtr);
+            return true;
+        }
+        
     }
 
-    return true;
+    return false;
 }
 
 // Copy all structure components data from src to dest.
