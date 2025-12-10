@@ -1,4 +1,4 @@
-#include "Hash_Header.h"
+#include "../inc/Hash_Header.h"
 
 Person *Database[MAX_ARRAY_SIZE];
 

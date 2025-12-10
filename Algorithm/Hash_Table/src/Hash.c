@@ -1,4 +1,4 @@
-#include "Hash_Header.h"
+#include "../inc/Hash_Header.h"
 
 extern Person *Database[MAX_ARRAY_SIZE];
 char   PrintBuf[500]={0};
