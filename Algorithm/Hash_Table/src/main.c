@@ -1,6 +1,6 @@
 #include "../inc/Hash_Header.h"
 
-Person *Database[MAX_ARRAY_SIZE];
+Person *Database[MAX_ARRAY_SIZE]={0};
 
 void add_data(int Id, char *Name, int Grade) {
     Person data = {0};

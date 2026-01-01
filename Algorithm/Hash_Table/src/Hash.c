@@ -44,7 +44,7 @@ bool hash_insert_data(Person *data) {
     Person *newDataPtr=NULL, *dataPtr=NULL;
 
     // check for index pointer
-    if (hash_index == -1){
+    if (hash_index == -1) {
         console_print("unable to get hash index value\n");
         return false;
     }
@@ -54,22 +54,23 @@ bool hash_insert_data(Person *data) {
         return false;
 
     // check data
+    // TODO: Validate other parameters too
     if (data->Name == NULL) {
         console_print("input data is NULL\n");
         return false;
     }
 
-    // loop to last struct, if data already exists.
+    // loop to last set, if data already exists.
     if (Database[hash_index]) {
         dataPtr=Database[hash_index];
         while(dataPtr->next) {
             dataPtr=dataPtr->next;
         }
     }
-    
+
     newDataPtr = calloc(1, sizeof(Person));
-    if (newDataPtr==NULL){
-        console_print("unable to create dynamic memory\n");
+    if (newDataPtr == NULL) {
+        console_print("unable to create memory\n");
         return false;
     }
 
@@ -97,7 +98,7 @@ bool hash_remove_data(char *NameStr) {
 
     if (Database[hash_index]==NULL) return false;
 
-    for(DataPtr=Database[hash_index];DataPtr;DataPtr=DataPtr->next) {
+    for(DataPtr=Database[hash_index]; DataPtr; DataPtr=DataPtr->next) {
         if(!strcmp(DataPtr->Name, NameStr)) {
             if(DataPtr->next)
                 DataPtr->next->prev = DataPtr->prev;
@@ -107,7 +108,6 @@ bool hash_remove_data(char *NameStr) {
             free(DataPtr);
             return true;
         }
-        
     }
 
     return false;
