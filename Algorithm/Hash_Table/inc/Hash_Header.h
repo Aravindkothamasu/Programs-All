@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
+#include "csv.h"
 
 #define MAX_CHAR                      50
 #define MAX_ARRAY_SIZE                26
@@ -16,7 +17,6 @@
 
 // csv file operation macros decleration
 #define CSV_MAX_LINE_LENGTH 1024
-#define CSV_FILENAME "./../Test_Input.csv"
 
 
 #define console_print( format, ...)	      \

@@ -1,5 +1,7 @@
 #include "../inc/Hash_Header.h"
 
+#define CSV_FILENAME "./Test_Input.csv"
+
 Person *Database[MAX_ARRAY_SIZE]={0};
 
 void add_data(int Id, char *Name, int Grade) {

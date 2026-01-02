@@ -1,18 +1,22 @@
 #include "../inc/Hash_Header.h"
 
-int main() {
-    FILE *fp;
+FILE *fp = NULL;
+
+FILE * CsvOpen(char *filename) {
+    // 1. Open the file in read mode
+    fp = fopen(filename, "r");
+    if (!fp) {
+        perror("Can't open file");
+        return NULL;
+    }
+    return fp;
+}
+
+void CsvReadValues(FILE *fp) {
     char buffer[CSV_MAX_LINE_LENGTH];
     char* value;
     int row = 0;
     int column = 0;
-
-    // 1. Open the file in read mode
-    fp = fopen(CSV_FILENAME, "r");
-    if (!fp) {
-        perror("Can't open file");
-        return EXIT_FAILURE;
-    }
 
     // 2. Read each line of the file
     while (fgets(buffer, CSV_MAX_LINE_LENGTH, fp)) {
@@ -31,11 +35,11 @@ int main() {
         while (value) {
             // Process each value (e.g., print or store in a data structure)
             if (column == 0) {
-                printf("Name: ");
+                printf("Id: ");
             } else if (column == 1) {
-                printf("\tAccount No.: ");
+                printf("\tName: ");
             } else if (column == 2) {
-                printf("\tAmount: ");
+                printf("\tGrade: ");
             }
             printf("%s", value);
 
@@ -48,5 +52,5 @@ int main() {
 
     // 4. Close the file
     fclose(fp);
-    return EXIT_SUCCESS;
+    return;
 }
