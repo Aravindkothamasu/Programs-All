@@ -1,5 +1,5 @@
 
- SOURCES = ./src/main.o ./src/Hash.o ./src/csv.o
+SOURCES = ./src/main.o ./src/Hash.o
 EXE 	= hashExe
 REMOVE 	= rm -rf
 BUILD 	= gcc
