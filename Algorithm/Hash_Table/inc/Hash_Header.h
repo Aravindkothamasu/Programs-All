@@ -14,6 +14,11 @@
 #define ITERATOR_START_INDX            0
 #define ITERATOR_END_INDX       MAX_ARRAY_SIZE
 
+// csv file operation macros decleration
+#define CSV_MAX_LINE_LENGTH 1024
+#define CSV_FILENAME "./../Test_Input.csv"
+
+
 #define console_print( format, ...)	      \
     printf(format, ##__VA_ARGS__);
     //printf(  __LINE__, __func__, __FILE__, format, ##__VA_ARGS__); 
