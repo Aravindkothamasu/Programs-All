@@ -41,10 +41,8 @@ void main ()
 
     hash_print_database();
 
-    if(hash_remove_data("vwx")){
-        hash_remove_data("ijk");
-        console_print("\n**** DELETED SUCCESSFULLY ****\n\n");
-        hash_print_database();
-    }
-
+    hash_remove_data("abc");
+    hash_remove_data("klm");
+    console_print("\n**** DELETED SUCCESSFULLY ****\n\n");
+    hash_print_database();
 }

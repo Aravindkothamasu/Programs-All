@@ -60,7 +60,7 @@ bool hash_insert_data(Person *data) {
         return false;
     }
 
-    // loop to last set, if data already exists.
+    // loop to last node, if data already exists.
     if (Database[hash_index]) {
         dataPtr=Database[hash_index];
         while(dataPtr->next) {
@@ -82,9 +82,11 @@ bool hash_insert_data(Person *data) {
 
     // create links
     if (Database[hash_index]) {
+        // Add-on node
         newDataPtr->prev = dataPtr;
         dataPtr->next    = newDataPtr;
     } else {
+        // Then newDataPtr is first node.
         Database[hash_index] = newDataPtr;
     }
 
@@ -100,16 +102,22 @@ bool hash_remove_data(char *NameStr) {
 
     for(DataPtr=Database[hash_index]; DataPtr; DataPtr=DataPtr->next) {
         if(!strcmp(DataPtr->Name, NameStr)) {
-            if(DataPtr->next)
-                DataPtr->next->prev = DataPtr->prev;
-            if(DataPtr->prev)
+            // Clearing var data for 1st node
+            if(DataPtr == Database[hash_index]) {
+                Database[hash_index] = DataPtr->next;
+            }
+
+            // Re-arranging links
+            if (DataPtr->prev) 
                 DataPtr->prev->next = DataPtr->next;
+
+            if (DataPtr->next)
+                DataPtr->next->prev = DataPtr->prev;
 
             free(DataPtr);
             return true;
         }
     }
-
     return false;
 }
 
