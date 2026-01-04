@@ -19,8 +19,8 @@ int hash_generate_index(char *NameStr) {
 }
 
 // Find required data from data structure
-// Return data.
-bool hash_search_data(Person *data, char *NameStr) {            // TODO: Remove search data.
+// Return search status.
+bool hash_search_data(Person *data, char *NameStr) {
     int hash_index = hash_generate_index(NameStr);;
     Person *dataPtr = NULL;
 
@@ -31,11 +31,8 @@ bool hash_search_data(Person *data, char *NameStr) {            // TODO: Remove 
 
     if(Database[hash_index] == NULL) 
         return false;
-    else {
-        if (true==hash_copy_contents(Database[hash_index], data))
-            return true;
-    }
-    return false;
+
+    return hash_copy_contents(Database[hash_index], data);
 }
 
 // Insert Data into database

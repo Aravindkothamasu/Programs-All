@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
-#include "csv.h"
+#include <errno.h>
 
 #define MAX_CHAR                      50
 #define MAX_ARRAY_SIZE                26
@@ -43,5 +43,11 @@ int  hash_read_data(Person *);
 void hash_print_database();
 bool hash_copy_contents(Person *, Person *);
 
+// csv.c file prototypes
+FILE * CsvOpen(char *);
+void CsvReadValues(FILE *);
+bool CsvReadData(FILE *, Person *);
+void CsvClose(FILE *);
+int CsvPosIsAtEnd(FILE *);
 
 #endif
