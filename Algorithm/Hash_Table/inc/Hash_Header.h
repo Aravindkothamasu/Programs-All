@@ -37,7 +37,7 @@ typedef struct person{
 // Hash Functions
 bool hash_insert_data(Person *);
 bool hash_remove_data(char *);
-bool hash_search_data(Person *, char *);
+bool hash_search_data(Person *);
 int  hash_generate_index(char *);
 int  hash_read_data(Person *);
 void hash_print_database();

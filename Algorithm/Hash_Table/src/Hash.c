@@ -20,8 +20,8 @@ int hash_generate_index(char *NameStr) {
 
 // Find required data from data structure
 // Return search status.
-bool hash_search_data(Person *data, char *NameStr) {
-    int hash_index = hash_generate_index(NameStr);;
+bool hash_search_data(Person *data) {
+    int hash_index = hash_generate_index(data->Name);;
     Person *dataPtr = NULL;
 
     if (hash_index == -1){
@@ -32,28 +32,35 @@ bool hash_search_data(Person *data, char *NameStr) {
     if(Database[hash_index] == NULL) 
         return false;
 
-    return hash_copy_contents(Database[hash_index], data);
+    for(dataPtr=Database[hash_index]; dataPtr; dataPtr = dataPtr->next) {
+        if (!strcmp(dataPtr->Name, data->Name))
+            return true;
+    }
+
+    return false;
 }
 
 // Insert Data into database
 bool hash_insert_data(Person *data) {
-    int hash_index = hash_generate_index(data->Name);
+    int hash_index = 0;
     Person *newDataPtr=NULL, *dataPtr=NULL;
 
+    // DataPtr and Name should not empty.
+    if (data == NULL || data->Name == NULL) {
+        console_print("input data is NULL\n");
+        return false;
+    }
+
     // check for index pointer
+    hash_index = hash_generate_index(data->Name);
     if (hash_index == -1) {
         console_print("unable to get hash index value\n");
         return false;
     }
 
-    // check pointer
-    if (data == NULL) 
-        return false;
-
-    // check data
-    // TODO: Validate other parameters too
-    if (data->Name == NULL) {
-        console_print("input data is NULL\n");
+    // Check for same data is present or not.
+    if(hash_search_data(data)) {
+        console_print("Already data present, skipping Name: \"%s\"\n", data->Name);
         return false;
     }
 
