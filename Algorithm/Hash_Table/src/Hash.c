@@ -40,6 +40,47 @@ bool hash_search_data(Person *data) {
     return false;
 }
 
+// Count total nodes for each index
+void hash_count_nodes() {
+    int i, NodeCount=0, TotNodes=0;
+    Person *DataPtr=0;
+
+    for(i=0; i < MAX_ARRAY_SIZE; i++) {
+        NodeCount=0;
+        if (Database[i]) {
+            DataPtr = Database[i];
+            NodeCount++;
+            while(DataPtr->next) {
+                NodeCount++;
+                DataPtr=DataPtr->next;
+            }
+        }
+        TotNodes += NodeCount;
+        console_print("Index %02d: Total nodes: %4d\n", i+1, NodeCount);
+    }
+    console_print("Total Nodes: %4d\n", TotNodes);
+}
+
+// Print database.
+void hash_print_database() {
+    int i;
+    Person *dataPtr=NULL;
+
+    for ( i=ITERATOR_START_INDX; i < ITERATOR_END_INDX; i++) {
+        if (Database[i] == NULL) {
+            console_print("\t%02d, --------\n", i+1);
+        } else {
+            sprintf(PrintBuf,"\t%02d, Name: ", i+1);
+            for(dataPtr=Database[i]; dataPtr; dataPtr=dataPtr->next) {
+                sprintf(PrintBuf+strlen(PrintBuf), "- %s ", dataPtr->Name);
+            }
+            sprintf(PrintBuf+strlen(PrintBuf),"\n");
+
+            console_print(PrintBuf);
+        }
+    }
+}
+
 // Insert Data into database
 bool hash_insert_data(Person *data) {
     int hash_index = 0;
@@ -137,22 +178,3 @@ bool hash_copy_contents(Person *SrcData, Person *DestData) {
     return true;
 }
 
-// Print database.
-void hash_print_database() {
-    int i;
-    Person *dataPtr=NULL;
-
-    for ( i=ITERATOR_START_INDX; i < ITERATOR_END_INDX; i++) {
-        if (Database[i] == NULL) {
-            console_print("\t%02d, --------\n", i+1);
-        } else {
-            sprintf(PrintBuf,"\t%02d, Name: ", i+1);
-            for(dataPtr=Database[i]; dataPtr; dataPtr=dataPtr->next) {
-                sprintf(PrintBuf+strlen(PrintBuf), "- %s ", dataPtr->Name);
-            }
-            sprintf(PrintBuf+strlen(PrintBuf),"\n");
-
-            console_print(PrintBuf);
-        }
-    }
-}

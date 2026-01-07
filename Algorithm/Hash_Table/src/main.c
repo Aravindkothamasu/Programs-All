@@ -42,7 +42,7 @@ void main ()
             break;
         }
     }
-    hash_print_database();
+    hash_count_nodes();
 
     return;
 }

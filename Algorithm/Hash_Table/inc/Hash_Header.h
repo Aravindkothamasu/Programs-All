@@ -41,6 +41,7 @@ bool hash_search_data(Person *);
 int  hash_generate_index(char *);
 int  hash_read_data(Person *);
 void hash_print_database();
+void hash_count_nodes();
 bool hash_copy_contents(Person *, Person *);
 
 // csv.c file prototypes
