@@ -16,15 +16,11 @@ void add_data(int Id, char *Name, int Grade) {
 
 void main ()
 {
-    /*
-
-    hash_print_database();
-
-    hash_remove_data("abc");
+#if 0
     hash_remove_data("klm");
     console_print("\n**** DELETED SUCCESSFULLY ****\n\n");
     hash_print_database();
-    */
+#endif
 
     FILE *fp = CsvOpen(CSV_FILENAME);
     if (fp == NULL) {
@@ -43,6 +39,13 @@ void main ()
         }
     }
     hash_count_nodes();
+
+    Person Temp = {0};
+    if (hash_get_data("Priya Shetty",  &Temp)) {
+        hash_print_node(&Temp);
+    } else {
+        console_print("Node Data not avaliable for Name: %s\n", "zab");
+    }
 
     return;
 }

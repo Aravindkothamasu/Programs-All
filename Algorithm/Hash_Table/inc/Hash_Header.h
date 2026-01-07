@@ -43,6 +43,9 @@ int  hash_read_data(Person *);
 void hash_print_database();
 void hash_count_nodes();
 bool hash_copy_contents(Person *, Person *);
+bool hash_get_data(char *, Person *);
+bool hash_print_node(Person *);
+
 
 // csv.c file prototypes
 FILE * CsvOpen(char *);

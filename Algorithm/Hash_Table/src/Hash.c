@@ -18,6 +18,30 @@ int hash_generate_index(char *NameStr) {
     return hash_index%MAX_ARRAY_SIZE;
 }
 
+// Check from provided name, and get node data.
+bool hash_get_data(char *NameStr, Person *DataPtr) {
+    int hash_index = hash_generate_index(NameStr);;
+    Person *dataPtr = NULL;
+
+    if (hash_index == -1){
+        console_print("unable to get hash index value\n");
+        return false;
+    }
+
+    if(Database[hash_index] == NULL || DataPtr == NULL) 
+        return false;
+
+    for(dataPtr=Database[hash_index]; dataPtr; dataPtr = dataPtr->next) {
+        if (!strncmp(dataPtr->Name, NameStr, MAX_CHAR)) {
+            if(hash_copy_contents(dataPtr, DataPtr))
+                return true;
+            console_print("Unable to copy data\n");
+        }
+    }
+
+    return false;
+}
+
 // Find required data from data structure
 // Return search status.
 bool hash_search_data(Person *data) {
@@ -91,6 +115,17 @@ void hash_print_database() {
             console_print(PrintBuf);
         }
     }
+}
+
+// Nothing just to print node data
+bool hash_print_node(Person *DataPtr) {
+    if(DataPtr == NULL)
+        return false;
+
+    console_print("\n\tId:%4d\n",  DataPtr->Id);
+    console_print("\tName: %s\n",  DataPtr->Name);
+    console_print("\tGrade:%3d\n\n", DataPtr->Grade);
+    return true;
 }
 
 // Insert Data into database
