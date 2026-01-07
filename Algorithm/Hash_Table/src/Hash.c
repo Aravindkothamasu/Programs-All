@@ -40,6 +40,18 @@ bool hash_search_data(Person *data) {
     return false;
 }
 
+// Copy all structure components data from src to dest.
+bool hash_copy_contents(Person *SrcData, Person *DestData) {
+    // return if data is NULL.
+    if (SrcData==NULL && DestData==NULL) return false;
+
+    DestData->Id    = SrcData->Id;
+    strncpy(DestData->Name, SrcData->Name, strlen(SrcData->Name));
+    DestData->Grade = SrcData->Grade;
+    // FIXME: if any new elements are added, please update me.
+    return true;
+}
+
 // Count total nodes for each index
 void hash_count_nodes() {
     int i, NodeCount=0, TotNodes=0;
@@ -164,17 +176,5 @@ bool hash_remove_data(char *NameStr) {
         }
     }
     return false;
-}
-
-// Copy all structure components data from src to dest.
-bool hash_copy_contents(Person *SrcData, Person *DestData) {
-    // return if data is NULL.
-    if (SrcData==NULL && DestData==NULL) return false;
-
-    DestData->Id    = SrcData->Id;
-    strncpy(DestData->Name, SrcData->Name, strlen(SrcData->Name));
-    DestData->Grade = SrcData->Grade;
-    // FIXME: if any new elements are added, please update me.
-    return true;
 }
 
