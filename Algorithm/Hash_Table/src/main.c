@@ -16,6 +16,9 @@ void add_data(int Id, char *Name, int Grade) {
 
 void main ()
 {
+    clock_t start_time, end_time;
+    double cpu_time_used;
+
 #if 0
     hash_remove_data("klm");
     console_print("\n**** DELETED SUCCESSFULLY ****\n\n");
@@ -28,6 +31,7 @@ void main ()
         return;
     }
 
+    start_time = clock();
     Person Data = {0};
     while( CsvReadData(fp, &Data)) {
         hash_insert_data(&Data);
@@ -46,6 +50,12 @@ void main ()
     } else {
         console_print("Node Data not avaliable for Name: %s\n", "zab");
     }
+    end_time = clock();
+
+    // Calculate the difference and convert to seconds
+    cpu_time_used = ((double) (end_time - start_time)) / CLOCKS_PER_SEC;
+
+    console_print("Execution time: %f seconds\n", cpu_time_used);
 
     return;
 }

@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <errno.h>
+#include <time.h>
 
 #define MAX_CHAR                      50
 #define MAX_ARRAY_SIZE                26
