@@ -1,32 +1,23 @@
-#include"header_sorting.h"
+#include"sorting_algos.h"
 
+#define MAX_ENTRIES 20
 
+FILE *FileDes;
 
 void main(int argc,char **argv)
 {
-  if(argc != 2)
-  {
-    printf("Usage error [./a.out] [no.of i/p's] \n");
-    return;
-  }
-  int n = atoi(argv[1]);
-  int array[n];
-  Open_file("data_Sorting");
-  printf("Choice of Input\n1,File\t2,Manual\n");
-  scanf(" %d",&choice);
-  (choice==1)?Read_file(array,n):Ip_manual(array,n);
+  int array[MAX_ENTRIES];
+  Ip_rand(array, MAX_ENTRIES);
 
   /*		selectionSort(array,n);
-		print(array,n);
+		console_console_print(array,n);
 		bubbleSort(array,n);
-		print(array,n);	
+		console_console_print(array,n);	
 		heapSort(array,n);
    */
-  print(array,n);
-  quickSort(array,n);
-  print(array,n);
-  /*
-   */
+  console_print(array,MAX_ENTRIES);
+  quickSort(array,MAX_ENTRIES);
+  console_print(array,MAX_ENTRIES);
 }
 
 
@@ -47,17 +38,17 @@ void Open_file(char *filename)
   }
 }
 
-void Ip_manual(int *array,int n)
+void Ip_rand(int *array,int EntryCount)
 {
-  int i;
-  for(i=0;i<n;i++)
-  {
-    printf("Enter %d element -> ",i);
-    scanf(" %d",&array[i]);
-  }
+    int i;
+    srand(getpid());
+    for(i=0; i< EntryCount; i++)
+    {
+        array[i] = rand()%1000;
+    }
 }
 
-void print(int *array,int n)
+void console_print(int *array,int n)
 {
   printf("\n");
   for(int i=0;i<n;i++)
@@ -67,12 +58,12 @@ void print(int *array,int n)
 
 void selectionSort(int *array,int n)
 {
-  int i,j;
-  for(i=0;i<n-1;i++)
-    for(j=i+1;j<n;j++)
-      if(array[i]>array[j])		//Change should happen
-	swap(array,i,j);	
-}	
+    int i,j;
+    for(i=0;i<n-1;i++)
+        for(j=i+1;j<n;j++)
+            if(array[i]>array[j])		//Change should happen
+	            swap(array,i,j);	
+}
 
 void bubbleSort(int *array,int n)
 {
@@ -80,8 +71,7 @@ void bubbleSort(int *array,int n)
   for(i=0;i<n;n--,i=0)
     for(j=i+1;j<n;j++,i++)
       if(array[i] > array[j])
-	swap(array,i,j);	
-
+	swap(array,i,j);
 }
 
 
@@ -137,7 +127,7 @@ void quickSort(int *array,int n)
       pivot = left;
       swap(array,pivot,left);
     }
-    print(array,n);
+    console_print(array,n);
   }
 }
 
