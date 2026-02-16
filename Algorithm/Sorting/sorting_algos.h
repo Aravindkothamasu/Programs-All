@@ -13,7 +13,10 @@ void swap(int *,int ,int );
 
 // Sorting Algo's Prototype inclusion
 void selectionSort(int *,int );
-void quickSort(int *,int );
+//void quickSort(int *,int );
+int quickSort(int *, int , int );
+int quickSortPivot(int *, int );
+
 
 // Mislinious
 void console_print(int *,int );
