@@ -13,19 +13,13 @@ void main(int argc,char **argv)
     int array[MAX_ENTRIES] = {601,194,483,128,677,29,967,751,828,751,827,605,935,266,290,315,309,673,549,27,253,6544,976,367,76};
 #endif
 
-    /*
-       selectionSort(array,n);
-       console_console_print(array,n);
-       bubbleSort(array,n);
-       console_console_print(array,n);	
-       heapSort(array,n);
-     */
-
-    for(int i=0; i< MAX_ENTRIES; i++)
-	    printf("%03d\t", i);
-    //console_print(array, MAX_ENTRIES);
-    printf("\n");
-    quickSortPivot(array, MAX_ENTRIES);
+	/*
+        selectionSort(array, MAX_ENTRIES);
+        bubbleSort(array, MAX_ENTRIES);	
+        heapSort(array, MAX_ENTRIES);
+        quickSortPivot(array, MAX_ENTRIES);
+	*/
+    insertionSort(array, MAX_ENTRIES);
     console_print(array, MAX_ENTRIES);
 }
 
@@ -72,7 +66,7 @@ void selectionSort(int *array,int n)
     for(i=0;i<n-1;i++)
 	    for(j=i+1;j<n;j++)
 	        if(array[i]>array[j])		//Change should happen
-		        swap(array,i,j);	
+		        swapArray(array,i,j);
 }
 
 void bubbleSort(int *array,int n)
@@ -81,14 +75,35 @@ void bubbleSort(int *array,int n)
     for(i=0;i<n;n--,i=0)
 	    for(j=i+1;j<n;j++,i++)
 	        if(array[i] > array[j])
-		        swap(array,i,j);
+		        swapArray(array,i,j);
 }
 
+void insertionSort( int *array, int arrLen) {
+    int Iterator, temp, index;
 
-void swap(int *array,int i,int j)
-{
-    array[i] = array[j] + array[i] - (array[j] = array[i]);
+    for(index = 1; index<MAX_ENTRIES; index++) {
+        temp = array[index];
+        for( Iterator=index-1; Iterator>=0; Iterator--) {
+            if(temp < array[Iterator]) {
+                swap(&(array[Iterator]), &(array[Iterator+1]));
+            } else {
+                break;  
+            }
+        }
+    }
+}
+
+void swapArray(int *array, int i, int j) {
+    swap(&array[i], &array[j]);
 }	
+
+void swap(int *src1Ptr, int *src2Ptr) {
+    int temp = 0;
+
+    temp     = *src1Ptr;
+    *src1Ptr = *src2Ptr;
+    *src2Ptr = temp;
+}
 
 int power(int p,int q)
 {
@@ -107,8 +122,8 @@ void heapSort(int *array,int n)
     {
 	    for(i=1;i<temp;i++)
 	        if(array[0]<array[i])
-		        swap(array,0,i);
-	    swap(array,0,--temp);
+		        swapArray(array,0,i);
+	    swapArray(array,0,--temp);
     }
 }
 
@@ -177,9 +192,9 @@ int quickSort(int *arr, int low, int high) {
 
         printf("*** LOW %d HIGH %d\n", low, high);
         if (low<high)
-            swap(arr, low, high);
+            swapArray(arr, low, high);
     }
-    swap(arr, pivot, high);
+    swapArray(arr, pivot, high);
 
     printf("***** LOW %d HIGH %d PIVOT %d\n", low, high, pivot);
     return high;
