@@ -18,10 +18,13 @@ void selectionSort(int *,int );
 int quickSort(int *, int , int );
 int quickSortPivot(int *, int );
 void insertionSort( int *, int);
+void mergeSort(int *, int );
+void merge(int *, int *, int *, int );
+int * addrFinder(int *, int *, int , int);
 
 
 // Miscellaneous
-void console_print(int *,int );
+void console_print(int *,int, char*);
 
 
 #endif

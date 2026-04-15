@@ -1,6 +1,6 @@
 #include"sorting_algos.h"
 
-#define MAX_ENTRIES 25
+#define MAX_ENTRIES 26
 
 FILE *FileDes;
 
@@ -10,7 +10,7 @@ void main(int argc,char **argv)
     int array[MAX_ENTRIES] = {0};
     Ip_rand(array, MAX_ENTRIES);
 #else
-    int array[MAX_ENTRIES] = {601,194,483,128,677,29,967,751,828,751,827,605,935,266,290,315,309,673,549,27,253,6544,976,367,76};
+    int array[MAX_ENTRIES] = {601,194,483,128,677,29,967,751,63,828,751,827,605,935,266,290,315,309,673,549,27,253,6544,976,367,76};
 #endif
 
 	/*
@@ -18,9 +18,10 @@ void main(int argc,char **argv)
         bubbleSort(array, MAX_ENTRIES);	
         heapSort(array, MAX_ENTRIES);
         quickSortPivot(array, MAX_ENTRIES);
-	*/
-    insertionSort(array, MAX_ENTRIES);
-    console_print(array, MAX_ENTRIES);
+        insertionSort(array, MAX_ENTRIES);
+    */
+    mergeSort(array, MAX_ENTRIES);
+    console_print(array, MAX_ENTRIES, NULL);
 }
 
 #if 0
@@ -52,9 +53,13 @@ void Ip_rand(int *array,int EntryCount)
     }
 }
 
-void console_print(int *array,int n)
+void console_print(int *array,int n, char *msg)
 {
-    printf("\n");
+    if (msg != NULL)
+        printf("\n%s\t", msg);
+    else
+        printf("\n");
+
     for(int i=0;i<n;i++)
 	    printf("%03d\t",array[i]);
     printf("\n");
@@ -93,6 +98,146 @@ void insertionSort( int *array, int arrLen) {
     }
 }
 
+/*  
+    addrFinder() : gives address of requested Index.
+    irrespective of 2 array's.
+*/
+int * addrFinder(int *arr1Ptr, int *arr2Ptr, int arrLen, int reqIndex) {
+    int i, j, subArr1Len = 0, subArr2Len = 0;
+
+    subArr1Len = arrLen / 2;
+    subArr2Len = arrLen / 2;
+
+    if(arrLen % 2)  // means arrLen is odd
+        subArr2Len++;
+
+    // reqIndex should be within the range.
+    if (reqIndex >= arrLen) {
+        printf("Requested Index %d is out of range %d\n", reqIndex, arrLen);
+        return NULL;
+    }
+
+    if (reqIndex < subArr1Len) {
+        return (arr1Ptr+reqIndex);
+    } else {
+        reqIndex = reqIndex - subArr1Len;
+        return (arr2Ptr+reqIndex);        
+    }
+    return NULL;
+}
+
+void merge(int *arrayPtr, int *arr1Ptr, int *arr2Ptr, int arrLen) {
+    int i, j, subArr1Len = 0, subArr2Len = 0;
+    int *Ptr1 = NULL, *Ptr2 = NULL;
+
+    subArr1Len = arrLen / 2;
+    subArr2Len = arrLen / 2;
+ 
+    if(arrLen % 2)  // means arrLen is odd
+        subArr2Len++;
+
+#if 0
+    // Print sub array's before sorting.
+    printf("BEF\t");
+    for(i=0; i<subArr1Len; i++) {
+        printf("%3d\t", arr1Ptr[i]);
+    }
+    printf("||\t");
+    for(i=0; i<subArr2Len; i++) {
+        printf("%3d\t", arr2Ptr[i]);
+    }
+    printf("\n\n");
+ #endif
+
+    // sorting 2 array's, techically into 1.
+    // imaginary ga 2 array's ni, single array ga tiesukuni chesa.
+    // addrFinder() naa sontha tellivitetallu tho chesina function.
+    for(i=0; i < arrLen-1; i++) {
+	    for(j=i+1; j < arrLen; j++) {
+            Ptr1 = addrFinder(arr1Ptr, arr2Ptr, arrLen, i);
+            Ptr2 = addrFinder(arr1Ptr, arr2Ptr, arrLen, j);
+            if (Ptr1 != NULL && Ptr2 != NULL) {
+	            if(*Ptr1 > *Ptr2) {
+                    // Swapping data of 2 sub array's
+		            swap(Ptr1, Ptr2);
+                }
+            } else {
+                printf("Something went wrong while reading...\n");
+                exit(0);
+            }
+        }
+    }
+
+    // Copy 2 sub array data into main array.
+    for(i=0; i < arrLen; i++) {
+        Ptr1 = addrFinder(arr1Ptr, arr2Ptr, arrLen, i);
+        if (Ptr1 != NULL) {
+            *(arrayPtr+i) = *Ptr1;
+        } else {
+            printf("Something went wrong in getting array addr\n");
+            exit(0);
+        }
+    }
+#if 0
+    // Print if needed.
+    printf("AFT\t");
+    for(i=0; i < arrLen; i++) {
+        printf("%3d\t", *(arrayPtr+i));
+    }
+    printf("\n\n");
+#endif
+}
+
+void mergeSort(int *array, int arrLen) {
+    int *arr1Ptr = NULL, *arr2Ptr = NULL;
+    int i, j, subArr1Len = 0, subArr2Len = 0;
+
+    sleep(1);
+    subArr1Len = arrLen / 2;
+    subArr2Len = arrLen / 2;
+ 
+    if(arrLen % 2)  // means arrLen is odd
+        subArr2Len++;
+
+    printf("arrLen %d Arr1-%d Arr2-%d\n", arrLen, subArr1Len, subArr2Len);
+
+    // Creating dynamic array
+    arr1Ptr = calloc(subArr1Len, sizeof(int));
+    arr2Ptr = calloc(subArr2Len, sizeof(int));
+
+    // adding error check
+    if (arr1Ptr == NULL || arr2Ptr == NULL) {
+        printf("Error in creating dynamic array\n");
+        exit(0);
+    }
+
+    // copy input array into dynamic array
+    for( i=0; i<subArr1Len; i++) {
+        arr1Ptr[i] = array[i];
+        arr2Ptr[i] = array[i+subArr1Len];
+    }
+    // copying last byte
+    if (subArr1Len != subArr2Len) {
+        arr2Ptr[subArr2Len-1] = array[arrLen-1];
+    }
+
+    // Call recrively into multiple array's
+    if (subArr1Len > 1 )
+        mergeSort(arr1Ptr, subArr1Len);
+
+    if (subArr2Len > 1)
+        mergeSort(arr2Ptr, subArr2Len);
+
+    // Here sorting happens.
+    merge(array, arr1Ptr, arr2Ptr, arrLen);
+
+    // Once merging is done, free dynamic array's.
+    free(arr1Ptr);
+    free(arr2Ptr);
+}
+
+
+
 void swapArray(int *array, int i, int j) {
     swap(&array[i], &array[j]);
 }	
@@ -112,7 +257,6 @@ int power(int p,int q)
 	    sum*=p;
     return sum;
 }
-
 
 void heapSort(int *array,int n)
 {
@@ -165,7 +309,7 @@ int quickSortPivot(int *arr, int arrLen) {
     high  = arrLen - 1;
 
     low = quickSort(arr, low, high);
-    console_print(arr,MAX_ENTRIES);
+    console_print(arr,MAX_ENTRIES, NULL);
     while(1) {
         printf("=======================\n");
         quickSort(arr, 0, low-1);
@@ -182,7 +326,7 @@ int quickSort(int *arr, int low, int high) {
     low++;
 
     while(low < high) {        
-        console_print(arr, MAX_ENTRIES);
+        console_print(arr, MAX_ENTRIES, NULL);
 
         while(arr[pivot] > arr[low])
             low++;
@@ -200,57 +344,3 @@ int quickSort(int *arr, int low, int high) {
     return high;
 }
 #endif
-/*
-   void heapSort(int *array,int n)
-   {
-   int level=0,i,j=0,pow,sum=0,temp=n;
-   int first,second;
-   printf("\tno.of nodes = %d\n",n);
-   while(temp>0)
-   temp -= (1<<level++);
-   level--;
-
-   printf("level = %d\n",level);
-   temp = level;
-
-//	while (level)
-first = power(2,level)-1;
-second = power(2,level-1)-1;
-for( i=0 ;i<4  ;i++,first++,second++)
-{
-if( array[first] > array[second] )
-swap(array,first,second);
-print(array,n);
-if( array[++first] > array[second] )
-swap(array,first,second);
-print(array,n);
-}
-///////////////////////////////////////////////////////////////////////////////////////////////	
-if( array[ power(2,level) ] < array[ power(2,level-1)-1 ] )
-swap(array,power(2,level),power(2,level-1)-1);
-print(array,n);
-
-if( array[ power(2,level)+1 ] < array[ power(2,level-1) ] )
-swap(array,power(2,level)+1,power(2,level-1));
-print(array,n);
-
-
-if( array[ power(2,level)+2 ] < array[ power(2,level-1) ] )
-swap(array,power(2,level)+2,power(2,level-1));
-print(array,n);
-
-if( array[ power(2,level)+3 ] < array[ power(2,level-1)+1 ] )
-swap(array,power(2,level)+3,power(2,level-1)+1);
-print(array,n);
-
-if( array[ power(2,level)+4 ] < array[ power(2,level-1)+1 ] )
-swap(array,power(2,level)+4,power(2,level-1)+1);
-print(array,n);
-
-if( array[ power(2,level)+5 ] < array[ power(2,level-1)+2 ] )
-swap(array,power(2,level)+5,power(2,level-1)+2);
-print(array,n);
-}
-/////////////////////////////////////////////////////////////////////////////////////////////		
-}	
- */
