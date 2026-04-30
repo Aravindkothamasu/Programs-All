@@ -19,8 +19,10 @@ void main(int argc,char **argv)
         heapSort(array, MAX_ENTRIES);
         quickSortPivot(array, MAX_ENTRIES);
         insertionSort(array, MAX_ENTRIES);
+        mergeSort(array, MAX_ENTRIES);
     */
-    mergeSort(array, MAX_ENTRIES);
+    console_print(array, MAX_ENTRIES, NULL);
+    quickSort(array, MAX_ENTRIES);
     console_print(array, MAX_ENTRIES, NULL);
 }
 
@@ -236,7 +238,34 @@ void mergeSort(int *array, int arrLen) {
     free(arr2Ptr);
 }
 
+void quickSort(int *array, int ArrLen) {
+    int i=0, j=0, pivot = 0;
 
+    pivot = ArrLen-1;                   // Consider pivot is last element index in array
+    j =  0;                             // Consider index j, should be at starting.
+    i = -1;                             // Consider index i, should be before j.
+
+    printf("PIVOT Index %d | Value %d", pivot, array[pivot]);
+    for( ; j <= pivot ; j++) {
+        if( array[j] < array[pivot] ) {
+            i++;                        // Increment i.
+            swapArray(array, i, j);
+        } else {
+            // Ignore if >=
+        }
+    }
+    i++;
+    swapArray(array, i, pivot);
+    console_print(array, ArrLen, "");
+
+    if(i>1) {
+        quickSort(array, i);
+    }
+
+    if(ArrLen-i-1 > 1) {
+        quickSort(array+(i+1), ArrLen-i-1);
+    }
+}
 
 void swapArray(int *array, int i, int j) {
     swap(&array[i], &array[j]);
@@ -271,76 +300,3 @@ void heapSort(int *array,int n)
     }
 }
 
-#if 0
-void quickSort(int *array,int n)
-{
-    int pivot=rand()%n,left=0,right=n-1;
-    printf("pivot = %d\n",pivot);
-    printf("array[pivot] = %d\n",array[pivot]);
-
-    while(pivot != left || pivot != right )
-    {
-	    if( array[pivot] < array[right] )
-	        right--;
-	    else if(array[pivot] > array[right])
-	    {
-	        pivot = right;
-	        swap(array,pivot,right);
-	    }
-
-	    if( array[pivot] < array[left] )
-	        left++;		
-	    else if ( array[pivot] > array[left] )
-	    {
-	        pivot = left;
-	        swap(array,pivot,left);
-	    }
-	    console_print(array,n);
-    }
-}
-#else
-
-int quickSortPivot(int *arr, int arrLen) {
-    //return 0;       // TODO: For now selecting pivot as 0 index.
-    int low, high;
-
-    // FIXME: Below logic will work only work, when pivot is 0 index.
-    low   = 0;
-    high  = arrLen - 1;
-
-    low = quickSort(arr, low, high);
-    console_print(arr,MAX_ENTRIES, NULL);
-    while(1) {
-        printf("=======================\n");
-        quickSort(arr, 0, low-1);
-        printf("=======================\n");
-        quickSort(arr, low+1, high); 
-        break;
-    }
-}
-
-int quickSort(int *arr, int low, int high) {
-    int pivot = low;
-
-    printf("Iteration Low %d High %d**\n", low, high);
-    low++;
-
-    while(low < high) {        
-        console_print(arr, MAX_ENTRIES, NULL);
-
-        while(arr[pivot] > arr[low])
-            low++;
-
-        while(arr[pivot] <= arr[high])
-            high--;
-
-        printf("*** LOW %d HIGH %d\n", low, high);
-        if (low<high)
-            swapArray(arr, low, high);
-    }
-    swapArray(arr, pivot, high);
-
-    printf("***** LOW %d HIGH %d PIVOT %d\n", low, high, pivot);
-    return high;
-}
-#endif
