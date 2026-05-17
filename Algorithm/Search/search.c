@@ -1,7 +1,7 @@
 #include "search.h"
 
 
-#define MAX_ENTRIES 26
+#define MAX_ENTRIES 28
 
 
 void main ()
@@ -12,15 +12,51 @@ void main ()
     int array[MAX_ENTRIES] = {0};
     Ip_rand(array, MAX_ENTRIES);
 #else
-    int array[MAX_ENTRIES] = {601,194,483,128,677,29,967,751,63,828,751,827,605,935,266,290,315,309,673,549,27,253,6544,976,367,76};
+    int array[MAX_ENTRIES] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27};
 #endif
     console_print(array, MAX_ENTRIES, "");
-    indexFound = linearSearch(array, MAX_ENTRIES, 129);
-    if(indexFound != -1){
-        printf("Index Found at %d\n", indexFound);
+    // indexFound = linearSearch(array, MAX_ENTRIES, 129);
+    int i;
+
+    for (i=0; i< MAX_ENTRIES; i++) {
+        indexFound = binarySearch(array, 0, MAX_ENTRIES-1, i);
+        if(indexFound != -1) {
+            printf("Value %2d || Index Found at %d\n\n", i, indexFound);
+        }
     }
 }
 
+int binarySearch(int* array, int startIndex, int endIndex, int value) {
+    int mid, i;
+
+    mid = (endIndex-startIndex) / 2;
+    mid += startIndex;
+    //printf("StartIndex %2d || EndIndex %2d || Mid %2d\n", startIndex, endIndex, mid);
+    if(array[mid] == value) {                                   // Value matches the mid point
+        return mid;
+    } else if(array[mid] < value) {                             // 2nd half string
+        if(endIndex-mid > 2) {
+            return binarySearch(array, mid+1, endIndex, value);
+        } else {
+            // printf("Comparing 2nd mid %2d || endIndex %2d\n", mid, endIndex);
+            for(i=mid+1; i<=endIndex;i++) {
+                if (array[i] == value)
+                    return i;
+            }
+        }
+    } else {                                                    // 1st half string
+        if( mid-startIndex > 2) {
+            return binarySearch(array, startIndex, mid-1, value);
+        } else {
+            // printf("Comparing 1st startIndex %2d || mid %2d\n", startIndex, mid);
+            for(i=startIndex; i<mid;i++) {
+                if (array[i] == value)
+                    return i;
+            }
+        }
+    }
+    return -1;
+}
 
 int linearSearch(int* array, int ArrLen, int value) {
     int i;

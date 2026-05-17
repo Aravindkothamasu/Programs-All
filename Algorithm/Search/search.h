@@ -8,7 +8,7 @@
 
 /// *********** Searching Algorithm's Prototype inclusion *********** ///
 int linearSearch(int* , int , int );
-
+int binarySearch(int* , int , int , int);
 
 /// *********** Miscellaneous Function's Prototype inclusion *********** ///
 void console_print(int *,int , char *);
