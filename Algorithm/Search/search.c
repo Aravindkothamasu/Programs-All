@@ -19,11 +19,63 @@ void main ()
     int i;
 
     for (i=0; i< MAX_ENTRIES; i++) {
-        indexFound = binarySearch(array, 0, MAX_ENTRIES-1, i);
+        indexFound = ternarySearch(array, 0, MAX_ENTRIES-1, i);
         if(indexFound != -1) {
             printf("Value %2d || Index Found at %d\n\n", i, indexFound);
         }
     }
+}
+
+int indexGapBetween(int startIndex, int endIndex) {
+    return endIndex - startIndex;
+}
+
+int ternarySearch(int* array, int startIndex, int endIndex, int value) {
+    int mid1, mid2, i;
+
+    mid1 = startIndex + ( endIndex - startIndex)/3;
+    mid2 = endIndex - (endIndex - startIndex)/3;
+    
+    printf("Start: %d || end %d || mid1 %d || mid2 %d || value %d\n", startIndex, endIndex, mid1, mid2, value);
+
+    if(array[mid1] == value) {                          // Value found at mid1 index
+        return mid1;
+    } else if(array[mid2] == value) {                   // Value found at mid2 index
+        return mid2;
+    } else if(array[mid1] > value) {                    // Value will be between startIndex <-> mid1
+        if(indexGapBetween(startIndex, mid1-1) > 2)
+            return ternarySearch(array, startIndex, mid1-1, value);
+        else {
+            // if len < 2, then traverse sequentially
+            for(i=startIndex; i <= mid1-1; i++) {
+                if (array[i] == value)
+                    return i;
+            }
+        }
+    } else if(array[mid2] < value) {                    // Value will be in mid2 <-> endIndex
+        if(indexGapBetween(mid2+1, endIndex) > 2)
+            return ternarySearch(array, mid2+1, endIndex, value);
+        else {
+            // if len < 2, then traverse sequentially
+            for(i=mid2+1; i <= endIndex; i++) {
+                if (array[i] == value)
+                    return i;
+            }
+        }
+
+    } else {                                            // Value will between mid1 <-> mid2
+        if(indexGapBetween(mid1+1, mid2-1) > 2)
+            return ternarySearch(array, mid1+1, mid2-1, value);
+        else {
+            // if len < 2, then traverse sequentially
+            for(i=mid1+1; i <= mid2-1; i++) {
+                if (array[i] == value)
+                    return i;
+            }
+        }
+    }
+
+    return -1;
 }
 
 int binarySearch(int* array, int startIndex, int endIndex, int value) {
