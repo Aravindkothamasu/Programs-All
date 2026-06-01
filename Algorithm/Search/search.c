@@ -18,16 +18,38 @@ void main ()
     // indexFound = linearSearch(array, MAX_ENTRIES, 129);
     int i;
 
-    for (i=0; i< MAX_ENTRIES; i++) {
-        indexFound = ternarySearch(array, 0, MAX_ENTRIES-1, i);
+    for (i=0; i<= MAX_ENTRIES; i++) {
+        indexFound = exponentialSearch(array, 0, MAX_ENTRIES-1, i);
         if(indexFound != -1) {
             printf("Value %2d || Index Found at %d\n\n", i, indexFound);
+        } else {
+            printf("Value %2d - Not Found\n\n", i);
         }
     }
 }
 
 int indexGapBetween(int startIndex, int endIndex) {
     return endIndex - startIndex;
+}
+
+int exponentialSearch(int* array, int startIndex, int endIndex, int value){
+    int i=1;
+
+    if (array[startIndex] == value) {                            // Checking 0 position value
+        return startIndex;
+    } else {
+        for(i=1; i <= endIndex; i *= 2) {
+            printf("i = %d\n", i);
+            if (array[i] == value) {
+                return i;
+            } else if (array[i] > value) {
+                break;
+            }
+        }
+        // printf("After break Index: %d Value: %d\n", i, value);
+        return binarySearch(array, (i/2)+1, MIN(i-1, endIndex), value);
+    }
+    return -1;
 }
 
 int ternarySearch(int* array, int startIndex, int endIndex, int value) {
@@ -83,11 +105,11 @@ int binarySearch(int* array, int startIndex, int endIndex, int value) {
 
     mid = (endIndex-startIndex) / 2;
     mid += startIndex;
-    //printf("StartIndex %2d || EndIndex %2d || Mid %2d\n", startIndex, endIndex, mid);
+    // printf("StartIndex %2d || EndIndex %2d || Mid %2d\n", startIndex, endIndex, mid);
     if(array[mid] == value) {                                   // Value matches the mid point
         return mid;
     } else if(array[mid] < value) {                             // 2nd half string
-        if(endIndex-mid > 2) {
+        if(indexGapBetween(endIndex, mid) > 2) {
             return binarySearch(array, mid+1, endIndex, value);
         } else {
             // printf("Comparing 2nd mid %2d || endIndex %2d\n", mid, endIndex);
@@ -97,7 +119,7 @@ int binarySearch(int* array, int startIndex, int endIndex, int value) {
             }
         }
     } else {                                                    // 1st half string
-        if( mid-startIndex > 2) {
+        if( indexGapBetween(mid, startIndex) > 2) {
             return binarySearch(array, startIndex, mid-1, value);
         } else {
             // printf("Comparing 1st startIndex %2d || mid %2d\n", startIndex, mid);
