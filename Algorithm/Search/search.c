@@ -19,7 +19,7 @@ void main ()
     int i;
 
     for (i=0; i<= MAX_ENTRIES; i++) {
-        indexFound = exponentialSearch(array, 0, MAX_ENTRIES-1, i);
+        indexFound = interpolationSearch(array, 0, MAX_ENTRIES-1, array[i]);
         if(indexFound != -1) {
             printf("Value %2d || Index Found at %d\n\n", i, indexFound);
         } else {
@@ -31,8 +31,28 @@ void main ()
 int indexGapBetween(int startIndex, int endIndex) {
     return endIndex - startIndex;
 }
+        // pivot = startIndex + (endIndex - startIndex) * (value - array[startIndex]) / (array[endIndex] - array[startIndex]);
+        // pivot = startIndex + ( (endIndex - startIndex) / array[endIndex] - array[startIndex]) * (value - array[startIndex]);
 
-int exponentialSearch(int* array, int startIndex, int endIndex, int value){
+int interpolationSearch(int* array, int startIndex, int endIndex, int value) {
+    int pivot;
+
+    while (value >= array[startIndex] && value <= array[endIndex] && startIndex <= endIndex) {
+        pivot = startIndex + ((value - array[startIndex]) * (endIndex - startIndex) / (array[endIndex] - array[startIndex]));
+        printf("ST:%2d EN:%2d || pivot: %d || arr[%d]:%d || Value:%d\n", startIndex, endIndex, pivot, pivot, array[pivot], value);
+
+        if (value == array[pivot])
+            return pivot;
+        else if (value > array[pivot]) {        // FIXED: If value is greater, look in the right/higher half
+            startIndex = pivot+1;
+        } else {                                // FIXED: If value is smaller, look in the left/lower half
+            endIndex = pivot-1;
+        }
+    }
+    return -1;
+}
+
+int exponentialSearch(int* array, int startIndex, int endIndex, int value) {
     int i=1;
 
     if (array[startIndex] == value) {                            // Checking 0 position value

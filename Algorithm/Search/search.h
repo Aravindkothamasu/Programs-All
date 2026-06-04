@@ -14,6 +14,7 @@ int linearSearch(int* , int , int );
 int binarySearch(int* , int , int , int);
 int ternarySearch(int* , int , int , int );
 int exponentialSearch(int* , int , int , int );
+int interpolationSearch(int* , int , int , int );
 
 
 /// ****** Miscellaneous & Helper Function Prototype inclusion ****** ///
