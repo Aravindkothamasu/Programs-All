@@ -15,7 +15,7 @@ int graph_check_node(char );
 
 /// Edge defined functions  
 void graph_init(int );
-bool graph_add_edge(char , char );
+bool graph_add_edge(char , char, bool );
 bool graph_remove_edge(char , char );
 bool graph_check_edge(char , char );
 void graph_print();
