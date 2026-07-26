@@ -1,7 +1,17 @@
 *.txt
 .vscode/*
 
+
+Algorithm/Huffman/*.exe
+Algorithm/Huffman/objs/Encode/src/*.o
+Algorithm/Huffman/objs/Decode/src/*.o
+Algorithm/luhn/*.exe
+Algorithm/luhn/*.o
+Algorithm/Rain_Holes/*.o
+Algorithm/Rain_Holes/*.exe
+Algorithm/Red_BL_Tree/*.exe
 Algorithm/Hash_Table/HashExe.exe
 Algorithm/Hash_Table/src/*.o
 Algorithm/Hash_Table/*.csv
 Algorithm/Sorting/*.exe
+Algorithm/Graph/*.exe
