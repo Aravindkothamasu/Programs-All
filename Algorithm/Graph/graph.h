@@ -1,5 +1,5 @@
-#ifndef __SORTING_ALGOS_H__
-#define __SORTING_ALGOS_H__
+#ifndef __GRAPH_H__
+#define __GRAPH_H__
 
 #include<stdio.h>
 #include<string.h>
@@ -10,11 +10,12 @@
 
 
 /// Node defined functions
+void graph_init(int );
 bool graph_add_node(char );
-int graph_check_node(char );
+int graph_get_node_index(char );
+char graph_get_node_name(int );
 
 /// Edge defined functions  
-void graph_init(int );
 bool graph_add_edge(char , char, bool );
 bool graph_remove_edge(char , char );
 bool graph_check_edge(char , char );

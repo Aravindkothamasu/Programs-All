@@ -1,12 +1,15 @@
 #include "./graph.h"
 
-
+// Total nodeName length
 #define NODES_LEN    12
 
 // Connection direction
 #define ONE_WAY     false
 #define TWO_WAY     true
 
+// Node name min & max requirements
+#define NODE_NAME_MIN   'A'
+#define NODE_NAME_MAX   'Z'
 
 
 bool Gph1[NODES_LEN][NODES_LEN];
@@ -26,9 +29,9 @@ void graph_init(int size) {
 bool graph_add_node(char nodeName) {
     int i;
 
-    // nodeName should be b/w range of 'A' to 'Z'
-    if (nodeName < 'A' || nodeName > 'Z') {
-        printf("Node name is out of range defined 'A' to 'Z' \n");
+    // nodeName should be b/w range of NODE_NAME_MIN to NODE_NAME_MAX
+    if (nodeName < NODE_NAME_MIN || nodeName > NODE_NAME_MAX) {
+        printf("Node name is out of range defined '%c' to '%c' \n", NODE_NAME_MIN, NODE_NAME_MAX);
         return false;
     }
 
@@ -52,12 +55,28 @@ bool graph_add_node(char nodeName) {
     return false;
 }
 
-int graph_check_node(char node) {
+int graph_get_node_index(char nodeName) {
     int i;
+
+    // check for input nodeName should be in within provided range.
+    if(nodeName < NODE_NAME_MIN || nodeName > NODE_NAME_MAX) {
+        printf("Get Node Index is out of range: %c <-> %c, but provided %2X\n", NODE_NAME_MIN, NODE_NAME_MAX, nodeName);
+        return -1;
+    }
+
+    // Check for nodeName with the existing list
     for(i=0; i < NODES_LEN; i++) {
-        if(nodes[i] == node)
+        if(nodes[i] == nodeName)
             return i;
     }
+    return -1;
+}
+
+char graph_get_node_name(int index) {
+    // Check if node is created or not.
+    if(nodes[index] != 0)
+        return nodes[index];
+
     return -1;
 }
 
@@ -65,7 +84,7 @@ int graph_check_node(char node) {
 
 bool graph_add_edge(char src, char dest, bool direction) {
     // Checks for graph node is present or not
-    if (-1 == graph_check_node(src) || -1 == graph_check_node(dest)) {
+    if (-1 == graph_get_node_index(src) || -1 == graph_get_node_index(dest)) {
         printf("Src %c or Dest %c are not defined\n", src, dest);
         return false;
     }
@@ -77,11 +96,11 @@ bool graph_add_edge(char src, char dest, bool direction) {
     }
 
     // Create connection b/w src and dest
-    Gph1[graph_check_node(src)][graph_check_node(dest)] = 1;
+    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)] = 1;
 
     // if it is Bi-Direction connection, connect the otherway around also.
     if (direction) {
-        Gph1[graph_check_node(dest)][graph_check_node(src)] = 1;
+        Gph1[graph_get_node_index(dest)][graph_get_node_index(src)] = 1;
     }
 
     return true;
@@ -89,7 +108,7 @@ bool graph_add_edge(char src, char dest, bool direction) {
 
 bool graph_remove_edge(char src, char dest) {
     // Check for graph node is present or not
-    if (-1 == graph_check_node(src) || -1 == graph_check_node(dest)) {
+    if (-1 == graph_get_node_index(src) || -1 == graph_get_node_index(dest)) {
         printf("Src %c or Dest %c are not defined\n", src, dest);
         return false;
     }
@@ -101,19 +120,19 @@ bool graph_remove_edge(char src, char dest) {
     }
 
     // Remove the connection
-    Gph1[graph_check_node(src)][graph_check_node(dest)] = 0;
+    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)] = 0;
     return true;
 }
 
 bool graph_check_edge(char src, char dest) {
     // Check for graph node is present or not
-    if (-1 == graph_check_node(src) || -1 == graph_check_node(dest)) {
+    if (-1 == graph_get_node_index(src) || -1 == graph_get_node_index(dest)) {
         printf("Src %c or Dest %c are not defined\n", src, dest);
         return false;
     }
 
     // Connection is present, then it set to 1.
-    return (Gph1[graph_check_node(src)][graph_check_node(dest)] == 1);
+    return (Gph1[graph_get_node_index(src)][graph_get_node_index(dest)] == 1);
 }
 
 void graph_print() {
@@ -149,28 +168,41 @@ void graph_print() {
 
 bool bfs(char src) {
     bool visitedNode[NODES_LEN] = {false};
+    int srcNode, i;
+    char dest;
 
+    srcNode = graph_get_node_index(src);
     // Check for graph node is present or not
-    if (-1 == graph_check_node(src)) {
+    if (-1 == srcNode) {
         printf("Src %c is not present\n", src);
         return false;
+    } else {
+        // Making src or start node as visited.
+        visitedNode[srcNode] = true;
     }
 
-    // Making src or start node as visited.
-    // int srcNode = graph_check_node(src);
-    // visitedNode[srcNode] = true;
+    while(true) {
+        for(i=0; i < NODES_LEN; i++) {
+            dest = graph_get_node_name(i);
 
-    while(false) {
-        for(int i=0; i < NODES_LEN; i++) {
+            // Check b/w range nodeName is present or not
+            if(dest < NODE_NAME_MIN || dest > NODE_NAME_MAX) {
+                continue;
+            }
 
+            // Check for connection is present or not
+            if (graph_check_edge(src, dest) && !visitedNode[graph_get_node_index(dest)]) {
+                printf("Visited %c\n", dest);
+                visitedNode[graph_get_node_index(dest)] = true;
+            }
         }
+        // break;
     }
 
     return true;
 }
 
 /////////////////////////////////////////////////////////////
-
 
 void main() {
     // Initiliase the graph
@@ -211,7 +243,7 @@ void main() {
     graph_print();
 
     // Breath First Search
-    //bfs('A');
+    bfs('A');
 
     return;
 }
