@@ -164,10 +164,34 @@ void graph_print() {
     }
 }
 
-/////////////////////////////////////////////////////////////
+////////////////        BFS         ////////////////////
 
+// Check for all visited Nodes are not.
+bool allNodesVisited(bool *visitedNode, int len) {
+    int i;
+    for(i=0; i < len; i++) {
+        printf("%d ", *(visitedNode+i));
+    }
+    printf("\n");
+
+    for(i=0; i < len; i++) {
+        if (false == *(visitedNode+i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/*  
+*   Breadth for Search
+*   traverse the all the nodes from the src, neighbour nodes make them visited.
+*   traverse the next neighbour node, and ignore the already visited nodes.
+*   Created FIFO array to get, which node the search should start next...
+*   Once all nodes are visited. then it's Done.
+*/
 bool bfs(char src) {
     bool visitedNode[NODES_LEN] = {false};
+    int  FIFO[NODES_LEN] = {0}, FIFO_RdIdx = 0, FIFO_WrIdx = 0;
     int srcNode, i;
     char dest;
 
@@ -177,11 +201,19 @@ bool bfs(char src) {
         printf("Src %c is not present\n", src);
         return false;
     } else {
+        printf("Visited %c\n", src);
         // Making src or start node as visited.
         visitedNode[srcNode] = true;
+        // Adding into FIFO array, with write index.
+        FIFO[FIFO_WrIdx++] = srcNode;
     }
 
-    while(true) {
+    while(true) 
+    {
+        // get the next src from the FIFO array.
+        srcNode = FIFO[FIFO_RdIdx++];
+        src = graph_get_node_name(srcNode);
+
         for(i=0; i < NODES_LEN; i++) {
             dest = graph_get_node_name(i);
 
@@ -190,15 +222,28 @@ bool bfs(char src) {
                 continue;
             }
 
+            // Skip if src and dest are same
+            if ( src == dest ) {
+                continue;
+            }
+
+            // printf("SRC: %C || DEST: %c\n", src, dest);      // DEBUG
             // Check for connection is present or not
             if (graph_check_edge(src, dest) && !visitedNode[graph_get_node_index(dest)]) {
                 printf("Visited %c\n", dest);
+                // update the FIFO array, of new Visited Nodes.
+                FIFO[FIFO_WrIdx++] = graph_get_node_index(dest);
+                // Make visitedNode arr of this src is true.
                 visitedNode[graph_get_node_index(dest)] = true;
             }
         }
-        // break;
-    }
 
+        if (allNodesVisited(visitedNode, NODES_LEN)) {
+            printf("All Nodes are visited Done...\n");
+            break;
+        }
+        sleep(1);
+    }
     return true;
 }
 
@@ -221,6 +266,8 @@ void main() {
     graph_add_node('J');
     graph_add_node('K');
     graph_add_node('K');
+    graph_add_node('L');
+    graph_add_node('M');
 
 
     // make connections
@@ -236,7 +283,11 @@ void main() {
     graph_add_edge('J', 'D', TWO_WAY);
     graph_add_edge('I', 'I', ONE_WAY);
     graph_add_edge('A', 'I', TWO_WAY);
+    graph_add_edge('F', 'H', TWO_WAY);
+    graph_add_edge('C', 'G', TWO_WAY);
+    graph_add_edge('B', 'F', TWO_WAY);
     graph_add_edge('A', 'K', TWO_WAY);
+    graph_add_edge('L', 'K', TWO_WAY);
     graph_add_edge('I', 'K', TWO_WAY);
 
     printf("\n\tInput Graph\n\n");

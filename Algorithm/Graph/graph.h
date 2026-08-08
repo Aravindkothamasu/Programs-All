@@ -23,6 +23,7 @@ void graph_print();
 
 /// Algo functions
 bool bfs(char );
+bool allNodesVisited(bool *, int );
 
 
 #endif
