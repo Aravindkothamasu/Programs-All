@@ -12,7 +12,7 @@
 #define NODE_NAME_MAX   'Z'
 
 
-bool Gph1[NODES_LEN][NODES_LEN];
+graph Gph1[NODES_LEN][NODES_LEN];
 char nodes[NODES_LEN] = {0};
 
 
@@ -21,8 +21,10 @@ void graph_init(int size) {
 
     for(i=0; i<size; i++) {
         nodes[i] = 0;
-        for(j=0; j<size; j++)
-            Gph1[i][j] = 0;
+        for(j=0; j<size; j++) {
+            Gph1[i][j].connection = 0;
+            Gph1[i][j].weight     = 0;
+        }
     }
 }
 
@@ -82,7 +84,7 @@ char graph_get_node_name(int index) {
 
 /////////////////////////////////////////////////////////////
 
-bool graph_add_edge(char src, char dest, bool direction) {
+bool graph_add_edge(char src, char dest, bool direction, int weight) {
     // Checks for graph node is present or not
     if (-1 == graph_get_node_index(src) || -1 == graph_get_node_index(dest)) {
         printf("Src %c or Dest %c are not defined\n", src, dest);
@@ -95,12 +97,22 @@ bool graph_add_edge(char src, char dest, bool direction) {
         return false;
     }
 
+    // weight should be greater than 0
+    if( weight < 0 ) {
+        printf("Src %c and Dest %c, provided weight should be > 0\n", src, dest);
+        return false;
+    }
+
     // Create connection b/w src and dest
-    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)] = 1;
+    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].connection = 1;
+    // Adding weight
+    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].weight     = weight;
 
     // if it is Bi-Direction connection, connect the otherway around also.
     if (direction) {
-        Gph1[graph_get_node_index(dest)][graph_get_node_index(src)] = 1;
+        Gph1[graph_get_node_index(dest)][graph_get_node_index(src)].connection = 1;
+        // Adding weight
+        Gph1[graph_get_node_index(dest)][graph_get_node_index(src)].weight     = weight;
     }
 
     return true;
@@ -120,7 +132,9 @@ bool graph_remove_edge(char src, char dest) {
     }
 
     // Remove the connection
-    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)] = 0;
+    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].connection = 0;
+    // Clearing weight
+    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].weight     = 0;
     return true;
 }
 
@@ -132,7 +146,7 @@ bool graph_check_edge(char src, char dest) {
     }
 
     // Connection is present, then it set to 1.
-    return (Gph1[graph_get_node_index(src)][graph_get_node_index(dest)] == 1);
+    return (Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].connection == 1);
 }
 
 void graph_print() {
@@ -157,7 +171,7 @@ void graph_print() {
         // Check for non-empty node element in array
         for(j=0; j < NODES_LEN; j++) {
             if (nodes[j] != 0 && nodes[i] != 0) {
-                printf("%d ", Gph1[i][j]);
+                printf("%d ", Gph1[i][j].connection);
             }
         }
         printf("\n");
@@ -414,35 +428,61 @@ void main() {
     graph_add_node('M');
 
 
+#if 1
     // make connections
-    graph_add_edge('A', 'B', ONE_WAY);
-    graph_add_edge('B', 'C', ONE_WAY);
-    graph_add_edge('E', 'D', ONE_WAY);
-    graph_add_edge('D', 'E', ONE_WAY);
-    graph_add_edge('E', 'F', ONE_WAY);
-    graph_add_edge('A', 'E', TWO_WAY);
-    graph_add_edge('C', 'E', ONE_WAY);
-    graph_add_edge('A', 'I', ONE_WAY);
-    graph_add_edge('A', 'I', ONE_WAY);
-    graph_add_edge('J', 'D', TWO_WAY);
-    graph_add_edge('I', 'I', ONE_WAY);
-    graph_add_edge('A', 'I', TWO_WAY);
-    graph_add_edge('F', 'H', TWO_WAY);
-    graph_add_edge('C', 'G', TWO_WAY);
-    graph_add_edge('B', 'F', TWO_WAY);
-    graph_add_edge('A', 'K', TWO_WAY);
-    graph_add_edge('L', 'K', TWO_WAY);
-    graph_add_edge('J', 'I', ONE_WAY);
-    graph_add_edge('I', 'K', TWO_WAY);
+    graph_add_edge('A', 'B', ONE_WAY, 1);
+    graph_add_edge('B', 'C', ONE_WAY, 2);
+    graph_add_edge('E', 'D', ONE_WAY, 3);
+    graph_add_edge('D', 'E', ONE_WAY, 4);
+    graph_add_edge('E', 'F', ONE_WAY, 5);
+    graph_add_edge('A', 'E', TWO_WAY, 6);
+    graph_add_edge('C', 'E', ONE_WAY, 7);
+    graph_add_edge('A', 'I', ONE_WAY, 8);
+    graph_add_edge('A', 'I', ONE_WAY, 9);
+    graph_add_edge('J', 'D', TWO_WAY,10);
+    graph_add_edge('I', 'I', ONE_WAY,11);
+    graph_add_edge('A', 'I', TWO_WAY,12);
+    graph_add_edge('F', 'H', TWO_WAY,13);
+    graph_add_edge('C', 'G', TWO_WAY,14);
+    graph_add_edge('B', 'F', TWO_WAY,15);
+    graph_add_edge('A', 'K', TWO_WAY,16);
+    graph_add_edge('L', 'K', TWO_WAY,17);
+    graph_add_edge('J', 'I', ONE_WAY,18);
+    graph_add_edge('I', 'K', TWO_WAY,19);
+#else
+    // make connections
+    graph_add_edge('A', 'B', TWO_WAY, 1);
+    graph_add_edge('B', 'C', TWO_WAY, 2);
+    graph_add_edge('E', 'D', TWO_WAY, 3);
+    graph_add_edge('D', 'E', TWO_WAY, 4);
+    graph_add_edge('E', 'F', TWO_WAY, 5);
+    graph_add_edge('A', 'E', TWO_WAY, 6);
+    graph_add_edge('C', 'E', TWO_WAY, 7);
+    graph_add_edge('A', 'I', TWO_WAY, 8);
+    graph_add_edge('A', 'I', TWO_WAY, 9);
+    graph_add_edge('J', 'D', TWO_WAY,10);
+    graph_add_edge('I', 'I', TWO_WAY,11);
+    graph_add_edge('A', 'I', TWO_WAY,12);
+    graph_add_edge('F', 'H', TWO_WAY,13);
+    graph_add_edge('C', 'G', TWO_WAY,14);
+    graph_add_edge('B', 'F', TWO_WAY,15);
+    graph_add_edge('A', 'K', TWO_WAY,16);
+    graph_add_edge('L', 'K', TWO_WAY,17);
+    graph_add_edge('J', 'I', TWO_WAY,18);
+    graph_add_edge('I', 'K', TWO_WAY,19);
+#endif
 
     printf("\n\tInput Graph\n\n");
     graph_print();
 
     // Breath First Search
-    // bfs('A');
+     bfs('A');
 
     // Deapth First Search
-    dfs('E', 'M');
+    // dfs('E', 'I');
+
+    // Prim's Algorithm
+    // prim('A');
 
     return;
 }
