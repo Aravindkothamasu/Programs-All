@@ -15,3 +15,4 @@ Algorithm/Hash_Table/src/*.o
 Algorithm/Hash_Table/*.csv
 Algorithm/Sorting/*.exe
 Algorithm/Graph/*.exe
+Algorithm/Graph/*.o
