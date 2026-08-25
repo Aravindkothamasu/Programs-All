@@ -148,7 +148,7 @@ int graph_get_weight_edge(int srcIdx, int destIdx) {
 
     // check the edge is valid or not
     if (false == graph_check_edge( graph_get_node_name(srcIdx), graph_get_node_name(destIdx))) {
-        printf("Src %c and Dest %c, there is no connected edge between\n", srcIdx, destIdx);
+        printf("Src %c and Dest %c, there is no connected edge between\n", graph_get_node_name(srcIdx), graph_get_node_name(destIdx));
         return -1;
     }
 

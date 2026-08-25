@@ -7,7 +7,11 @@
 bool allNodesVisited(bool *visitedNode, int len) {
     int i;
     for(i=0; i < len; i++) {
-        printf("%d ", *(visitedNode+i));
+        if(*(visitedNode+i)) {
+            printf("%c ", graph_get_node_name(i));
+        } else {
+            printf("%d ", 0);
+        }
     }
     printf("\n");
 
@@ -225,6 +229,112 @@ bool dfs(char src, char dest) {
         i = graph_get_node_index(Stack[WrIdx-1]);
     }
 
+    return false;
+}
+
+////////////////        PRIMs         ////////////////////
+
+int getLowerWeightIndex(int idx, bool *visitedNodeIdxPtr) {
+    int i;
+    // lwrWtIdx -> lower weight index, -1 is default value
+    // lwrWt -> lower weight, EDGE_WEIGHT_MAX+1 is default value
+    int lwrWtIdx=-1, lwrWt=EDGE_WEIGHT_MAX+1;
+
+    // check for edge b/w idx with all nodes and get the weight and store into weights Arr
+    for(i=0; i<NODES_LEN; i++) {
+        // ignore if it is source
+        if ( i==idx ) {
+            continue;
+        }
+
+        // ignoring visited node
+        if(*(visitedNodeIdxPtr+i) == true) {
+           continue;
+        }
+
+        // check for edge connection b/w idx -> i
+        if (graph_check_edge(graph_get_node_name(idx), graph_get_node_name(i))) {
+            // store weight int the array of the connected edge
+            if ( lwrWt > graph_get_weight_edge(idx, i)) {
+                // store the lower wt index.
+                lwrWtIdx = i;
+                // update the lower weight
+                lwrWt = graph_get_weight_edge(idx, i);
+            }
+        }
+    }
+
+    
+    /*  ENABLE FOR DEBUGGING
+    if( lwrWt != EDGE_WEIGHT_MAX+1 )
+        printf("%s, retunning for %c - %c, weight : %d\n", __func__, graph_get_node_name(idx), graph_get_node_name(lwrWtIdx), lwrWt);
+    */
+
+    // if there is no connected edges with idx, returns -1;
+    return lwrWtIdx;
+}
+
+bool prim(char src) {
+    int i, idx;
+    bool visitedNode[NODES_LEN] = {false};
+    // Setting variables default values.
+    int lwWtIdx = -1, lwWt = EDGE_WEIGHT_MAX+1;
+
+    // Check for src graph node is present or not
+    if ( -1 == graph_get_node_index(src)) {
+        printf("Src '%c' is not present\n", src);
+        return false;
+    }
+
+    // Marking source node index as visited.
+    visitedNode[graph_get_node_index(src)] = true;
+
+    while(true) {
+        for(i=0; i<NODES_LEN; i++) {
+            // ignoring non-visited nodes
+            if(visitedNode[i] == false)
+                continue;
+            // printf("Checking now index : %c\n", graph_get_node_name(i));             // Enable for debugging
+
+            // get the lower index edge connected to index 'i'
+            idx = getLowerWeightIndex(i, visitedNode);
+            if (idx == -1) {
+                // Something wrong
+            } else {
+                // Yes, u got the lower vertex
+                // printf("Yes, u got the lower edge %c <-> %c\n", graph_get_node_name(i), graph_get_node_name(idx));
+                if (lwWt > graph_get_weight_edge(i, idx)) {
+                    // update the latest lower weight
+                    lwWt = graph_get_weight_edge(i, idx);
+                    // update the later lower weight index
+                    lwWtIdx = idx;
+                    printf("Lower weight edges: %c <-> %c - Weight: %d\n", graph_get_node_name(i), graph_get_node_name(idx), lwWt);
+                }
+            }
+            // sleep(1);            // enable for slow debugging
+            
+        }
+
+        // reset lower weight to reset value 
+        lwWt = EDGE_WEIGHT_MAX+1;
+
+        // save the last known index
+        if(-1 != lwWtIdx) {
+            printf("Marking %c as visited\n", graph_get_node_name(lwWtIdx));
+            // Marking lwWtIdx as visited.
+            visitedNode[lwWtIdx] = true;
+            // reset to default
+            lwWtIdx = -1;
+        }
+
+        // Checking all nodes are visited or not, if yes, then its done
+        if (allNodesVisited(visitedNode, NODES_LEN)) {
+            printf("All Nodes are visited Done..... All Happiessss...\n");
+            return true;
+        }
+
+        printf("\n");
+    }
     return false;
 }
 

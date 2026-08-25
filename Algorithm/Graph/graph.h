@@ -48,12 +48,13 @@ void graph_print();
 /// Algo functions
 bool bfs(char );
 bool dfs(char , char );
+bool prim(char );
 
 // Supporting functions
 bool allNodesVisited(bool *, int );
 int addIntoStack(char *, int *, int );
 int popUpFromStack(char *, int *);
 void PrintStack(char *);
-
+int getLowerWeightIndex(int , bool *);
 
 #endif
