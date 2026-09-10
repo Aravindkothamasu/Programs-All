@@ -77,7 +77,10 @@ void main() {
     // dfs('E', 'I');
 
     // Prim's Algorithm
-    prim('A');
+    // prim('A');
+
+    // Topological sort Algorithm
+    topologicalSort();
 
     return;
 }

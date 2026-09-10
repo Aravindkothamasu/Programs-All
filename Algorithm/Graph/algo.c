@@ -99,7 +99,7 @@ void PrintStack(char *StackPtr) {
     printf("\n");
 }
 
-int addIntoStack(char *StackPtr, int *WrIdxPtr, int NodeIdx ) {
+int addIntoStack(char *StackPtr, int *WrIdxPtr, int NodeIdx, bool isIdxIncrement ) {
     int i;
 
     // Check for WrPtrIdx should not exceed NODES_LEN
@@ -118,7 +118,11 @@ int addIntoStack(char *StackPtr, int *WrIdxPtr, int NodeIdx ) {
     // Add NodeIdx into the stack.
     *(StackPtr+*WrIdxPtr) = graph_get_node_name(NodeIdx);
     // Increment the pointer.
-    (*WrIdxPtr)++;
+    if(isIdxIncrement) {
+        (*WrIdxPtr)++;
+    } else {
+        (*WrIdxPtr)--;
+    }
 
     // Print the stack
     PrintStack(StackPtr);
@@ -184,13 +188,13 @@ bool dfs(char src, char dest) {
             if (graph_check_edge(graph_get_node_name(i), graph_get_node_name(j))) {
                 // Check for reached destination or not
                 if (graph_get_node_name(j) == dest) {
-                    addIntoStack(Stack, &WrIdx, j);
+                    addIntoStack(Stack, &WrIdx, j, INCREMENT);
                     printf("\nReached Destination, All Happies....\n");
                     return true;
                 }
 
                 // Add j into stack
-                switch (addIntoStack(Stack, &WrIdx, j)) {
+                switch (addIntoStack(Stack, &WrIdx, j, INCREMENT)) {
                     case 0:
                         printf("Already into the stack: %c\n", graph_get_node_name(j));
                         continue;
@@ -337,4 +341,60 @@ bool prim(char src) {
     }
     return false;
 }
+
+////////////////        TopologicalSort         ////////////////////
+
+void dfs1(int indexNode, bool *visitedNodePtr, char *stackPtr, int *stackIdxPtr) {
+    int i;
+
+    printf("[%d]: %c Inside dfs() for indexNode\n", indexNode, graph_get_node_name(indexNode));
+    for(i=0; i<NODES_LEN; i++) {
+        // ignoring source node
+        if(i==indexNode) {
+            continue;
+        }
+
+        // check for `i` is already visited or not, ignore if already visited.
+        if(*(visitedNodePtr+i)) {
+            continue;
+        }
+
+        // check for edge connection b/w indexNode -> i
+        if (graph_check_edge(graph_get_node_name(indexNode), graph_get_node_name(i))) {
+            printf("[%d]: %c Found connection b/w index Node %c -> %c\n", indexNode, graph_get_node_name(indexNode), \
+                graph_get_node_name(indexNode), graph_get_node_name(i));
+            dfs1(i, visitedNodePtr, stackPtr, stackIdxPtr);
+            // sleep(1);                // Enable for slower debugging
+        }
+    }
+
+    // Mark indexNode as visitedNode.
+    printf("[%d]: %c Marking visited Node for index\n", indexNode, graph_get_node_name(indexNode));
+    *(visitedNodePtr+indexNode) = true;
+
+    // Adding into stack
+    addIntoStack(stackPtr, stackIdxPtr, indexNode, DECREMENT);
+    printf("[%d]: %c Stack pointer index\n", indexNode, graph_get_node_name(indexNode));
+    // sleep(1);                           // Enable for slower debugging
+}
+
+void topologicalSort() {
+    int i, stackPtrIdx=NODES_LEN-1;             // Write Stack from last to first
+    bool visitedNode[NODES_LEN] = {false};
+    char LiFoStack[NODES_LEN] = {0};
+
+    for(i=0; i<NODES_LEN; i++) {
+        if(!visitedNode[i]) {
+            printf("%c Node is not visited\n", graph_get_node_name(i));
+            dfs1(i, visitedNode, LiFoStack, &stackPtrIdx);
+        }
+
+        // Check if stack fillup, time to exit
+        if(stackPtrIdx == -1)
+            return;
+
+        sleep(1);
+    }
+}
+
 

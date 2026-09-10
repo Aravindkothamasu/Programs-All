@@ -16,7 +16,7 @@ typedef struct
 }graph;
 
 // Total nodeName length
-#define NODES_LEN    13
+#define NODES_LEN    6
 
 // Connection direction
 #define ONE_WAY     false
@@ -30,7 +30,8 @@ typedef struct
 #define EDGE_WEIGHT_MIN     1
 #define EDGE_WEIGHT_MAX    20
 
-
+#define INCREMENT   true
+#define DECREMENT   false
 
 /// Node defined functions
 void graph_init(int );
@@ -49,12 +50,16 @@ void graph_print();
 bool bfs(char );
 bool dfs(char , char );
 bool prim(char );
+void topologicalSort();
+
 
 // Supporting functions
-bool allNodesVisited(bool *, int );
-int addIntoStack(char *, int *, int );
+bool allNodesVisited(bool *, int);
+int addIntoStack(char *, int *, int, bool);
 int popUpFromStack(char *, int *);
 void PrintStack(char *);
 int getLowerWeightIndex(int , bool *);
+void dfs1(int , bool *, char *, int *);
+
 
 #endif
