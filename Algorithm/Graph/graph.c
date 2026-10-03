@@ -182,5 +182,6 @@ void graph_print() {
         }
         printf("\n");
     }
+    printf("\n");
 }
 

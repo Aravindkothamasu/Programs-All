@@ -397,4 +397,116 @@ void topologicalSort() {
     }
 }
 
+////////////////        Dijkstra's Sort         ////////////////////
+
+DijkstraAlgo abc[NODES_LEN] = {0};
+
+// Print the structure
+void printSt() {
+    int i;
+    for(i=0; i<NODES_LEN; i++) {
+        if(abc[i].previousNode != 0)
+            printf("[%c] shrtLen %2d prevNde %c visitedNde %d\n", graph_get_node_name(i), abc[i].shortLen, abc[i].previousNode, abc[i].visitedNode);
+    }
+}
+
+// check for all nodes are visited or not
+bool checkAllNodesVisited() {
+    bool visitedNode[NODES_LEN] = {false};
+    int i;
+
+    for(i=0; i<NODES_LEN; i++) {
+        visitedNode[i] = abc[i].visitedNode;
+    }
+    return allNodesVisited(visitedNode, NODES_LEN);
+}
+
+void dijkstraSort(char srcNode) {
+    int strt, end, tempWt=0;
+    // update with default values
+    int tmpLwrWt = EDGE_WEIGHT_MAX+1, tmpLwrWtIdx = NODES_LEN+1;
+
+    // Check for src graph node is present or not
+    if ( -1 == graph_get_node_index(srcNode)) {
+        printf("Src '%c' is not present\n", srcNode);
+        return;
+    }
+
+    // update default values
+    for(strt=0; strt<NODES_LEN; strt++) {
+        abc[strt].shortLen     = EDGE_WEIGHT_MAX+1;
+        abc[strt].visitedNode  = false;
+        abc[strt].previousNode = 0;
+    }
+
+    // For beginning consider strt as input node.
+    strt = graph_get_node_index(srcNode);
+
+    while(1) {
+        printf("[%C] start Index\n", graph_get_node_name(strt));
+        for(end=0; end<NODES_LEN; end++) {
+            // ignore if both are same
+            if (strt == end) {
+                continue;
+            }
+
+            // ignore 'end' node is already marked as visited
+            if (abc[end].visitedNode)
+                continue;
+
+            // check for edge b/w strt -> end
+            if (graph_check_edge(graph_get_node_name(strt), graph_get_node_name(end))) {
+                tempWt = graph_get_weight_edge(strt, end);
+                // Adding temp Wt for strt shortLen also
+                if (abc[strt].shortLen != EDGE_WEIGHT_MAX+1)
+                    tempWt += abc[strt].shortLen;
+
+                // printf("[%c]->[%c] tempWt %d\n", graph_get_node_name(strt), graph_get_node_name(end), tempWt);           // enable for debugging
+                if (abc[end].shortLen > tempWt) {
+                    abc[end].shortLen     = tempWt;
+                    abc[end].previousNode = graph_get_node_name(strt);
+                    printf("[%c]->[%c] Updated ShrtLen %2d prevNode %c\n", graph_get_node_name(strt), graph_get_node_name(end), 
+                        abc[end].shortLen, abc[end].previousNode);
+                }
+
+                // update lower Wt to tmp variables
+                // compare with shortLen, becoz, it contains updated shortest len compared with starting node input from user
+                if(abc[end].shortLen < tmpLwrWt) {
+                    tmpLwrWt     = abc[end].shortLen;
+                    tmpLwrWtIdx  = end;
+                }
+                // printf("\n");                // enable for debugging
+            }
+        }
+
+        // After iterating all nodes, mark as visited node.
+        abc[strt].visitedNode = true;
+
+        // find next start Idx
+        // what all connected nodes from strt -> end.
+        // in that which is shortest one, consider that 'end' idx as next 'strt' idx
+        // if cond is false: means in this iteration, no new modification not done for shortLen var.
+        if(tmpLwrWtIdx != NODES_LEN+1) {
+            strt = tmpLwrWtIdx;
+            printf("For [%c] Lower Wt Idx [%c]\n", graph_get_node_name(strt), graph_get_node_name(tmpLwrWtIdx));
+        } else {
+            printf("For [%c] doesn't have any unvisited nodes to check\n", graph_get_node_name(strt));
+        }
+
+        // reset all to temp to default values
+        tempWt      = 0;
+        tmpLwrWt    = EDGE_WEIGHT_MAX+1;
+        tmpLwrWtIdx = NODES_LEN+1;
+
+        printSt(abc);
+        printf("\n");
+
+        // exit, if all nodes are marked as visited
+        if(true==checkAllNodesVisited())
+            return;
+
+        sleep(1);
+    }
+    return;
+}
 

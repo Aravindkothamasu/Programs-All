@@ -80,7 +80,11 @@ void main() {
     // prim('A');
 
     // Topological sort Algorithm
-    topologicalSort();
+    // topologicalSort();
+
+    // Djikstra's Algorithm
+    dijkstraSort('A');
+
 
     return;
 }

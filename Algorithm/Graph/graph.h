@@ -15,6 +15,18 @@ typedef struct
     int  weight;
 }graph;
 
+// This structure for Dijkstra Algo
+typedef struct
+{
+    // check if node is visited or not
+    bool visitedNode;
+    // which node is previous node
+    char previousNode;
+    // length of shortest len
+    int shortLen;
+}DijkstraAlgo;
+
+
 // Total nodeName length
 #define NODES_LEN    6
 
@@ -51,6 +63,7 @@ bool bfs(char );
 bool dfs(char , char );
 bool prim(char );
 void topologicalSort();
+void dijkstraSort(char );
 
 
 // Supporting functions
@@ -60,6 +73,8 @@ int popUpFromStack(char *, int *);
 void PrintStack(char *);
 int getLowerWeightIndex(int , bool *);
 void dfs1(int , bool *, char *, int *);
+bool checkAllNodesVisited();
+void printSt();
 
 
 #endif
