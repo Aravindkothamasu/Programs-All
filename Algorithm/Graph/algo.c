@@ -397,7 +397,7 @@ void topologicalSort() {
     }
 }
 
-////////////////        Dijkstra's Sort         ////////////////////
+////////////////        Dijkstra's Algo         ////////////////////
 
 DijkstraAlgo abc[NODES_LEN] = {0};
 
@@ -509,4 +509,77 @@ void dijkstraSort(char srcNode) {
     }
     return;
 }
+
+////////////////        Kruskals Algo         ////////////////////
+
+graph *graphPtr = NULL;
+int vertexArrCnt=1;
+
+// Read the graph and get all the vertices.
+// and update the src and dest into DS.
+void getAllVertices(void) {
+    int i, j;
+    int temp=0;
+
+    for(i=0; i<NODES_LEN; i++) {
+        for(j=0; j<NODES_LEN; j++) {
+            // ignore, if src and dest are same
+            if(i==j)
+                continue;
+
+            // ignore if i->j is already covered as i->j.
+            for(temp=0; temp<vertexArrCnt-1; temp++) {
+                // checking for duplicate
+                if(graphPtr[temp].src == graph_get_node_name(j) && graphPtr[temp].dest == graph_get_node_name(i)) {
+                    // if found duplicate, directly skip and goto skip.
+                    // printf("Found duplicate  %c -> %c\n", graph_get_node_name(i), graph_get_node_name(j));           // enable for debugging
+                    goto skip;
+                }
+            }
+
+            // Checks for edge b/w i -> j
+            if(graph_check_edge(graph_get_node_name(i), graph_get_node_name(j))) {
+                graphPtr = (graph *)realloc(graphPtr, vertexArrCnt*sizeof(graph));
+                graphPtr[vertexArrCnt-1].src  = graph_get_node_name(i);
+                graphPtr[vertexArrCnt-1].dest = graph_get_node_name(j);
+                graphPtr[vertexArrCnt-1].connection = true;
+                graphPtr[vertexArrCnt-1].weight = graph_get_weight_edge(i, j);
+                // printf("Added to Counter %c -> %c\n", graphPtr[vertexArrCnt-1].src, graphPtr[vertexArrCnt-1].dest);                  // enable for debugging
+                // Increment counter for next
+                vertexArrCnt++;
+                // sleep(1);
+            }
+            skip:
+                ;;
+        }
+    }
+
+    // Print everything and confirm
+    printf("\n");
+    for(temp=0; temp<vertexArrCnt-1; temp++) {
+        printf("[%c] -> [%c] ---- Weight: %d\n", graphPtr[temp].src, graphPtr[temp].dest, graphPtr[temp].weight);
+    }
+
+    // Decrement vertex Arr Counter
+    vertexArrCnt--;
+
+    return;
+}
+
+// Sort the list vertices.
+void sortAllVertices() {
+
+}
+
+void kruskalsAlgo(char srcNode) {
+
+    // Get all connected vertices
+    getAllVertices();
+
+    // Sort all vertices, which already read from getAllVertices()
+    sortAllVertices();
+
+    return;
+}
+
 

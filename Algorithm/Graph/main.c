@@ -83,8 +83,10 @@ void main() {
     // topologicalSort();
 
     // Djikstra's Algorithm
-    dijkstraSort('A');
+    // dijkstraSort('A');
 
+    // kruskals Algorithm
+    kruskalsAlgo('A');
 
     return;
 }

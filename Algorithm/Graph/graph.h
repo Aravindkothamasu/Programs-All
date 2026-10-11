@@ -12,6 +12,10 @@ typedef struct
 {
     /* data */
     bool connection;
+    /* start and end index */
+    char src;
+    char dest;
+    /* weight of the vertex */
     int  weight;
 }graph;
 
@@ -64,6 +68,7 @@ bool dfs(char , char );
 bool prim(char );
 void topologicalSort();
 void dijkstraSort(char );
+void kruskalsAlgo(char );
 
 
 // Supporting functions
@@ -75,6 +80,7 @@ int getLowerWeightIndex(int , bool *);
 void dfs1(int , bool *, char *, int *);
 bool checkAllNodesVisited();
 void printSt();
+void getAllVertices(void);
 
 
 #endif
