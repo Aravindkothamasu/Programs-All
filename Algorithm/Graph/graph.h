@@ -81,6 +81,7 @@ void dfs1(int , bool *, char *, int *);
 bool checkAllNodesVisited();
 void printSt();
 void getAllVertices(void);
+void sortAllVertices();
 
 
 #endif

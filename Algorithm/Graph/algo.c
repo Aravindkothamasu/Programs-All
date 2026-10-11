@@ -554,12 +554,6 @@ void getAllVertices(void) {
         }
     }
 
-    // Print everything and confirm
-    printf("\n");
-    for(temp=0; temp<vertexArrCnt-1; temp++) {
-        printf("[%c] -> [%c] ---- Weight: %d\n", graphPtr[temp].src, graphPtr[temp].dest, graphPtr[temp].weight);
-    }
-
     // Decrement vertex Arr Counter
     vertexArrCnt--;
 
@@ -568,16 +562,48 @@ void getAllVertices(void) {
 
 // Sort the list vertices.
 void sortAllVertices() {
+    int i, j, temp;
+    char tempChr;
 
+    for(i=0; i<vertexArrCnt-1; i++) {
+	    for(j=i+1; j<vertexArrCnt; j++) {
+	        if(graphPtr[i].weight > graphPtr[j].weight)	{	
+            //Change should happen
+		        // replace src Node.
+                tempChr = graphPtr[i].src;
+                graphPtr[i].src = graphPtr[j].src;
+                graphPtr[j].src = tempChr;
+
+                // replace dest Node.
+                tempChr = graphPtr[i].src;
+                graphPtr[i].src = graphPtr[j].src;
+                graphPtr[j].src = tempChr;
+
+                // replace weight
+                temp = graphPtr[i].weight;
+                graphPtr[i].weight = graphPtr[j].weight;
+                graphPtr[j].weight = temp;
+            }
+        }
+    }
 }
 
 void kruskalsAlgo(char srcNode) {
+    int i;
 
     // Get all connected vertices
     getAllVertices();
 
     // Sort all vertices, which already read from getAllVertices()
     sortAllVertices();
+
+    /*
+    // Print everything and confirm
+    printf("\n");
+    for(i=0; i<vertexArrCnt; i++) {
+        printf("[%c] -> [%c] ---- Weight: %d\n", graphPtr[i].src, graphPtr[i].dest, graphPtr[i].weight);
+    }
+    */
 
     return;
 }
