@@ -575,9 +575,9 @@ void sortAllVertices() {
                 graphPtr[j].src = tempChr;
 
                 // replace dest Node.
-                tempChr = graphPtr[i].src;
-                graphPtr[i].src = graphPtr[j].src;
-                graphPtr[j].src = tempChr;
+                tempChr = graphPtr[i].dest;
+                graphPtr[i].dest = graphPtr[j].dest;
+                graphPtr[j].dest = tempChr;
 
                 // replace weight
                 temp = graphPtr[i].weight;
@@ -589,12 +589,13 @@ void sortAllVertices() {
 }
 
 void kruskalsAlgo(char srcNode) {
-    int i;
+    bool visitedNode[NODES_LEN] = {false};
+    int i, graphWt=0;
 
-    // Get all connected vertices
+    // 1, Get all connected vertices
     getAllVertices();
 
-    // Sort all vertices, which already read from getAllVertices()
+    // 2, Sort all vertices, which already read from getAllVertices()
     sortAllVertices();
 
     /*
@@ -605,6 +606,25 @@ void kruskalsAlgo(char srcNode) {
     }
     */
 
+    // 3, with the sorted vertices, create the graph and mark those as visited node.
+    for(i=0; i<vertexArrCnt; i++) {
+        // check if both src and dest are already visited or not.
+        if ( (visitedNode[graph_get_node_index(graphPtr[i].src)] == true ) && 
+            (visitedNode[graph_get_node_index(graphPtr[i].dest)] == true )) {
+                printf("%c - %c already marked as visited, ignoring..\n", graphPtr[i].src, graphPtr[i].dest);           // Enable for debugging
+                continue;
+            }
+        // if not, they are visited, mark as visited nodes
+        visitedNode[graph_get_node_index(graphPtr[i].src)]  = true;
+        visitedNode[graph_get_node_index(graphPtr[i].dest)] = true;
+        // update the weight of the graph
+        graphWt += graphPtr[i].weight;
+        // check if all nodes are visited or not
+        if (true == allNodesVisited(visitedNode, NODES_LEN)) {
+            printf("All Nodes are visited Graph Weight is %d\n", graphWt);
+            break;
+        }
+    }
     return;
 }
 
