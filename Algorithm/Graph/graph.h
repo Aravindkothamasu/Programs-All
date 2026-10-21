@@ -8,15 +8,16 @@
 #include<strings.h>
 #include<unistd.h>
 
+// Total nodeName length
+#define NODES_LEN    8
 typedef struct
 {
-    /* data */
-    bool connection;
-    /* start and end index */
+    /* start src index */
     char src;
-    char dest;
+    /* Connected node to src index*/
+    bool destNodes[NODES_LEN];
     /* weight of the vertex */
-    int  weight;
+    int  weight[NODES_LEN];
 }graph;
 
 // This structure for Dijkstra Algo
@@ -31,8 +32,6 @@ typedef struct
 }DijkstraAlgo;
 
 
-// Total nodeName length
-#define NODES_LEN    6
 
 // Connection direction
 #define ONE_WAY     false

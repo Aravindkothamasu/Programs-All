@@ -1,18 +1,21 @@
 #include "./graph.h"
 
-graph Gph1[NODES_LEN][NODES_LEN];
-char nodes[NODES_LEN] = {0};
+// Main graph structure,
+graph Gph1[NODES_LEN];
+// Node elements, array
+char nodes[NODES_LEN];
 
 ////////////////        graph node functions         ////////////////////
 
 void graph_init(int size) {
     int i, j;
 
-    for(i=0; i<size; i++) {
-        nodes[i] = 0;
+    for(i=0; i<size; i++) { 
+        nodes[i]    = 0;
+        Gph1[i].src = 0;
         for(j=0; j<size; j++) {
-            Gph1[i][j].connection = 0;
-            Gph1[i][j].weight     = 0;
+            Gph1[i].weight[j]     = 0;
+            Gph1[i].destNodes[j]  = false;
         }
     }
 }
@@ -42,7 +45,7 @@ bool graph_add_node(char nodeName) {
         }
     }
 
-    printf("Couldn't able to add Node: %c\n", nodeName);
+    printf("Array is Full, Couldn't able to add Node: %c\n", nodeName);
     return false;
 }
 
@@ -93,15 +96,15 @@ bool graph_add_edge(char src, char dest, bool direction, int weight) {
     }
 
     // Create connection b/w src and dest
-    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].connection = 1;
+    Gph1[graph_get_node_index(src)].destNodes[graph_get_node_index(dest)] = true;
     // Adding weight
-    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].weight     = weight;
+    Gph1[graph_get_node_index(src)].weight[graph_get_node_index(dest)]     = weight;
 
     // if it is Bi-Direction connection, connect the otherway around also.
     if (direction) {
-        Gph1[graph_get_node_index(dest)][graph_get_node_index(src)].connection = 1;
+        Gph1[graph_get_node_index(dest)].destNodes[graph_get_node_index(src)] = true;
         // Adding weight
-        Gph1[graph_get_node_index(dest)][graph_get_node_index(src)].weight     = weight;
+        Gph1[graph_get_node_index(dest)].weight[graph_get_node_index(src)]    = weight;
     }
 
     return true;
@@ -121,9 +124,9 @@ bool graph_remove_edge(char src, char dest) {
     }
 
     // Remove the connection
-    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].connection = 0;
+    Gph1[graph_get_node_index(src)].destNodes[graph_get_node_index(dest)] = false;
     // Clearing weight
-    Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].weight     = 0;
+    Gph1[graph_get_node_index(src)].weight[graph_get_node_index(dest)]    = 0;
     return true;
 }
 
@@ -135,7 +138,7 @@ bool graph_check_edge(char src, char dest) {
     }
 
     // Connection is present, then it set to 1.
-    return (Gph1[graph_get_node_index(src)][graph_get_node_index(dest)].connection == 1);
+    return (Gph1[graph_get_node_index(src)].destNodes[graph_get_node_index(dest)] == 1);
 }
 
 // Get the weight of the edge
@@ -152,7 +155,7 @@ int graph_get_weight_edge(int srcIdx, int destIdx) {
         return -1;
     }
 
-    return Gph1[srcIdx][destIdx].weight;
+    return Gph1[srcIdx].weight[destIdx];
 }
 
 void graph_print() {
@@ -177,7 +180,7 @@ void graph_print() {
         // Check for non-empty node element in array
         for(j=0; j < NODES_LEN; j++) {
             if (nodes[j] != 0 && nodes[i] != 0) {
-                printf("%d ", Gph1[i][j].connection);
+                printf("%d ", Gph1[i].destNodes[j]);
             }
         }
         printf("\n");
