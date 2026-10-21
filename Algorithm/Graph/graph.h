@@ -9,15 +9,17 @@
 #include<unistd.h>
 
 // Total nodeName length
-#define NODES_LEN    8
+#define NODES_LEN    6
 typedef struct
 {
-    /* start src index */
+    /*  start src index */
     char src;
-    /* Connected node to src index*/
+    /*  Connected node to src index*/
     bool destNodes[NODES_LEN];
-    /* weight of the vertex */
+    /*  weight of the vertex */
     int  weight[NODES_LEN];
+    /*  */
+    bool visitedNode[NODES_LEN];
 }graph;
 
 // This structure for Dijkstra Algo
@@ -59,6 +61,9 @@ bool graph_add_edge(char , char, bool, int);
 bool graph_remove_edge(char , char );
 bool graph_check_edge(char , char );
 int graph_get_weight_edge(int , int );
+bool graph_check_node_visited(int , int );
+bool graph_set_node_visited(int , int );
+void graph_get_least_weight();
 void graph_print();
 
 /// Algo functions

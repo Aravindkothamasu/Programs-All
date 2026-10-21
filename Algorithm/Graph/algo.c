@@ -512,118 +512,34 @@ void dijkstraSort(char srcNode) {
 
 ////////////////        Kruskals Algo         ////////////////////
 
-graph *graphPtr = NULL;
-int vertexArrCnt=1;
-
-// Read the graph and get all the vertices.
-// and update the src and dest into DS.
-void getAllVertices(void) {
-    int i, j;
-    int temp=0;
-
-    for(i=0; i<NODES_LEN; i++) {
-        for(j=0; j<NODES_LEN; j++) {
-            // ignore, if src and dest are same
-            if(i==j)
-                continue;
-
-            // ignore if i->j is already covered as i->j.
-            for(temp=0; temp<vertexArrCnt-1; temp++) {
-                // checking for duplicate
-                if(graphPtr[temp].src == graph_get_node_name(j) && graphPtr[temp].dest == graph_get_node_name(i)) {
-                    // if found duplicate, directly skip and goto skip.
-                    // printf("Found duplicate  %c -> %c\n", graph_get_node_name(i), graph_get_node_name(j));           // enable for debugging
-                    goto skip;
-                }
-            }
-
-            // Checks for edge b/w i -> j
-            if(graph_check_edge(graph_get_node_name(i), graph_get_node_name(j))) {
-                graphPtr = (graph *)realloc(graphPtr, vertexArrCnt*sizeof(graph));
-                graphPtr[vertexArrCnt-1].src  = graph_get_node_name(i);
-                graphPtr[vertexArrCnt-1].dest = graph_get_node_name(j);
-                graphPtr[vertexArrCnt-1].connection = true;
-                graphPtr[vertexArrCnt-1].weight = graph_get_weight_edge(i, j);
-                // printf("Added to Counter %c -> %c\n", graphPtr[vertexArrCnt-1].src, graphPtr[vertexArrCnt-1].dest);                  // enable for debugging
-                // Increment counter for next
-                vertexArrCnt++;
-                // sleep(1);
-            }
-            skip:
-                ;;
-        }
-    }
-
-    // Decrement vertex Arr Counter
-    vertexArrCnt--;
-
-    return;
-}
-
-// Sort the list vertices.
-void sortAllVertices() {
-    int i, j, temp;
-    char tempChr;
-
-    for(i=0; i<vertexArrCnt-1; i++) {
-	    for(j=i+1; j<vertexArrCnt; j++) {
-	        if(graphPtr[i].weight > graphPtr[j].weight)	{	
-            //Change should happen
-		        // replace src Node.
-                tempChr = graphPtr[i].src;
-                graphPtr[i].src = graphPtr[j].src;
-                graphPtr[j].src = tempChr;
-
-                // replace dest Node.
-                tempChr = graphPtr[i].dest;
-                graphPtr[i].dest = graphPtr[j].dest;
-                graphPtr[j].dest = tempChr;
-
-                // replace weight
-                temp = graphPtr[i].weight;
-                graphPtr[i].weight = graphPtr[j].weight;
-                graphPtr[j].weight = temp;
-            }
-        }
-    }
-}
-
 void kruskalsAlgo(char srcNode) {
-    bool visitedNode[NODES_LEN] = {false};
-    int i, graphWt=0;
+    int src, dest, graphWt=0;
 
-    // 1, Get all connected vertices
-    getAllVertices();
-
-    // 2, Sort all vertices, which already read from getAllVertices()
-    sortAllVertices();
-
-    /*
-    // Print everything and confirm
-    printf("\n");
-    for(i=0; i<vertexArrCnt; i++) {
-        printf("[%c] -> [%c] ---- Weight: %d\n", graphPtr[i].src, graphPtr[i].dest, graphPtr[i].weight);
+    // Check for src graph node is present or not
+    if ( -1 == graph_get_node_index(srcNode)) {
+        printf("Src '%c' is not present\n", srcNode);
+        return;
     }
-    */
 
-    // 3, with the sorted vertices, create the graph and mark those as visited node.
-    for(i=0; i<vertexArrCnt; i++) {
-        // check if both src and dest are already visited or not.
-        if ( (visitedNode[graph_get_node_index(graphPtr[i].src)] == true ) && 
-            (visitedNode[graph_get_node_index(graphPtr[i].dest)] == true )) {
-                printf("%c - %c already marked as visited, ignoring..\n", graphPtr[i].src, graphPtr[i].dest);           // Enable for debugging
-                continue;
+    while(1) {
+        // update with default values
+        src = dest = -1;
+
+        graph_get_least_weight(&src, &dest);
+        if( src != -1 && dest != -1 ) {
+            printf("Current Least weight for %c -> %c is %d\n", 
+                graph_get_node_name(src), graph_get_node_name(dest), graph_get_weight_edge(src, dest));
+            graph_set_node_visited(src, dest);
+            graphWt += graph_get_weight_edge(src, dest);
+            // TODO: Need to traverse, if graph able to traverse, then completed.
+            /*
+            if (true == graph_traverse()) {
+                printf("Graph traversing is completed, Overall weight %d\n", graphWt);
+                return;
             }
-        // if not, they are visited, mark as visited nodes
-        visitedNode[graph_get_node_index(graphPtr[i].src)]  = true;
-        visitedNode[graph_get_node_index(graphPtr[i].dest)] = true;
-        // update the weight of the graph
-        graphWt += graphPtr[i].weight;
-        // check if all nodes are visited or not
-        if (true == allNodesVisited(visitedNode, NODES_LEN)) {
-            printf("All Nodes are visited Graph Weight is %d\n", graphWt);
-            break;
+            */
         }
+        sleep(1);
     }
     return;
 }

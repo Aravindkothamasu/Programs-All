@@ -16,6 +16,7 @@ void graph_init(int size) {
         for(j=0; j<size; j++) {
             Gph1[i].weight[j]     = 0;
             Gph1[i].destNodes[j]  = false;
+            Gph1[i].visitedNode[j]  = false;
         }
     }
 }
@@ -156,6 +157,43 @@ int graph_get_weight_edge(int srcIdx, int destIdx) {
     }
 
     return Gph1[srcIdx].weight[destIdx];
+}
+
+bool graph_check_node_visited(int src, int dest) {
+    return Gph1[src].visitedNode[dest]==1;
+}
+
+bool graph_set_node_visited(int src, int dest) {
+    if (false == graph_check_edge(graph_get_node_name(src), graph_get_node_name(dest))) {
+        printf("Provided nodes [%c] -> [%c], there is no edge in between\n", graph_get_node_name(src), graph_get_node_name(dest));
+        return false;
+    }
+
+    Gph1[src].visitedNode[dest] = 1;
+    return true;
+}
+
+void graph_get_least_weight(int *srcPtr, int *destPtr) {
+    int i, j;
+    // configure morethan max range
+    int lwrWt = EDGE_WEIGHT_MAX+1;
+    
+    for(i=0; i<NODES_LEN; i++) {
+        for(j=0; j<NODES_LEN; j++) {
+            // checks for edge b/w i -> j and also, node check is not taken place.
+            if ((true == graph_check_edge(graph_get_node_name(i), graph_get_node_name(j)) 
+                && false == graph_check_node_visited(i, j))) {
+		        // check for weight of edge is lower than, lwrWt
+		        if (lwrWt > graph_get_weight_edge(i, j)) {
+		            // update the node indexes.
+		            *srcPtr  = i;
+		            *destPtr = j;
+		            // update with latest lower weight
+		            lwrWt    = graph_get_weight_edge(i, j);
+		        }
+	        }
+	    }
+    }
 }
 
 void graph_print() {
